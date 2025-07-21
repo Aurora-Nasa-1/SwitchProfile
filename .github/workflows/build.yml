@@ -1,0 +1,88 @@
+name: Build Magisk Module
+
+on:
+  push:
+    branches: [ main, develop ]
+    tags: [ 'v*' ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: "webui/package-lock.json"
+
+      - name: Install WebUI dependencies
+        if: hashFiles('webui/package-lock.json') != ''
+        run: |
+          cd webui
+          npm ci
+
+      - name: Build Module
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Create update.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          ./build.sh -c
+          cat > update.json << EOF
+          {
+            "version": "${VERSION}",
+            "versionCode": "${VERSION_CODE}",
+            "zipUrl": "https://github.com/${AUTHOR}/${ID}/releases/download/${VERSION}/${NAME}-${VERSION}.zip",
+            "changelog": "https://github.com/${AUTHOR}/${ID}/releases/tag/${VERSION}"
+          }
+          EOF
+
+      - name: Upload update.json
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Add the file to git staging
+          git add update.json
+
+          # Commit and push the changes
+          git commit -m "Update update.json for release ${GITHUB_REF#refs/tags/}"
+          git push origin HEAD:main
+          echo "Successfully uploaded update.json to repository root"
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            ./*.zip
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: switchprofile-${{ github.sha }}
+          path: ./*.zip
+          retention-days: 30
