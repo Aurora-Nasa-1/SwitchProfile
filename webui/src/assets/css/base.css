@@ -684,3 +684,224 @@ body.mmrl-webui-x {
 #selected-file-info .material-symbols-rounded {
   color: var(--primary);
 }
+
+/* 文件浏览器样式 */
+#file-browser-dialog {
+  max-width: 600px;
+  width: 90vw;
+  max-height: 80vh;
+  padding: 0;
+}
+
+.file-browser-header {
+  padding: var(--spacing-l) var(--spacing-l) var(--spacing-m);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.file-browser-header h2 {
+  margin: 0 0 var(--spacing-m) 0;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.file-browser-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+}
+
+.file-browser-path {
+  flex: 1;
+  padding: var(--spacing-s) var(--spacing-m);
+  background-color: var(--surface-container);
+  border-radius: var(--border-radius-s);
+  font-family: 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: var(--on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon-button {
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--border-radius-s);
+  background-color: transparent;
+  color: var(--on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.icon-button:hover:not(:disabled) {
+  background-color: var(--surface-container-high);
+}
+
+.icon-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.file-browser-content {
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+}
+
+.file-browser-loading,
+.file-browser-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--on-surface-variant);
+}
+
+.file-browser-loading .material-symbols-rounded {
+  font-size: 48px;
+  margin-bottom: var(--spacing-m);
+}
+
+.file-browser-error .material-symbols-rounded {
+  font-size: 48px;
+  margin-bottom: var(--spacing-m);
+  color: var(--error);
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.file-list {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--spacing-s);
+}
+
+.file-browser-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--on-surface-variant);
+}
+
+.file-browser-empty .material-symbols-rounded {
+  font-size: 48px;
+  margin-bottom: var(--spacing-m);
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-s) var(--spacing-m);
+  border-radius: var(--border-radius-s);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  gap: var(--spacing-m);
+  min-height: 56px;
+}
+
+.file-item:hover {
+  background-color: var(--surface-container);
+}
+
+.file-item.selected {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.file-item[data-type="directory"] {
+  font-weight: 500;
+}
+
+.file-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-icon .material-symbols-rounded {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+.file-item[data-type="directory"] .file-icon .material-symbols-rounded {
+  color: var(--secondary);
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-size: 0.875rem;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.file-item[data-type="directory"] .file-name {
+  font-weight: 500;
+}
+
+.file-details {
+  display: flex;
+  gap: var(--spacing-m);
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+}
+
+.file-item.selected .file-details {
+  color: var(--on-primary-container);
+  opacity: 0.8;
+}
+
+.file-permissions {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+  color: var(--on-surface-variant);
+  flex-shrink: 0;
+  width: 100px;
+  text-align: right;
+}
+
+.file-item.selected .file-permissions {
+  color: var(--on-primary-container);
+  opacity: 0.8;
+}
+
+/* 滚动条样式 */
+.file-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.file-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.file-list::-webkit-scrollbar-thumb {
+  background: var(--outline-variant);
+  border-radius: 3px;
+}
+
+.file-list::-webkit-scrollbar-thumb:hover {
+  background: var(--outline);
+}

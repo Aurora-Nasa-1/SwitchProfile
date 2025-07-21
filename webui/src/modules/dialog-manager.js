@@ -106,7 +106,20 @@ class DialogManager {
      * @returns {Promise<File|null>} - 选择的文件
      */
     showFilePicker(accept = '*') {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            // 检查是否支持文件API或者是否为类Unix系统
+            if (!DialogManager.supportsFileAPI() && this.isUnixLike()) {
+                // 使用内置文件浏览器
+                if (window.FileBrowser) {
+                    window.FileBrowser.showBrowser(accept)
+                        .then(resolve)
+                        .catch(reject);
+                } else {
+                    reject(new Error('文件浏览器未初始化'));
+                }
+                return;
+            }
+            
             this.fallbackFileInput.accept = accept;
             this.selectedFile = null;
             
@@ -154,6 +167,22 @@ class DialogManager {
      */
     static supportsFileAPI() {
         return window.File && window.FileReader && window.FileList && window.Blob;
+    }
+    
+    /**
+     * 检查是否为类Unix系统
+     * @returns {boolean}
+     */
+    isUnixLike() {
+        const platform = navigator.platform.toLowerCase();
+        const userAgent = navigator.userAgent.toLowerCase();
+        
+        return platform.includes('linux') || 
+               platform.includes('unix') || 
+               platform.includes('mac') || 
+               userAgent.includes('android') ||
+               userAgent.includes('iphone') ||
+               userAgent.includes('ipad');
     }
     
     /**
