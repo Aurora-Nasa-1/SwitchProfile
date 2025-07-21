@@ -222,7 +222,7 @@ class FileBrowser {
                 return;
             }
             
-            const command = `ls -la "${path}" 2>/dev/null`;
+            const command = `ls -F "${path}" 2>/dev/null`;
             
             Core.execCommand(command, (output) => {
                 try {
@@ -249,46 +249,58 @@ class FileBrowser {
     }
     
     parseDirectoryListing(output, basePath) {
-        const lines = output.trim().split('\n');
+        const lines = output.trim().split('\n').filter(line => line.trim());
         const files = [];
         
         for (const line of lines) {
             const trimmedLine = line.trim();
-            if (!trimmedLine || trimmedLine.startsWith('total ')) continue;
+            if (!trimmedLine) continue;
             
-            // 简单分割解析，适用于Unix/Android ls -la输出
-            // 格式: drwxrws---    2 u0_a186  media_rw      3452 Jul 13 09:57 Podcasts
-            const parts = trimmedLine.split(/\s+/);
-            if (parts.length < 9) continue;
+            // ls -F 在文件名后添加类型标识符：
+            // / 表示目录
+            // * 表示可执行文件
+            // @ 表示符号链接
+            // | 表示FIFO
+            // = 表示socket
+            // 普通文件没有后缀
             
-            const permissions = parts[0];
-            // 检查是否为有效的权限格式
-            if (!permissions.match(/^[bcdlpsr-][rwxsStT-]{9}$/)) continue;
+            let name = trimmedLine;
+            let type = 'file';
+            let isSymlink = false;
             
-            const size = parts[4];
-            const month = parts[5];
-            const day = parts[6];
-            const timeOrYear = parts[7];
-            const name = parts.slice(8).join(' ');
+            // 检查文件类型标识符
+            if (name.endsWith('/')) {
+                type = 'directory';
+                name = name.slice(0, -1);
+            } else if (name.endsWith('*')) {
+                type = 'executable';
+                name = name.slice(0, -1);
+            } else if (name.endsWith('@')) {
+                isSymlink = true;
+                name = name.slice(0, -1);
+            } else if (name.endsWith('|')) {
+                type = 'fifo';
+                name = name.slice(0, -1);
+            } else if (name.endsWith('=')) {
+                type = 'socket';
+                name = name.slice(0, -1);
+            }
             
             // 跳过 . 和 .. 目录
             if (name === '.' || name === '..') continue;
             
-            const isDirectory = permissions.startsWith('d');
-            const isSymlink = permissions.startsWith('l');
-            
             // 过滤文件类型
-            if (!this.shouldShowFile(name, isDirectory)) continue;
+            if (!this.shouldShowFile(name, type === 'directory')) continue;
             
             const filePath = basePath.endsWith('/') ? basePath + name : basePath + '/' + name;
             
             files.push({
                 name,
                 path: filePath,
-                type: isDirectory ? 'directory' : 'file',
-                size: isDirectory ? '-' : this.formatFileSize(parseInt(size) || 0),
-                permissions,
-                modified: `${month} ${day} ${timeOrYear}`,
+                type,
+                size: type === 'directory' ? '-' : '未知',
+                permissions: '-',
+                modified: '-',
                 isSymlink
             });
         }
@@ -314,12 +326,25 @@ class FileBrowser {
         return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + units[i];
     }
     
-    getFileIcon(fileName, isDirectory, isSymlink) {
+    getFileIcon(fileName, fileType, isSymlink) {
         if (isSymlink) return 'link';
-        if (isDirectory) return this.fileIcons.folder;
         
-        const extension = fileName.split('.').pop().toLowerCase();
-        return this.fileIcons[extension] || this.fileIcons.default;
+        // 根据文件类型返回图标
+        switch (fileType) {
+            case 'directory':
+                return this.fileIcons.folder;
+            case 'executable':
+                return 'terminal';
+            case 'fifo':
+                return 'swap_vert';
+            case 'socket':
+                return 'electrical_services';
+            case 'file':
+            default:
+                // 对于普通文件，根据扩展名返回图标
+                const extension = fileName.split('.').pop().toLowerCase();
+                return this.fileIcons[extension] || this.fileIcons.default;
+        }
     }
     
     renderFileList(files) {
@@ -342,7 +367,7 @@ class FileBrowser {
             fileItem.dataset.type = file.type;
             fileItem.dataset.name = file.name;
             
-            const icon = this.getFileIcon(file.name, file.type === 'directory', file.isSymlink);
+            const icon = this.getFileIcon(file.name, file.type, file.isSymlink);
             
             fileItem.innerHTML = `
                 <div class="file-icon">
