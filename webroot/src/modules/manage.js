@@ -332,34 +332,39 @@ export class ManagePage {
     }
     
     setupFileInputs() {
-        // 为所有文件选择按钮绑定事件
-        this.operationEditDialog.querySelectorAll('.file-select-btn').forEach(button => {
-            const fileInput = button.parentElement.querySelector('input[type="file"]');
-            const accept = fileInput ? fileInput.accept || '*' : '*';
-            
+        const fileButtons = document.querySelectorAll('[data-target]');
+        
+        fileButtons.forEach(button => {
             button.addEventListener('click', async () => {
+                const targetId = button.getAttribute('data-target');
+                const targetInput = document.getElementById(targetId);
+                const accept = targetInput.getAttribute('accept') || '*';
+                
                 try {
-                    // 使用DialogManager选择文件，现在返回文件路径
-                    const filePath = await window.DialogManager.selectFile(accept);
+                    const selectedFilePath = await window.DialogManager.selectFile(accept);
                     
-                    if (filePath) {
-                        const targetInput = button.parentElement.parentElement.querySelector('input[type="text"]');
+                    if (selectedFilePath) {
+                        // 获取文件名
+                        const fileName = selectedFilePath.split('/').pop();
+                        const targetPath = `modules/${fileName}`;
                         
-                        // 直接使用选择的文件路径
-                        targetInput.value = filePath;
+                        // 复制文件到模块目录
+                        const copyCommand = `cp "${selectedFilePath}" "${targetPath}"`;
                         
-                        // 更新按钮文本显示文件名
-                        const fileName = filePath.split('/').pop();
-                        const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
-                        if (textSpan) {
-                            textSpan.textContent = fileName;
-                        }
-                        
-                        Core.showToast('文件已选择', 'success');
+                        Core.execCommand(copyCommand, (output) => {
+                            if (output.includes('ERROR')) {
+                                console.error('File copy failed:', output);
+                                Core.showToast('文件复制失败', 'error');
+                            } else {
+                                button.textContent = fileName;
+                                targetInput.value = targetPath;
+                                Core.showToast('文件选择成功', 'success');
+                            }
+                        });
                     }
                 } catch (error) {
                     console.error('File selection failed:', error);
-                    Core.showToast('文件选择失败: ' + error.message, 'error');
+                    Core.showToast('文件选择失败', 'error');
                 }
             });
         });

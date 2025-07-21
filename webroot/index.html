@@ -151,43 +151,38 @@
         </fieldset>
     </dialog>
     
-
-
-    <!-- 文件浏览器对话框 -->
-    <dialog id="file-browser-dialog">
+    <!-- Android文件浏览器对话框 -->
+    <dialog id="android-file-browser">
         <div class="file-browser-header">
-            <h2>选择文件</h2>
-            <div class="file-browser-toolbar">
-                <button type="button" id="file-browser-back" class="icon-button" disabled>
-                    <span class="material-symbols-rounded">arrow_back</span>
-                </button>
-                <div class="file-browser-path" id="file-browser-path">/sdcard</div>
-                <button type="button" id="file-browser-refresh" class="icon-button">
-                    <span class="material-symbols-rounded">refresh</span>
-                </button>
+            <button type="button" id="file-browser-back" class="icon-button" disabled>
+                <span class="material-symbols-rounded">arrow_back</span>
+            </button>
+            <div class="file-browser-path">
+                <span id="current-path">/sdcard</span>
             </div>
+            <button type="button" id="file-browser-close" class="icon-button">
+                <span class="material-symbols-rounded">close</span>
+            </button>
         </div>
-        <div class="file-browser-content" id="file-browser-content">
-            <div class="file-browser-loading" id="file-browser-loading">
-                <span class="material-symbols-rounded spinning">progress_activity</span>
-                <p>加载中...</p>
-            </div>
-            <div class="file-browser-error" id="file-browser-error" style="display: none;">
-                <span class="material-symbols-rounded">error</span>
-                <p id="file-browser-error-message">加载失败</p>
-            </div>
-            <div class="file-list" id="file-browser-list" style="display: none;">
+        <div class="file-browser-content">
+            <div id="file-list" class="file-list">
                 <!-- 文件列表将在这里动态生成 -->
             </div>
-            <div class="file-browser-empty" id="file-browser-empty" style="display: none;">
-                <span class="material-symbols-rounded">folder_open</span>
-                <p>此目录为空</p>
+            <div id="file-browser-loading" class="loading-indicator" style="display: none;">
+                <span class="material-symbols-rounded rotating">refresh</span>
+                <p>加载中...</p>
             </div>
         </div>
-        <fieldset>
-            <button type="button" id="file-browser-cancel">取消</button>
-            <button type="button" id="file-browser-select" class="filled" disabled>选择</button>
-        </fieldset>
+        <div class="file-browser-footer">
+            <div id="selected-file-display" style="display: none;">
+                <span class="material-symbols-rounded">description</span>
+                <span id="selected-file-path"></span>
+            </div>
+            <fieldset>
+                <button type="button" id="file-browser-cancel">取消</button>
+                <button type="button" id="file-browser-ok" class="filled" disabled>确定</button>
+            </fieldset>
+        </div>
     </dialog>
     
     <!-- 应用脚本 -->

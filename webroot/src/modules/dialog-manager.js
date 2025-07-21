@@ -1,4 +1,5 @@
 import { Core } from '../core.js';
+import AndroidFileBrowser from './android-file-browser.js';
 
 class DialogManager {
     constructor() {
@@ -7,6 +8,8 @@ class DialogManager {
         this.confirmContent = document.getElementById('confirm-content');
         this.confirmCancel = document.getElementById('confirm-cancel');
         this.confirmOk = document.getElementById('confirm-ok');
+        
+        this.androidFileBrowser = new AndroidFileBrowser();
         
         this.setupEventListeners();
     }
@@ -53,35 +56,18 @@ class DialogManager {
     
 
     
-
-    
     /**
-     * 选择文件的通用方法
+     * 选择文件（使用Android文件浏览器）
      * @param {string} accept - 接受的文件类型
-     * @returns {Promise<string|null>} - 返回文件路径而不是File对象
+     * @returns {Promise<string|null>} - 选择的文件路径
      */
     async selectFile(accept = '*') {
-        // 检查shell功能是否可用
-        if (typeof ksu === 'undefined' || !ksu.exec) {
-            Core.showToast('文件选择功能需要Shell权限，请在支持的环境中使用', 'error');
-            return null;
-        }
-        
-        // 直接使用内置文件浏览器
-        if (window.FileBrowser) {
-            try {
-                return await window.FileBrowser.show(accept);
-            } catch (error) {
-                console.error('File browser failed:', error);
-                if (error.message.includes('Shell功能不可用')) {
-                    Core.showToast('文件选择功能需要Shell权限，请在支持的环境中使用', 'error');
-                } else {
-                    Core.showToast('文件选择失败: ' + error.message, 'error');
-                }
-                return null;
-            }
-        } else {
-            Core.showToast('文件浏览器未初始化', 'error');
+        try {
+            const filePath = await this.androidFileBrowser.showBrowser(accept);
+            return filePath;
+        } catch (error) {
+            console.error('File selection failed:', error);
+            Core.showToast('文件选择失败', 'error');
             return null;
         }
     }
