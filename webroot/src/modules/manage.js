@@ -271,7 +271,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="install_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
@@ -286,7 +286,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="delete_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
@@ -301,7 +301,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="flash_boot">
                     <label>
                         <span>镜像路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".img,.zip">
@@ -338,6 +338,13 @@ export class ManagePage {
             button.addEventListener('click', async () => {
                 const targetId = button.getAttribute('data-target');
                 const targetInput = document.getElementById(targetId);
+                
+                if (!targetInput) {
+                    console.error('Target input not found:', targetId);
+                    Core.showToast('目标输入框未找到', 'error');
+                    return;
+                }
+                
                 const accept = targetInput.getAttribute('accept') || '*';
                 
                 try {
