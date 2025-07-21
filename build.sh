@@ -8,6 +8,14 @@ ID="switchprofile"
 NAME="Switch Profile Module"
 AUTHOR="Aurora-Nasa-1"
 DESCRIPTION="A Magisk module for switching profiles."
+setting() {
+    echo "id=$ID" > module.prop
+    echo "name=$NAME" >> module.prop
+    echo "version=$VERSION" >> module.prop
+    echo "versionCode=$VERSION_CODE" >> module.prop
+    echo "author=$AUTHOR" >> module.prop
+    echo "description=$DESCRIPTION" >> module.prop
+}
 Main() {
     case "${1:-}" in
         -h|--help)
@@ -23,14 +31,5 @@ Main() {
     esac
     setting
 }
-setting() {
-    echo "id=$ID" > module.prop
-    echo "name=$NAME" >> module.prop
-    echo "version=$VERSION" >> module.prop
-    echo "versionCode=$VERSION_CODE" >> module.prop
-    echo "author=$AUTHOR" >> module.prop
-    echo "description=$DESCRIPTION" >> module.prop
-}
-
-zip -r SwitchProfile.zip ./* 
 Main "$@"
+zip -r SwitchProfile.zip ./* 
