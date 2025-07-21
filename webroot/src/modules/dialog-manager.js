@@ -1,3 +1,5 @@
+import { Core } from '../core.js';
+
 class DialogManager {
     constructor() {
         this.confirmDialog = document.getElementById('confirm-dialog');
@@ -59,16 +61,28 @@ class DialogManager {
      * @returns {Promise<string|null>} - 返回文件路径而不是File对象
      */
     async selectFile(accept = '*') {
+        // 检查shell功能是否可用
+        if (typeof ksu === 'undefined' || !ksu.exec) {
+            Core.showToast('文件选择功能需要Shell权限，请在支持的环境中使用', 'error');
+            return null;
+        }
+        
         // 直接使用内置文件浏览器
         if (window.FileBrowser) {
             try {
                 return await window.FileBrowser.show(accept);
             } catch (error) {
                 console.error('File browser failed:', error);
-                throw new Error('文件选择失败: ' + error.message);
+                if (error.message.includes('Shell功能不可用')) {
+                    Core.showToast('文件选择功能需要Shell权限，请在支持的环境中使用', 'error');
+                } else {
+                    Core.showToast('文件选择失败: ' + error.message, 'error');
+                }
+                return null;
             }
         } else {
-            throw new Error('文件浏览器未初始化');
+            Core.showToast('文件浏览器未初始化', 'error');
+            return null;
         }
     }
 }

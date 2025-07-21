@@ -215,11 +215,22 @@ class FileBrowser {
     
     async listDirectory(path) {
         return new Promise((resolve, reject) => {
+            // 检查ksu是否可用
+            if (typeof ksu === 'undefined' || !ksu.exec) {
+                reject(new Error('Shell功能不可用，请确保在支持的环境中运行'));
+                return;
+            }
+            
             // 使用 ls 命令列出目录内容
             const command = `ls -la "${path}" 2>/dev/null | tail -n +2`;
             
             Core.execCommand(command, (output) => {
                 try {
+                    if (output.includes('Error: ksu.exec is not defined')) {
+                        reject(new Error('Shell功能不可用，请确保在支持的环境中运行'));
+                        return;
+                    }
+                    
                     if (output.includes('Permission denied') || output.includes('No such file')) {
                         reject(new Error('无法访问目录：权限不足或目录不存在'));
                         return;
