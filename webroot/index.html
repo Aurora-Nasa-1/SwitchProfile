@@ -151,38 +151,21 @@
         </fieldset>
     </dialog>
     
-    <!-- Android文件浏览器对话框 -->
-    <dialog id="android-file-browser">
-        <div class="file-browser-header">
-            <button type="button" id="file-browser-back" class="icon-button" disabled>
+    <!-- 文件选择器对话框 -->
+    <dialog id="file-picker-dialog">
+        <h2>选择文件</h2>
+        <div id="file-browser-header">
+            <button type="button" id="file-browser-back" class="tonal">
                 <span class="material-symbols-rounded">arrow_back</span>
+                上级目录
             </button>
-            <div class="file-browser-path">
-                <span id="current-path">/sdcard</span>
-            </div>
-            <button type="button" id="file-browser-close" class="icon-button">
-                <span class="material-symbols-rounded">close</span>
-            </button>
+            <span id="current-path">/sdcard/</span>
         </div>
-        <div class="file-browser-content">
-            <div id="file-list" class="file-list">
-                <!-- 文件列表将在这里动态生成 -->
-            </div>
-            <div id="file-browser-loading" class="loading-indicator" style="display: none;">
-                <span class="material-symbols-rounded rotating">refresh</span>
-                <p>加载中...</p>
-            </div>
-        </div>
-        <div class="file-browser-footer">
-            <div id="selected-file-display" style="display: none;">
-                <span class="material-symbols-rounded">description</span>
-                <span id="selected-file-path"></span>
-            </div>
-            <fieldset>
-                <button type="button" id="file-browser-cancel">取消</button>
-                <button type="button" id="file-browser-ok" class="filled" disabled>确定</button>
-            </fieldset>
-        </div>
+        <div id="file-list" class="file-list"></div>
+        <fieldset>
+            <button type="button" id="file-picker-cancel">取消</button>
+            <button type="button" id="file-picker-ok" class="filled" disabled>确定</button>
+        </fieldset>
     </dialog>
     
     <!-- 应用脚本 -->

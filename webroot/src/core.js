@@ -6,10 +6,7 @@
 
 export const Core = {
     // 模块路径
-    MODULE_PATH: '/data/adb/modules/AMMF/',
-
-
-
+    MODULE_PATH: '/data/adb/modules/switchprofile/',
     /**
      * 执行单个 shell 命令。
      * @param {string} command 要执行的 shell 命令。

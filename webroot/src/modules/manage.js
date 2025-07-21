@@ -271,7 +271,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="install_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
@@ -286,7 +286,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="delete_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
@@ -301,7 +301,7 @@ export class ManagePage {
                     <input type="hidden" name="type" value="flash_boot">
                     <label>
                         <span>镜像路径</span>
-                        <input type="text" id="path" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required>
                     </label>
                     <div class="file-input-wrapper">
                         <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".img,.zip">
@@ -332,42 +332,26 @@ export class ManagePage {
     }
     
     setupFileInputs() {
-        const fileButtons = document.querySelectorAll('[data-target]');
-        
-        fileButtons.forEach(button => {
+        this.operationEditDialog.querySelectorAll('.file-select-btn').forEach(button => {
+            const targetInput = button.closest('label').querySelector('input[type="text"]');
+            const accept = button.dataset.accept || '*';
+
             button.addEventListener('click', async () => {
-                const targetId = button.getAttribute('data-target');
-                const targetInput = document.getElementById(targetId);
-                
-                if (!targetInput) {
-                    console.error('Target input not found:', targetId);
-                    Core.showToast('目标输入框未找到', 'error');
-                    return;
-                }
-                
-                const accept = targetInput.getAttribute('accept') || '*';
-                
                 try {
-                    const selectedFilePath = await window.DialogManager.selectFile(accept);
-                    
-                    if (selectedFilePath) {
-                        // 获取文件名
-                        const fileName = selectedFilePath.split('/').pop();
-                        const targetPath = `modules/${fileName}`;
-                        
-                        // 复制文件到模块目录
-                        const copyCommand = `cp "${selectedFilePath}" "${targetPath}"`;
-                        
-                        Core.execCommand(copyCommand, (output) => {
-                            if (output.includes('ERROR')) {
-                                console.error('File copy failed:', output);
-                                Core.showToast('文件复制失败', 'error');
-                            } else {
-                                button.textContent = fileName;
-                                targetInput.value = targetPath;
-                                Core.showToast('文件选择成功', 'success');
-                            }
-                        });
+                    const selectedPath = await window.DialogManager.selectFile(accept);
+
+                    if (selectedPath) {
+                        const fileName = selectedPath.split('/').pop();
+
+                        const targetPath = await this.fileManager.copyFile(selectedPath);
+                        targetInput.value = targetPath;
+
+                        const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
+                        if (textSpan) {
+                            textSpan.textContent = fileName;
+                        }
+
+                        Core.showToast('文件已选择', 'success');
                     }
                 } catch (error) {
                     console.error('File selection failed:', error);

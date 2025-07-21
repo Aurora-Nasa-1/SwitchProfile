@@ -635,152 +635,108 @@ body.mmrl-webui-x {
   white-space: pre-line;
 }
 
-/* Android文件浏览器样式 */
-#android-file-browser {
-  max-width: 500px;
-  max-height: 80vh;
-  padding: 0;
-  border-radius: var(--border-radius-l);
+/* 文件选择器对话框样式 */
+#file-picker-dialog {
+  max-width: 400px;
 }
 
-.file-browser-header {
+.file-drop-zone {
+  border: 2px dashed var(--outline);
+  border-radius: var(--border-radius-m);
+  padding: var(--spacing-xl);
+  text-align: center;
+  margin: var(--spacing-m) 0;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.file-drop-zone:hover {
+  border-color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+}
+
+.file-drop-zone.drag-over {
+  border-color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+}
+
+.file-drop-zone .material-symbols-rounded {
+  font-size: 48px;
+  color: var(--on-surface-variant);
+  display: block;
+  margin-bottom: var(--spacing-s);
+}
+
+.file-drop-zone p {
+  margin: var(--spacing-s) 0;
+  color: var(--on-surface-variant);
+}
+
+#selected-file-info {
   display: flex;
   align-items: center;
+  gap: var(--spacing-s);
   padding: var(--spacing-m);
-  border-bottom: 1px solid var(--outline-variant);
-  background-color: var(--surface-container-low);
+  background-color: var(--surface-container);
+  border-radius: var(--border-radius-m);
+  margin: var(--spacing-m) 0;
 }
 
-.file-browser-path {
-  flex: 1;
-  margin: 0 var(--spacing-m);
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: var(--on-surface);
+#selected-file-info .material-symbols-rounded {
+   color: var(--primary);
+  }
+
+/* 文件浏览器样式 */
+#file-browser-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
+}
+
+#file-browser-header button {
+  flex-shrink: 0;
+}
+
+#current-path {
+  flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.icon-button {
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background-color: transparent;
-  color: var(--on-surface);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.icon-button:hover:not(:disabled) {
-  background-color: var(--surface-container-high);
-}
-
-.icon-button:disabled {
-  color: var(--on-surface-variant);
-  cursor: not-allowed;
-}
-
-.file-browser-content {
-  height: 400px;
-  overflow-y: auto;
-  position: relative;
-}
-
 .file-list {
-  padding: var(--spacing-s);
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid var(--outline);
+  border-radius: var(--border-radius-m);
 }
 
 .file-item {
   display: flex;
   align-items: center;
-  padding: var(--spacing-s) var(--spacing-m);
-  border-radius: var(--border-radius-s);
+  padding: var(--spacing-m);
+  gap: var(--spacing-s);
   cursor: pointer;
   transition: background-color 0.2s ease;
-  user-select: none;
 }
 
 .file-item:hover {
-  background-color: var(--surface-container);
+  background-color: var(--surface-container-high);
 }
 
 .file-item.selected {
   background-color: var(--primary-container);
-  color: var(--on-primary-container);
 }
 
-.file-item.directory {
-  font-weight: 500;
-}
-
-.file-icon {
-  width: 24px;
-  height: 24px;
-  margin-right: var(--spacing-m);
-  flex-shrink: 0;
-}
-
-.file-name {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.file-size {
-  font-size: 0.75rem;
-  color: var(--on-surface-variant);
-  margin-left: var(--spacing-s);
-}
-
-.loading-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
+.file-item .material-symbols-rounded {
+  font-size: 24px;
   color: var(--on-surface-variant);
 }
 
-.rotating {
-  animation: rotate 1s linear infinite;
-}
-
-@keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.file-browser-footer {
-  padding: var(--spacing-m);
-  border-top: 1px solid var(--outline-variant);
-  background-color: var(--surface-container-low);
-}
-
-#selected-file-display {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-s);
-  padding: var(--spacing-s) var(--spacing-m);
-  background-color: var(--surface-container);
-  border-radius: var(--border-radius-s);
-  margin-bottom: var(--spacing-m);
-  font-size: 0.875rem;
-}
-
-#selected-file-display .material-symbols-rounded {
+.file-item.directory .material-symbols-rounded {
   color: var(--primary);
-  font-size: 20px;
 }
 
-#selected-file-path {
-  font-family: monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.file-item .file-name {
+  flex-grow: 1;
 }
