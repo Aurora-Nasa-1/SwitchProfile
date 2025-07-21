@@ -244,7 +244,7 @@ export class ScenarioManager {
         
         // 引入Core.sh并检查是否存在
         script += '# Source Core.sh functions\n';
-        script += 'CORE_SH="/data/local/tmp/SwitchProfile/Core.sh"\n';
+        script += `CORE_SH="${Core.MODULE_PATH}SwitchProfile/Core.sh"\n`;
         script += 'if [ ! -f "$CORE_SH" ]; then\n';
         script += '    echo "Error: Core.sh not found at $CORE_SH"\n';
         script += '    exit 1\n';
@@ -263,19 +263,6 @@ export class ScenarioManager {
         script += `# Configuration\n`;
         script += `Installer_Compatibility="${scenario.compatibilityMode ? 'true' : 'false'}"\n`;
         script += `Installer_Log="true"\n\n`;
-        
-        // 检测环境
-        script += `# Detect environment\n`;
-        script += `if [ -n "$KSU" ]; then\n`;
-        script += `    log_info "Running in KernelSU environment"\n`;
-        script += `elif [ -n "$APATCH" ]; then\n`;
-        script += `    log_info "Running in APatch environment"\n`;
-        script += `elif [ -n "$MAGISK_VER_CODE" ]; then\n`;
-        script += `    log_info "Running in Magisk environment"\n`;
-        script += `else\n`;
-        script += `    log_error "No supported environment detected"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n\n`;
         
         // 执行操作
         script += `# Execute operations\n`;

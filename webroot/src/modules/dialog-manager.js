@@ -111,7 +111,7 @@ class DialogManager {
             if (!DialogManager.supportsFileAPI() && this.isUnixLike()) {
                 // 使用内置文件浏览器
                 if (window.FileBrowser) {
-                    window.FileBrowser.showBrowser(accept)
+                    window.FileBrowser.show(accept)
                         .then(resolve)
                         .catch(reject);
                 } else {
@@ -199,18 +199,28 @@ class DialogManager {
                 input.accept = accept;
                 
                 return new Promise((resolve) => {
+                    let resolved = false;
+                    
                     input.addEventListener('change', (e) => {
-                        resolve(e.target.files[0] || null);
+                        if (!resolved) {
+                            resolved = true;
+                            resolve(e.target.files[0] || null);
+                        }
                     });
                     
-                    input.click();
+                    // 监听窗口焦点事件来检测用户是否取消了文件选择
+                    const handleFocus = () => {
+                        setTimeout(() => {
+                            if (!resolved && (!input.files || input.files.length === 0)) {
+                                resolved = true;
+                                resolve(null);
+                            }
+                            window.removeEventListener('focus', handleFocus);
+                        }, 300);
+                    };
                     
-                    // 处理用户取消选择的情况
-                    setTimeout(() => {
-                        if (!input.files || input.files.length === 0) {
-                            resolve(null);
-                        }
-                    }, 100);
+                    window.addEventListener('focus', handleFocus);
+                    input.click();
                 });
             } catch (error) {
                 console.warn('Native file picker failed, falling back to custom picker:', error);

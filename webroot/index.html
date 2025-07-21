@@ -171,6 +171,43 @@
             <button type="button" id="file-picker-ok" class="filled" disabled>确定</button>
         </fieldset>
     </dialog>
+
+    <!-- 文件浏览器对话框 -->
+    <dialog id="file-browser-dialog">
+        <div class="file-browser-header">
+            <h2>选择文件</h2>
+            <div class="file-browser-toolbar">
+                <button type="button" id="file-browser-back" class="icon-button" disabled>
+                    <span class="material-symbols-rounded">arrow_back</span>
+                </button>
+                <div class="file-browser-path" id="file-browser-path">/sdcard</div>
+                <button type="button" id="file-browser-refresh" class="icon-button">
+                    <span class="material-symbols-rounded">refresh</span>
+                </button>
+            </div>
+        </div>
+        <div class="file-browser-content" id="file-browser-content">
+            <div class="file-browser-loading" id="file-browser-loading">
+                <span class="material-symbols-rounded spinning">progress_activity</span>
+                <p>加载中...</p>
+            </div>
+            <div class="file-browser-error" id="file-browser-error" style="display: none;">
+                <span class="material-symbols-rounded">error</span>
+                <p id="file-browser-error-message">加载失败</p>
+            </div>
+            <div class="file-list" id="file-browser-list" style="display: none;">
+                <!-- 文件列表将在这里动态生成 -->
+            </div>
+            <div class="file-browser-empty" id="file-browser-empty" style="display: none;">
+                <span class="material-symbols-rounded">folder_open</span>
+                <p>此目录为空</p>
+            </div>
+        </div>
+        <fieldset>
+            <button type="button" id="file-browser-cancel">取消</button>
+            <button type="button" id="file-browser-select" class="filled" disabled>选择</button>
+        </fieldset>
+    </dialog>
     
     <!-- 应用脚本 -->
     <script type="module" src="src/app.js"></script>
