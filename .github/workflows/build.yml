@@ -22,20 +22,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y zip
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: "webui/package-lock.json"
-
-      - name: Install WebUI dependencies
-        if: hashFiles('webui/package-lock.json') != ''
-        run: |
-          cd webui
-          npm ci
-
+          
       - name: Build Module
         run: |
           chmod +x build.sh
