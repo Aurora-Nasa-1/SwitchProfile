@@ -244,7 +244,7 @@ export class ScenarioManager {
         
         // 引入Core.sh并检查是否存在
         script += '# Source Core.sh functions\n';
-        script += `CORE_SH="${Core.MODULE_PATH}SwitchProfile/Core.sh"\n`;
+        script += `CORE_SH="${Core.MODULE_PATH}Core.sh"\n`;
         script += 'if [ ! -f "$CORE_SH" ]; then\n';
         script += '    echo "Error: Core.sh not found at $CORE_SH"\n';
         script += '    exit 1\n';

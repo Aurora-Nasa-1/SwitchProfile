@@ -339,32 +339,27 @@ export class ManagePage {
             
             button.addEventListener('click', async () => {
                 try {
-                    // 使用DialogManager选择文件，自动处理兼容性
-                    const file = await window.DialogManager.selectFile(accept);
+                    // 使用DialogManager选择文件，现在返回文件路径
+                    const filePath = await window.DialogManager.selectFile(accept);
                     
-                    if (file) {
+                    if (filePath) {
                         const targetInput = button.parentElement.parentElement.querySelector('input[type="text"]');
                         
-                        try {
-                            // 复制文件到目标目录
-                            const targetPath = await this.fileManager.copyFile(file);
-                            targetInput.value = targetPath;
-                            
-                            // 更新按钮文本
-                            const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
-                            if (textSpan) {
-                                textSpan.textContent = file.name;
-                            }
-                            
-                            Core.showToast('文件已选择', 'success');
-                        } catch (error) {
-                            console.error('File copy failed:', error);
-                            Core.showToast('文件复制失败', 'error');
+                        // 直接使用选择的文件路径
+                        targetInput.value = filePath;
+                        
+                        // 更新按钮文本显示文件名
+                        const fileName = filePath.split('/').pop();
+                        const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
+                        if (textSpan) {
+                            textSpan.textContent = fileName;
                         }
+                        
+                        Core.showToast('文件已选择', 'success');
                     }
                 } catch (error) {
                     console.error('File selection failed:', error);
-                    Core.showToast('文件选择失败', 'error');
+                    Core.showToast('文件选择失败: ' + error.message, 'error');
                 }
             });
         });
