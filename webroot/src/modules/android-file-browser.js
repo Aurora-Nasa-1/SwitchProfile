@@ -156,10 +156,8 @@ class AndroidFileBrowser {
      */
     listFiles(path) {
         return new Promise((resolve, reject) => {
-            // 确保路径以/结尾，以便正确处理符号链接
-            const normalizedPath = path.endsWith('/') ? path : path + '/';
-            const tempFile = `/tmp/filelist_${Date.now()}.txt`;
-            const command = `ls -F "${normalizedPath}" > "${tempFile}" && cat "${tempFile}" && rm "${tempFile}"`;
+            // 使用更简单的find命令，分别获取文件和目录
+            const command = `find "${path}" -maxdepth 1 -mindepth 1 -printf "%f:%y\n" 2>/dev/null || echo "ERROR: Directory not accessible"`;
             
             Core.execCommand(command, (output) => {
                 if (output && (output.includes('ERROR') || output.includes('No such file') || output.includes('Permission denied'))) {
@@ -167,14 +165,70 @@ class AndroidFileBrowser {
                     return;
                 }
                 
-                const files = this.parseFileList(output, path);
+                const files = this.parseFileListFromFind(output, path);
                 resolve(files);
             });
         });
     }
     
     /**
-     * 解析ls -F命令的输出
+     * 解析find命令的输出
+     * @param {string} output - 命令输出
+     * @param {string} basePath - 基础路径
+     * @returns {Array} - 解析后的文件列表
+     */
+    parseFileListFromFind(output, basePath) {
+        if (!output || output.trim() === '') {
+            return [];
+        }
+        
+        const lines = output.trim().split('\n').filter(line => line.trim());
+        const files = [];
+        
+        for (const line of lines) {
+            const trimmedLine = line.trim();
+            if (!trimmedLine || trimmedLine.startsWith('ERROR:')) continue;
+            
+            // 解析find的printf输出格式：文件名:文件类型
+            const colonIndex = trimmedLine.lastIndexOf(':');
+            if (colonIndex === -1) continue;
+            
+            const name = trimmedLine.substring(0, colonIndex);
+            const fileType = trimmedLine.substring(colonIndex + 1);
+            
+            if (!name || name === '.' || name === '..') continue;
+            
+            const fullPath = basePath + (basePath.endsWith('/') ? '' : '/') + name;
+            const isDirectory = fileType === 'd';
+            const isExecutable = fileType === 'f' && name.includes('.');
+            
+            let type = 'file';
+            if (isDirectory) {
+                type = 'directory';
+            } else if (isExecutable) {
+                type = 'executable';
+            }
+            
+            files.push({
+                name: name,
+                type: type,
+                path: fullPath,
+                isDirectory: isDirectory
+            });
+        }
+        
+        // 排序：目录在前，然后按名称排序
+        files.sort((a, b) => {
+            if (a.isDirectory && !b.isDirectory) return -1;
+            if (!a.isDirectory && b.isDirectory) return 1;
+            return a.name.localeCompare(b.name);
+        });
+        
+        return files;
+    }
+    
+    /**
+     * 解析ls -F命令的输出（保留作为备用）
      * @param {string} output - 命令输出
      * @param {string} basePath - 基础路径
      * @returns {Array} - 解析后的文件列表
