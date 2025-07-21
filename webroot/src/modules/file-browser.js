@@ -203,6 +203,7 @@ class FileBrowser {
         
         try {
             const files = await this.listDirectory(path);
+             console.log('Files loaded:', files);
             this.renderFileList(files);
             this.currentPath = path;
             this.updatePathDisplay();
@@ -249,26 +250,30 @@ class FileBrowser {
     }
     
     parseDirectoryListing(output, basePath) {
-        const lines = output.trim().split('\n').filter(line => line.trim());
+        console.log('Raw output:', JSON.stringify(output));
+        
+        if (!output || typeof output !== 'string') {
+            console.warn('Invalid output:', output);
+            return [];
+        }
+        
+        const lines = output.trim().split('\n');
+        console.log('Split lines:', lines);
+        
         const files = [];
         
-        for (const line of lines) {
-            const trimmedLine = line.trim();
-            if (!trimmedLine) continue;
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            if (!line || !line.trim()) continue;
             
-            // ls -F 在文件名后添加类型标识符：
-            // / 表示目录
-            // * 表示可执行文件
-            // @ 表示符号链接
-            // | 表示FIFO
-            // = 表示socket
-            // 普通文件没有后缀
+            const trimmedLine = line.trim();
+            console.log(`Processing line ${i}: "${trimmedLine}"`);
             
             let name = trimmedLine;
             let type = 'file';
             let isSymlink = false;
             
-            // 检查文件类型标识符
+            // 检查ls -F的文件类型标识符
             if (name.endsWith('/')) {
                 type = 'directory';
                 name = name.slice(0, -1);
@@ -277,6 +282,7 @@ class FileBrowser {
                 name = name.slice(0, -1);
             } else if (name.endsWith('@')) {
                 isSymlink = true;
+                type = 'file';
                 name = name.slice(0, -1);
             } else if (name.endsWith('|')) {
                 type = 'fifo';
@@ -286,15 +292,23 @@ class FileBrowser {
                 name = name.slice(0, -1);
             }
             
-            // 跳过 . 和 .. 目录
-            if (name === '.' || name === '..') continue;
+            console.log(`Parsed: name="${name}", type="${type}", isSymlink=${isSymlink}`);
             
-            // 过滤文件类型
-            if (!this.shouldShowFile(name, type === 'directory')) continue;
+            // 跳过隐藏的当前和父目录
+            if (name === '.' || name === '..') {
+                console.log('Skipping . or ..');
+                continue;
+            }
+            
+            // 应用文件过滤
+            if (!this.shouldShowFile(name, type === 'directory')) {
+                console.log('File filtered out:', name);
+                continue;
+            }
             
             const filePath = basePath.endsWith('/') ? basePath + name : basePath + '/' + name;
             
-            files.push({
+            const fileObj = {
                 name,
                 path: filePath,
                 type,
@@ -302,8 +316,13 @@ class FileBrowser {
                 permissions: '-',
                 modified: '-',
                 isSymlink
-            });
+            };
+            
+            console.log('Adding file:', fileObj);
+            files.push(fileObj);
         }
+        
+        console.log('Total files before sorting:', files.length);
         
         // 排序：目录在前，然后按名称排序
         files.sort((a, b) => {
@@ -313,6 +332,7 @@ class FileBrowser {
             return a.name.localeCompare(b.name);
         });
         
+        console.log('Final files array:', files);
         return files;
     }
     
@@ -348,9 +368,12 @@ class FileBrowser {
     }
     
     renderFileList(files) {
+        console.log('Rendering file list with', files.length, 'files');
+        
         this.fileList.innerHTML = '';
         
-        if (files.length === 0) {
+        if (!files || files.length === 0) {
+            console.log('No files to display');
             this.fileList.innerHTML = `
                 <div class="file-browser-empty">
                     <span class="material-symbols-rounded">folder_open</span>
@@ -360,7 +383,11 @@ class FileBrowser {
             return;
         }
         
-        files.forEach(file => {
+        console.log('Creating file items...');
+        
+        files.forEach((file, index) => {
+            console.log(`Creating item ${index}:`, file);
+            
             const fileItem = document.createElement('div');
             fileItem.className = 'file-item';
             fileItem.dataset.path = file.path;
@@ -368,6 +395,7 @@ class FileBrowser {
             fileItem.dataset.name = file.name;
             
             const icon = this.getFileIcon(file.name, file.type, file.isSymlink);
+            console.log(`Icon for ${file.name}:`, icon);
             
             fileItem.innerHTML = `
                 <div class="file-icon">
@@ -377,14 +405,16 @@ class FileBrowser {
                     <div class="file-name">${this.escapeHtml(file.name)}</div>
                     <div class="file-details">
                         <span class="file-size">${file.size}</span>
-                        <span class="file-modified">${file.modified}</span>
+                        <span class="file-type">${file.type}</span>
                     </div>
                 </div>
-                <div class="file-permissions">${file.permissions}</div>
             `;
             
             this.fileList.appendChild(fileItem);
+            console.log('Added file item to DOM');
         });
+        
+        console.log('File list rendering complete');
     }
     
     selectFile(fileItem) {
