@@ -1,3 +1,4 @@
+import { Core } from '../core.js';
 class FileBrowser {
     constructor() {
         this.currentPath = '/sdcard';
@@ -226,17 +227,20 @@ class FileBrowser {
             
             Core.execCommand(command, (output) => {
                 try {
-                    if (output.includes('Error: ksu.exec is not defined')) {
+                    // 确保output是字符串类型
+                    const outputStr = String(output || '');
+                    
+                    if (outputStr.includes('Error: ksu.exec is not defined')) {
                         reject(new Error('Shell功能不可用，请确保在支持的环境中运行'));
                         return;
                     }
                     
-                    if (output.includes('Permission denied') || output.includes('No such file')) {
+                    if (outputStr.includes('Permission denied') || outputStr.includes('No such file')) {
                         reject(new Error('无法访问目录：权限不足或目录不存在'));
                         return;
                     }
                     
-                    const files = this.parseDirectoryListing(output, path);
+                    const files = this.parseDirectoryListing(outputStr, path);
                     resolve(files);
                 } catch (error) {
                     reject(error);
