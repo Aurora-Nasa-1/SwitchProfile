@@ -249,101 +249,49 @@ class FileBrowser {
     }
     
     parseDirectoryListing(output, basePath) {
-        const lines = output.trim().split('\n').filter(line => line.trim());
+        const lines = output.trim().split('\n');
         const files = [];
         
-        // 解析ls输出
-        
         for (const line of lines) {
-            try {
-                const trimmedLine = line.trim();
-                if (!trimmedLine) continue;
-                
-                // 跳过总计行 (total xxx)
-                if (trimmedLine.startsWith('total ')) {
-                    // 跳过总计行
-                    continue;
-                }
-                
-                // Unix ls -la 输出格式：
-                // drwxr-xr-x  2 user group  4096 Dec 25 10:30 dirname
-                // -rw-r--r--  1 user group  1024 Dec 25 10:30 filename
-                
-                // 更灵活的正则表达式，支持Android/Unix系统的ls输出格式
-                // 格式: drwxrws---    2 u0_a186  media_rw      3452 Jul 13 09:57 Podcasts
-                const match = trimmedLine.match(/^([bcdlpsr-][rwxsStT-]{9})\s+(\d+)\s+(\S+)\s+(\S+)\s+(\d+)\s+(\w{3})\s+(\d{1,2})\s+(\d{1,2}:\d{2}|\d{4})\s+(.+)$/);
-                
-                if (!match) {
-                    // 尝试更简单的分割方式作为备选
-                    const parts = trimmedLine.split(/\s+/);
-                    if (parts.length >= 9 && parts[0].match(/^[bcdlpsr-][rwxsStT-]{9}$/)) {
-                        const permissions = parts[0];
-                        const size = parts[4];
-                        const month = parts[5];
-                        const day = parts[6];
-                        const timeOrYear = parts[7];
-                        const name = parts.slice(8).join(' ');
-                        
-                        // 使用备选解析方式
-                        
-                        // 跳过 . 和 .. 目录
-                        if (name === '.' || name === '..') continue;
-                        
-                        const isDirectory = permissions.startsWith('d');
-                        const isSymlink = permissions.startsWith('l');
-                        
-                        // 过滤文件类型
-                        if (!this.shouldShowFile(name, isDirectory)) continue;
-                        
-                        const filePath = basePath.endsWith('/') ? basePath + name : basePath + '/' + name;
-                        
-                        files.push({
-                            name,
-                            path: filePath,
-                            type: isDirectory ? 'directory' : 'file',
-                            size: isDirectory ? '-' : this.formatFileSize(parseInt(size) || 0),
-                            permissions,
-                            modified: `${month} ${day} ${timeOrYear}`,
-                            isSymlink
-                        });
-                        
-                        // 文件解析成功
-                    } else {
-                        console.warn('Failed to match line format:', trimmedLine);
-                    }
-                    continue;
-                }
-                
-                const [, permissions, , , , size, month, day, timeOrYear, name] = match;
-                
-                // 跳过 . 和 .. 目录
-                if (name === '.' || name === '..') continue;
-                
-                const isDirectory = permissions.startsWith('d');
-                const isSymlink = permissions.startsWith('l');
-                
-                // 过滤文件类型
-                if (!this.shouldShowFile(name, isDirectory)) continue;
-                
-                const filePath = basePath.endsWith('/') ? basePath + name : basePath + '/' + name;
-                
-                files.push({
-                    name,
-                    path: filePath,
-                    type: isDirectory ? 'directory' : 'file',
-                    size: isDirectory ? '-' : this.formatFileSize(parseInt(size) || 0),
-                    permissions,
-                    modified: `${month} ${day} ${timeOrYear}`,
-                    isSymlink
-                });
-                
-                // 文件解析成功
-            } catch (error) {
-                console.warn('Failed to parse line:', line, error);
-            }
+            const trimmedLine = line.trim();
+            if (!trimmedLine || trimmedLine.startsWith('total ')) continue;
+            
+            // 简单分割解析，适用于Unix/Android ls -la输出
+            // 格式: drwxrws---    2 u0_a186  media_rw      3452 Jul 13 09:57 Podcasts
+            const parts = trimmedLine.split(/\s+/);
+            if (parts.length < 9) continue;
+            
+            const permissions = parts[0];
+            // 检查是否为有效的权限格式
+            if (!permissions.match(/^[bcdlpsr-][rwxsStT-]{9}$/)) continue;
+            
+            const size = parts[4];
+            const month = parts[5];
+            const day = parts[6];
+            const timeOrYear = parts[7];
+            const name = parts.slice(8).join(' ');
+            
+            // 跳过 . 和 .. 目录
+            if (name === '.' || name === '..') continue;
+            
+            const isDirectory = permissions.startsWith('d');
+            const isSymlink = permissions.startsWith('l');
+            
+            // 过滤文件类型
+            if (!this.shouldShowFile(name, isDirectory)) continue;
+            
+            const filePath = basePath.endsWith('/') ? basePath + name : basePath + '/' + name;
+            
+            files.push({
+                name,
+                path: filePath,
+                type: isDirectory ? 'directory' : 'file',
+                size: isDirectory ? '-' : this.formatFileSize(parseInt(size) || 0),
+                permissions,
+                modified: `${month} ${day} ${timeOrYear}`,
+                isSymlink
+            });
         }
-        
-        // 文件解析完成
         
         // 排序：目录在前，然后按名称排序
         files.sort((a, b) => {
