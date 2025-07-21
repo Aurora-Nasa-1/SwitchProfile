@@ -156,7 +156,9 @@ class AndroidFileBrowser {
      */
     listFiles(path) {
         return new Promise((resolve, reject) => {
-            const command = `cd "${path}" && ls -F 2>/dev/null || echo "ERROR: Directory not accessible"`;
+            // 确保路径以/结尾，以便正确处理符号链接
+            const normalizedPath = path.endsWith('/') ? path : path + '/';
+            const command = `ls -F "${normalizedPath}" 2>/dev/null || echo "ERROR: Directory not accessible"`;
             
             Core.execCommand(command, (output) => {
                 if (output && (output.includes('ERROR') || output.includes('No such file') || output.includes('Permission denied'))) {
@@ -362,14 +364,51 @@ class AndroidFileBrowser {
             this.loadDirectory(previousPath);
             this.updateBackButton();
             this.clearSelection();
+        } else {
+            // 如果没有历史记录，尝试返回上级目录
+            const parentPath = this.getParentPath(this.currentPath);
+            if (parentPath && parentPath !== this.currentPath) {
+                this.loadDirectory(parentPath);
+                this.updateBackButton();
+                this.clearSelection();
+            }
         }
+    }
+    
+    /**
+     * 获取上级目录路径
+     * @param {string} path - 当前路径
+     * @returns {string|null} - 上级目录路径
+     */
+    getParentPath(path) {
+        if (path === '/' || path === '') {
+            return null;
+        }
+        
+        // 移除末尾的斜杠
+        const cleanPath = path.replace(/\/+$/, '');
+        
+        // 找到最后一个斜杠的位置
+        const lastSlashIndex = cleanPath.lastIndexOf('/');
+        
+        if (lastSlashIndex === 0) {
+            // 如果最后一个斜杠在开头，返回根目录
+            return '/';
+        } else if (lastSlashIndex > 0) {
+            // 返回上级目录
+            return cleanPath.substring(0, lastSlashIndex);
+        }
+        
+        return null;
     }
     
     /**
      * 更新返回按钮状态
      */
     updateBackButton() {
-        this.backButton.disabled = this.pathHistory.length === 0;
+        const hasHistory = this.pathHistory.length > 0;
+        const hasParent = this.getParentPath(this.currentPath) !== null;
+        this.backButton.disabled = !hasHistory && !hasParent;
     }
     
     /**
