@@ -158,7 +158,8 @@ class AndroidFileBrowser {
         return new Promise((resolve, reject) => {
             // 确保路径以/结尾，以便正确处理符号链接
             const normalizedPath = path.endsWith('/') ? path : path + '/';
-            const command = `ls -F "${normalizedPath}" 2>/dev/null || echo "ERROR: Directory not accessible"`;
+            const tempFile = `/tmp/filelist_${Date.now()}.txt`;
+            const command = `ls -F "${normalizedPath}" > "${tempFile}" && cat "${tempFile}" && rm "${tempFile}"`;
             
             Core.execCommand(command, (output) => {
                 if (output && (output.includes('ERROR') || output.includes('No such file') || output.includes('Permission denied'))) {
