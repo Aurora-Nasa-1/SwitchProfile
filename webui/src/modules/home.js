@@ -72,7 +72,7 @@ export class HomePage {
             case 'install_module':
                 return operation.path ? `: ${operation.path.split('/').pop()}` : '';
             case 'delete_module':
-                return operation.moduleId ? `: ${operation.moduleId}` : '';
+                return operation.path ? `: ${operation.path.split('/').pop()}` : '';
             case 'flash_boot':
                 return operation.path ? `: ${operation.path.split('/').pop()}` : '';
             case 'custom_script':
@@ -106,35 +106,40 @@ export class HomePage {
                 return;
             }
             
+            // 显示确认对话框
+            const confirmContent = `此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`;
+            
+            const confirmed = await window.DialogManager.showConfirm(
+                `应用情景 "${scenario.name}"`,
+                confirmContent
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
             Core.showToast('正在应用情景...', 'info');
             
-            // 生成并执行脚本
-            const script = this.scenarioManager.generateScript(scenario);
-            
-            // 执行脚本
-            Core.execCommand(script, (output) => {
-                console.log('Script output:', output);
+            // 直接执行脚本文件
+            try {
+                const output = await this.scenarioManager.executeScenario(scenarioId);
+                console.log('Script execution output:', output);
                 
-                if (output.includes('ERROR') || output.includes('Failed')) {
-                    Core.showToast('情景应用失败', 'error');
-                } else {
-                    Core.showToast('情景应用成功', 'success');
-                    
-                    // 如果设置了自动重启
-                    if (scenario.autoReboot) {
-                        setTimeout(() => {
-                            Core.showToast('设备将在3秒后重启...', 'info');
-                            setTimeout(() => {
-                                Core.execCommand('reboot');
-                            }, 3000);
-                        }, 1000);
-                    }
+                Core.showToast('情景应用成功！', 'success');
+                
+                // 显示执行结果
+                if (output && output.trim()) {
+                    console.log('Scenario execution completed:', output);
                 }
-            });
+                
+            } catch (executeError) {
+                console.error('Script execution failed:', executeError);
+                Core.showToast('情景应用失败: ' + executeError.message, 'error');
+            }
             
         } catch (error) {
             console.error('Apply scenario error:', error);
-            Core.showToast('应用情景时发生错误', 'error');
+            Core.showToast('应用情景时发生错误: ' + error.message, 'error');
         }
     }
     

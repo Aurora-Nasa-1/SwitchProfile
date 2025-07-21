@@ -106,6 +106,10 @@ export class ManagePage {
                         <span class="material-symbols-rounded">delete</span>
                         删除
                     </button>
+                    <button type="button" class="execute-scenario tonal" data-id="${scenario.id}">
+                        <span class="material-symbols-rounded">play_arrow</span>
+                        执行脚本
+                    </button>
                     <button type="button" class="edit-scenario filled" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">edit</span>
                         编辑
@@ -130,7 +134,7 @@ export class ManagePage {
             case 'install_module':
                 return operation.path || '未设置路径';
             case 'delete_module':
-                return operation.moduleId || '未设置模块ID';
+                return operation.path || '未设置路径';
             case 'flash_boot':
                 return `${operation.path || '未设置路径'} ${operation.anykernel ? '(AnyKernel3)' : ''}`;
             case 'custom_script':
@@ -141,38 +145,29 @@ export class ManagePage {
     }
     
     bindEvents() {
-        // 编辑情景
-        this.container.querySelectorAll('.edit-scenario').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const scenarioId = e.target.closest('[data-id]').dataset.id;
+        // 使用事件委托来处理动态生成的按钮
+        this.container.addEventListener('click', (e) => {
+            const target = e.target.closest('button');
+            if (!target) return;
+            
+            const scenarioCard = target.closest('.scenario-card');
+            if (!scenarioCard) return;
+            
+            const scenarioId = scenarioCard.dataset.id;
+            
+            if (target.classList.contains('edit-scenario')) {
                 this.showEditDialog(scenarioId);
-            });
-        });
-        
-        // 删除情景
-        this.container.querySelectorAll('.delete-scenario').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const scenarioId = e.target.closest('[data-id]').dataset.id;
+            } else if (target.classList.contains('delete-scenario')) {
                 this.deleteScenario(scenarioId);
-            });
-        });
-        
-        // 编辑操作
-        this.container.querySelectorAll('.edit-operation').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const scenarioId = e.target.closest('[data-id]').dataset.id;
-                const operationIndex = parseInt(e.target.dataset.index);
+            } else if (target.classList.contains('execute-scenario')) {
+                this.executeScenario(scenarioId);
+            } else if (target.classList.contains('edit-operation')) {
+                const operationIndex = parseInt(target.dataset.index);
                 this.editOperation(scenarioId, operationIndex);
-            });
-        });
-        
-        // 删除操作
-        this.container.querySelectorAll('.delete-operation').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const scenarioId = e.target.closest('[data-id]').dataset.id;
-                const operationIndex = parseInt(e.target.dataset.index);
+            } else if (target.classList.contains('delete-operation')) {
+                const operationIndex = parseInt(target.dataset.index);
                 this.deleteOperation(scenarioId, operationIndex);
-            });
+            }
         });
     }
     
@@ -290,9 +285,16 @@ export class ManagePage {
                 return `
                     <input type="hidden" name="type" value="delete_module">
                     <label>
-                        <span>模块ID</span>
-                        <input type="text" name="moduleId" value="${operation?.moduleId || ''}" required>
+                        <span>模块路径</span>
+                        <input type="text" name="path" value="${operation?.path || ''}" required>
                     </label>
+                    <div class="file-input-wrapper">
+                        <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
+                            <span class="material-symbols-rounded">folder_open</span>
+                            选择文件
+                        </button>
+                        <input type="file" accept=".zip" style="display: none;">
+                    </div>
                 `;
             case 'flash_boot':
                 return `
@@ -330,27 +332,39 @@ export class ManagePage {
     }
     
     setupFileInputs() {
-        const fileButtons = document.querySelectorAll('.file-select-btn');
-        
-        fileButtons.forEach(button => {
+        // 为所有文件选择按钮绑定事件
+        this.operationEditDialog.querySelectorAll('.file-select-btn').forEach(button => {
             const fileInput = button.parentElement.querySelector('input[type="file"]');
-            const targetInput = document.querySelector(`input[name="${button.dataset.target}"]`);
+            const accept = fileInput ? fileInput.accept || '*' : '*';
             
-            button.addEventListener('click', () => {
-                fileInput.click();
-            });
-            
-            fileInput.addEventListener('change', async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    try {
-                        const copiedPath = await this.fileManager.copyFile(file);
-                        targetInput.value = copiedPath;
-                        Core.showToast('文件已复制到模块目录', 'success');
-                    } catch (error) {
-                        console.error('File copy error:', error);
-                        Core.showToast('文件复制失败', 'error');
+            button.addEventListener('click', async () => {
+                try {
+                    // 使用DialogManager选择文件，自动处理兼容性
+                    const file = await window.DialogManager.selectFile(accept);
+                    
+                    if (file) {
+                        const targetInput = button.parentElement.parentElement.querySelector('input[type="text"]');
+                        
+                        try {
+                            // 复制文件到目标目录
+                            const targetPath = await this.fileManager.copyFile(file);
+                            targetInput.value = targetPath;
+                            
+                            // 更新按钮文本
+                            const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
+                            if (textSpan) {
+                                textSpan.textContent = file.name;
+                            }
+                            
+                            Core.showToast('文件已选择', 'success');
+                        } catch (error) {
+                            console.error('File copy failed:', error);
+                            Core.showToast('文件复制失败', 'error');
+                        }
                     }
+                } catch (error) {
+                    console.error('File selection failed:', error);
+                    Core.showToast('文件选择失败', 'error');
                 }
             });
         });
@@ -384,9 +398,9 @@ export class ManagePage {
                 }
                 break;
             case 'delete_module':
-                operation.moduleId = formData.get('moduleId');
-                if (!operation.moduleId) {
-                    Core.showToast('请输入模块ID', 'warning');
+                operation.path = formData.get('path');
+                if (!operation.path) {
+                    Core.showToast('请选择模块文件', 'warning');
                     return;
                 }
                 break;
@@ -490,7 +504,12 @@ export class ManagePage {
     }
     
     async deleteScenario(scenarioId) {
-        if (confirm('确定要删除这个情景吗？')) {
+        const confirmed = await window.DialogManager.showConfirm(
+            '删除情景',
+            '确定要删除这个情景吗？此操作无法撤销。'
+        );
+        
+        if (confirmed) {
             try {
                 await this.scenarioManager.deleteScenario(scenarioId);
                 Core.showToast('情景已删除', 'success');
@@ -499,6 +518,53 @@ export class ManagePage {
                 console.error('Delete scenario error:', error);
                 Core.showToast('删除失败: ' + (error.message || '未知错误'), 'error');
             }
+        }
+    }
+    
+    async executeScenario(scenarioId) {
+        try {
+            const scenario = this.scenarioManager.getScenario(scenarioId);
+            if (!scenario) {
+                Core.showToast('情景不存在', 'error');
+                return;
+            }
+            
+            if (scenario.operations.length === 0) {
+                Core.showToast('该情景没有任何操作', 'warning');
+                return;
+            }
+            
+            // 显示确认对话框
+            const confirmed = await window.DialogManager.showConfirm(
+                '执行情景',
+                `确定要执行情景 "${scenario.name}" 吗？\n\n此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationContent(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`
+            );
+            
+            if (!confirmed) {
+                return;
+            }
+            
+            Core.showToast('正在执行脚本...', 'info');
+            
+            try {
+                const output = await this.scenarioManager.executeScenario(scenarioId);
+                console.log('Script execution output:', output);
+                
+                Core.showToast('脚本执行成功！', 'success');
+                
+                // 显示执行结果
+                if (output && output.trim()) {
+                    console.log('Scenario execution completed:', output);
+                }
+                
+            } catch (executeError) {
+                console.error('Script execution failed:', executeError);
+                Core.showToast('脚本执行失败: ' + executeError.message, 'error');
+            }
+            
+        } catch (error) {
+            console.error('Execute scenario error:', error);
+            Core.showToast('执行脚本时发生错误: ' + error.message, 'error');
         }
     }
     
@@ -513,7 +579,12 @@ export class ManagePage {
     }
     
     async deleteOperation(scenarioId, operationIndex) {
-        if (confirm('确定要删除这个操作吗？')) {
+        const confirmed = await window.DialogManager.showConfirm(
+            '删除操作',
+            '确定要删除这个操作吗？此操作无法撤销。'
+        );
+        
+        if (confirmed) {
             try {
                 const scenario = this.scenarioManager.getScenario(scenarioId);
                 if (scenario) {

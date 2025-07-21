@@ -3,21 +3,13 @@ import { Core } from '../core.js';
 export class ScenarioManager {
     constructor() {
         this.scenarios = [];
-        this.storageKey = 'switchprofile_scenarios';
+        this.scriptsPath = `${Core.MODULE_PATH}scenarios/`;
     }
     
     async loadScenarios() {
         try {
-            // 从本地存储加载情景
-            const stored = localStorage.getItem(this.storageKey);
-            if (stored) {
-                this.scenarios = JSON.parse(stored);
-            } else {
-                this.scenarios = [];
-            }
-            
-            // 也可以从文件系统加载（如果有的话）
-            await this.loadFromFile();
+            // 从脚本目录加载所有.sh文件
+            await this.loadFromScriptFiles();
             
         } catch (error) {
             console.error('Failed to load scenarios:', error);
@@ -25,88 +17,143 @@ export class ScenarioManager {
         }
     }
     
-    async loadFromFile() {
-        try {
-            // 尝试从模块目录加载配置文件
-            const configPath = `${Core.MODULE_PATH}scenarios.json`;
-            
-            Core.execCommand(`cat "${configPath}"`, (output) => {
-                if (output && !output.includes('No such file') && !output.includes('ERROR')) {
-                    try {
-                        const fileScenarios = JSON.parse(output);
-                        if (Array.isArray(fileScenarios)) {
-                            // 合并文件中的情景（文件优先）
-                            const existingIds = this.scenarios.map(s => s.id);
-                            fileScenarios.forEach(scenario => {
-                                const existingIndex = this.scenarios.findIndex(s => s.id === scenario.id);
-                                if (existingIndex >= 0) {
-                                    this.scenarios[existingIndex] = scenario;
-                                } else {
-                                    this.scenarios.push(scenario);
-                                }
-                            });
-                            this.saveToStorage();
-                        }
-                    } catch (parseError) {
-                        console.warn('Failed to parse scenarios file:', parseError);
-                    }
-                }
-            });
-        } catch (error) {
-            console.warn('Failed to load scenarios from file:', error);
-        }
-    }
-    
-    saveToStorage() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.scenarios));
-            return true;
-        } catch (error) {
-            console.error('Failed to save scenarios to storage:', error);
-            throw new Error('本地存储保存失败: ' + error.message);
-        }
-    }
-    
-    async saveToFile() {
+    async loadFromScriptFiles() {
         return new Promise((resolve, reject) => {
             try {
-                const configPath = `${Core.MODULE_PATH}scenarios.json`;
-                const content = JSON.stringify(this.scenarios, null, 2);
-                
-                // 确保目录存在
-                Core.execCommand(`mkdir -p "${Core.MODULE_PATH}"`, (mkdirOutput) => {
+                // 确保脚本目录存在
+                Core.execCommand(`mkdir -p "${this.scriptsPath}"`, (mkdirOutput) => {
                     if (mkdirOutput && mkdirOutput.includes('ERROR')) {
-                        console.error('Failed to create directory:', mkdirOutput);
-                        reject(new Error('目录创建失败: ' + mkdirOutput));
+                        console.warn('Failed to create scripts directory:', mkdirOutput);
+                    }
+                    
+                    // 列出所有.sh文件
+                    Core.execCommand(`find "${this.scriptsPath}" -name "*.sh" -type f`, (output) => {
+                        if (output && !output.includes('No such file') && !output.includes('ERROR')) {
+                            const scriptFiles = output.trim().split('\n').filter(file => file.trim());
+                            this.scenarios = [];
+                            
+                            let loadedCount = 0;
+                            const totalFiles = scriptFiles.length;
+                            
+                            if (totalFiles === 0) {
+                                resolve();
+                                return;
+                            }
+                            
+                            scriptFiles.forEach(scriptPath => {
+                                this.parseScriptFile(scriptPath, () => {
+                                    loadedCount++;
+                                    if (loadedCount === totalFiles) {
+                                        resolve();
+                                    }
+                                });
+                            });
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+            } catch (error) {
+                console.warn('Failed to load scenarios from script files:', error);
+                reject(error);
+            }
+        });
+    }
+    
+    parseScriptFile(scriptPath, callback) {
+        Core.execCommand(`head -20 "${scriptPath}"`, (output) => {
+            try {
+                if (output && !output.includes('ERROR')) {
+                    const lines = output.split('\n');
+                    const scenario = {
+                        id: this.extractScriptId(scriptPath),
+                        name: this.extractMetadata(lines, 'Generated scenario script:') || 'Unknown Scenario',
+                        compatibilityMode: this.extractMetadata(lines, 'Installer_Compatibility=') === 'true',
+                        autoReboot: this.checkAutoReboot(lines),
+                        operations: this.extractOperations(lines),
+                        scriptPath: scriptPath
+                    };
+                    
+                    this.scenarios.push(scenario);
+                }
+            } catch (error) {
+                console.warn('Failed to parse script file:', scriptPath, error);
+            }
+            callback();
+        });
+    }
+    
+    extractScriptId(scriptPath) {
+        const filename = scriptPath.split('/').pop();
+        return filename.replace('.sh', '');
+    }
+    
+    extractMetadata(lines, prefix) {
+        const line = lines.find(l => l.includes(prefix));
+        if (line) {
+            return line.split(prefix)[1]?.trim().replace(/"/g, '');
+        }
+        return null;
+    }
+    
+    checkAutoReboot(lines) {
+        return lines.some(line => line.includes('reboot') && !line.startsWith('#'));
+    }
+    
+    extractOperations(lines) {
+        // 简化的操作提取，实际情况下可能需要更复杂的解析
+        const operations = [];
+        lines.forEach(line => {
+            if (line.includes('Installer_Module')) {
+                operations.push({ type: 'install_module', path: 'extracted from script' });
+            } else if (line.includes('Delete_Module')) {
+                operations.push({ type: 'delete_module', moduleId: 'extracted from script' });
+            } else if (line.includes('flash_boot')) {
+                operations.push({ type: 'flash_boot', path: 'extracted from script' });
+            }
+        });
+        return operations;
+    }
+    
+    async saveScriptToFile(scenario) {
+        return new Promise((resolve, reject) => {
+            try {
+                const scriptPath = `${this.scriptsPath}${scenario.id}.sh`;
+                const scriptContent = this.generateScript(scenario);
+                
+                // 确保脚本目录存在
+                Core.execCommand(`mkdir -p "${this.scriptsPath}"`, (mkdirOutput) => {
+                    if (mkdirOutput && mkdirOutput.includes('ERROR')) {
+                        console.error('Failed to create scripts directory:', mkdirOutput);
+                        reject(new Error('脚本目录创建失败: ' + mkdirOutput));
                         return;
                     }
                     
-                    // 写入文件 - 使用cat命令避免echo的引号问题
-                    const tempFile = `${Core.MODULE_PATH}scenarios.tmp`;
-                    const escapedContent = content.replace(/\\/g, '\\\\').replace(/'/g, "'\"'\"'");
+                    // 写入脚本文件
+                    const tempFile = `${scriptPath}.tmp`;
                     
-                    Core.execCommand(`cat > "${tempFile}" << 'EOF'\n${content}\nEOF`, (writeOutput) => {
+                    Core.execCommand(`cat > "${tempFile}" << 'EOF'\n${scriptContent}\nEOF`, (writeOutput) => {
                         if (writeOutput && writeOutput.includes('ERROR')) {
-                            console.error('Failed to write temp file:', writeOutput);
-                            reject(new Error('临时文件写入失败: ' + writeOutput));
+                            console.error('Failed to write temp script file:', writeOutput);
+                            reject(new Error('临时脚本文件写入失败: ' + writeOutput));
                             return;
                         }
                         
-                        // 移动临时文件到目标位置
-                        Core.execCommand(`mv "${tempFile}" "${configPath}"`, (mvOutput) => {
+                        // 移动临时文件到目标位置并设置执行权限
+                        Core.execCommand(`mv "${tempFile}" "${scriptPath}" && chmod +x "${scriptPath}"`, (mvOutput) => {
                             if (mvOutput && mvOutput.includes('ERROR')) {
-                                console.error('Failed to move file:', mvOutput);
-                                reject(new Error('文件移动失败: ' + mvOutput));
+                                console.error('Failed to move script file:', mvOutput);
+                                reject(new Error('脚本文件移动失败: ' + mvOutput));
                             } else {
-                                console.log('Scenarios saved successfully to file');
-                                resolve(true);
+                                console.log('Script saved successfully:', scriptPath);
+                                resolve(scriptPath);
                             }
                         });
                     });
                 });
             } catch (error) {
-                console.error('Failed to save scenarios to file:', error);
-                reject(new Error('文件保存失败: ' + error.message));
+                console.error('Failed to save script to file:', error);
+                reject(new Error('脚本保存失败: ' + error.message));
             }
         });
     }
@@ -125,15 +172,16 @@ export class ScenarioManager {
             scenario.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
         }
         
-        this.scenarios.push(scenario);
-        
         try {
-            this.saveToStorage();
-            await this.saveToFile();
+            // 直接保存为脚本文件
+            const scriptPath = await this.saveScriptToFile(scenario);
+            scenario.scriptPath = scriptPath;
+            
+            // 添加到内存中的情景列表
+            this.scenarios.push(scenario);
+            
             return scenario;
         } catch (error) {
-            // 如果保存失败，回滚操作
-            this.scenarios.pop();
             throw error;
         }
     }
@@ -142,11 +190,15 @@ export class ScenarioManager {
         const index = this.scenarios.findIndex(s => s.id === scenario.id);
         if (index >= 0) {
             const originalScenario = this.scenarios[index];
-            this.scenarios[index] = scenario;
             
             try {
-                this.saveToStorage();
-                await this.saveToFile();
+                // 保存更新后的脚本文件
+                const scriptPath = await this.saveScriptToFile(scenario);
+                scenario.scriptPath = scriptPath;
+                
+                // 更新内存中的情景
+                this.scenarios[index] = scenario;
+                
                 return true;
             } catch (error) {
                 // 如果保存失败，回滚操作
@@ -161,29 +213,51 @@ export class ScenarioManager {
         const index = this.scenarios.findIndex(s => s.id === id);
         if (index >= 0) {
             const deletedScenario = this.scenarios[index];
-            this.scenarios.splice(index, 1);
+            const scriptPath = `${this.scriptsPath}${id}.sh`;
             
-            try {
-                this.saveToStorage();
-                await this.saveToFile();
-                return true;
-            } catch (error) {
-                // 如果保存失败，回滚操作
-                this.scenarios.splice(index, 0, deletedScenario);
-                throw error;
-            }
+            return new Promise((resolve, reject) => {
+                // 删除脚本文件
+                Core.execCommand(`rm -f "${scriptPath}"`, (output) => {
+                    if (output && output.includes('ERROR')) {
+                        console.error('Failed to delete script file:', output);
+                        reject(new Error('脚本文件删除失败: ' + output));
+                    } else {
+                        // 从内存中移除情景
+                        this.scenarios.splice(index, 1);
+                        console.log('Script deleted successfully:', scriptPath);
+                        resolve(true);
+                    }
+                });
+            });
         }
         throw new Error('情景不存在');
     }
     
     generateScript(scenario) {
-        let script = '#!/system/sh\n';
-        script += `# Generated scenario script: ${scenario.name}\n`;
-        script += `# Generated at: ${new Date().toISOString()}\n\n`;
+        let script = '#!/system/bin/sh\n\n';
         
-        // 导入核心函数
-        script += `# Import core functions\n`;
-        script += `source "${Core.MODULE_PATH}Core.sh"\n\n`;
+        // 添加脚本头部信息
+        script += `# Scenario: ${scenario.name}\n`;
+        script += `# Compatibility Mode: ${scenario.compatibilityMode}\n`;
+        script += `# Auto Reboot: ${scenario.autoReboot ? 'true' : 'false'}\n`;
+        script += `# Generated: ${new Date().toISOString()}\n\n`;
+        
+        // 引入Core.sh并检查是否存在
+        script += '# Source Core.sh functions\n';
+        script += 'CORE_SH="/d:/AuroraNasa Data/Project/SwitchProfile/Core.sh"\n';
+        script += 'if [ ! -f "$CORE_SH" ]; then\n';
+        script += '    echo "Error: Core.sh not found at $CORE_SH"\n';
+        script += '    exit 1\n';
+        script += 'fi\n';
+        script += 'source "$CORE_SH"\n\n';
+        
+        // 设置兼容模式
+        if (scenario.compatibilityMode && scenario.compatibilityMode !== 'auto') {
+            script += `# Set compatibility mode\n`;
+            script += `export COMPATIBILITY_MODE="${scenario.compatibilityMode}"\n`;
+        }
+        
+        script += '\n';
         
         // 设置变量
         script += `# Configuration\n`;
@@ -213,14 +287,18 @@ export class ScenarioManager {
         
         // 自动重启
         if (scenario.autoReboot) {
-            script += `# Auto reboot\n`;
-            script += `log_info "Rebooting device in 3 seconds..."\n`;
+            script += `# Auto reboot after completion\n`;
+            script += `log_info "All operations completed successfully"\n`;
+            script += `log_info "Auto reboot enabled, rebooting in 3 seconds..."\n`;
             script += `sleep 3\n`;
             script += `reboot\n`;
+        } else {
+            script += `# Scenario completion\n`;
+            script += `log_info "All operations completed successfully"\n`;
+            script += `log_info "Scenario execution finished"\n`;
         }
         
-        script += `log_info "Scenario '${scenario.name}' completed successfully"\n`;
-        
+        script += `\nexit 0\n`;        
         return script;
     }
     
@@ -229,7 +307,7 @@ export class ScenarioManager {
             case 'install_module':
                 return `Install module: ${operation.path}`;
             case 'delete_module':
-                return `Delete module: ${operation.moduleId}`;
+                return `Delete module: ${operation.path}`;
             case 'flash_boot':
                 return `Flash boot: ${operation.path} ${operation.anykernel ? '(AnyKernel3)' : ''}`;
             case 'custom_script':
@@ -263,15 +341,15 @@ export class ScenarioManager {
             return script;
         }
         
+        script += `# Check if module file exists\n`;
         script += `if [ ! -f "${operation.path}" ]; then\n`;
         script += `    log_error "Module file not found: ${operation.path}"\n`;
         script += `    exit 1\n`;
         script += `fi\n\n`;
         
+        script += `# Install module using Core.sh function\n`;
         script += `log_info "Installing module: ${operation.path}"\n`;
-        script += `Installer_Module "${operation.path}"\n`;
-        
-        script += `if [ $? -eq 0 ]; then\n`;
+        script += `if Installer_Module "${operation.path}"; then\n`;
         script += `    log_info "Module installed successfully"\n`;
         script += `else\n`;
         script += `    log_error "Failed to install module"\n`;
@@ -284,23 +362,19 @@ export class ScenarioManager {
     generateDeleteModuleScript(operation) {
         let script = '';
         
-        if (!operation.moduleId) {
-            script += `log_error "Module ID not specified"\n`;
+        if (!operation.path) {
+            script += `log_error "Module path not specified"\n`;
             script += `exit 1\n`;
             return script;
         }
         
-        script += `if [ ! -d "/data/adb/modules/${operation.moduleId}" ]; then\n`;
-        script += `    log_warn "Module not found: ${operation.moduleId}"\n`;
+        script += `# Delete module using Core.sh function\n`;
+        script += `log_info "Deleting module: ${operation.path}"\n`;
+        script += `if Delete_Module "${operation.path}"; then\n`;
+        script += `    log_info "Module deleted successfully"\n`;
         script += `else\n`;
-        script += `    log_info "Deleting module: ${operation.moduleId}"\n`;
-        script += `    Delete_Module "${operation.moduleId}"\n`;
-        script += `    if [ $? -eq 0 ]; then\n`;
-        script += `        log_info "Module deleted successfully"\n`;
-        script += `    else\n`;
-        script += `        log_error "Failed to delete module"\n`;
-        script += `        exit 1\n`;
-        script += `    fi\n`;
+        script += `    log_error "Failed to delete module"\n`;
+        script += `    exit 1\n`;
         script += `fi\n`;
         
         return script;
@@ -315,15 +389,15 @@ export class ScenarioManager {
             return script;
         }
         
+        script += `# Check if boot image file exists\n`;
         script += `if [ ! -f "${operation.path}" ]; then\n`;
         script += `    log_error "Boot image not found: ${operation.path}"\n`;
         script += `    exit 1\n`;
         script += `fi\n\n`;
         
+        script += `# Flash boot image using Core.sh function\n`;
         script += `log_info "Flashing boot image: ${operation.path}"\n`;
-        script += `flash_boot "${operation.path}" "${operation.anykernel ? 'true' : 'false'}"\n`;
-        
-        script += `if [ $? -eq 0 ]; then\n`;
+        script += `if flash_boot "${operation.path}" "${operation.anykernel ? 'true' : 'false'}"; then\n`;
         script += `    log_info "Boot image flashed successfully"\n`;
         script += `else\n`;
         script += `    log_error "Failed to flash boot image"\n`;
@@ -354,30 +428,52 @@ export class ScenarioManager {
         return script;
     }
     
-    exportScenarios() {
-        return JSON.stringify(this.scenarios, null, 2);
+    async executeScenario(scenarioId) {
+        const scenario = this.getScenario(scenarioId);
+        if (!scenario) {
+            throw new Error('情景不存在');
+        }
+        
+        const scriptPath = `${this.scriptsPath}${scenarioId}.sh`;
+        
+        return new Promise((resolve, reject) => {
+            Core.execCommand(`sh "${scriptPath}"`, (output) => {
+                if (output && output.includes('ERROR')) {
+                    console.error('Failed to execute scenario script:', output);
+                    reject(new Error('脚本执行失败: ' + output));
+                } else {
+                    console.log('Scenario executed successfully:', output);
+                    resolve(output);
+                }
+            });
+        });
     }
     
-    importScenarios(jsonData) {
-        try {
-            const imported = JSON.parse(jsonData);
-            if (Array.isArray(imported)) {
-                // 合并导入的情景
-                imported.forEach(scenario => {
-                    // 确保ID唯一
-                    if (this.scenarios.find(s => s.id === scenario.id)) {
-                        scenario.id = Date.now().toString() + Math.random().toString(36).substr(2, 9);
-                    }
-                    this.scenarios.push(scenario);
-                });
-                
-                this.saveToStorage();
-                this.saveToFile();
-                return true;
-            }
-        } catch (error) {
-            console.error('Import scenarios error:', error);
-        }
-        return false;
+    exportScenarios() {
+        // 导出所有脚本文件的路径列表
+        return this.scenarios.map(s => ({
+            id: s.id,
+            name: s.name,
+            scriptPath: s.scriptPath
+        }));
+    }
+    
+    async importScenario(scriptPath) {
+        // 从外部脚本文件导入情景
+        return new Promise((resolve, reject) => {
+            const newId = Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            const newScriptPath = `${this.scriptsPath}${newId}.sh`;
+            
+            Core.execCommand(`cp "${scriptPath}" "${newScriptPath}" && chmod +x "${newScriptPath}"`, (output) => {
+                if (output && output.includes('ERROR')) {
+                    reject(new Error('脚本导入失败: ' + output));
+                } else {
+                    // 重新加载情景列表
+                    this.loadScenarios().then(() => {
+                        resolve(true);
+                    }).catch(reject);
+                }
+            });
+        });
     }
 }

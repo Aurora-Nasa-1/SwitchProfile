@@ -139,6 +139,39 @@
         </form>
     </dialog>
     
+    <!-- 确认对话框 -->
+    <dialog id="confirm-dialog">
+        <h2 id="confirm-title">确认操作</h2>
+        <div id="confirm-content">
+            <!-- 确认内容将在这里动态生成 -->
+        </div>
+        <fieldset>
+            <button type="button" id="confirm-cancel">取消</button>
+            <button type="button" id="confirm-ok" class="filled">确定</button>
+        </fieldset>
+    </dialog>
+    
+    <!-- 文件选择器对话框 -->
+    <dialog id="file-picker-dialog">
+        <h2>选择文件</h2>
+        <div id="file-picker-content">
+            <div class="file-drop-zone">
+                <span class="material-symbols-rounded">upload_file</span>
+                <p>拖拽文件到此处或点击选择</p>
+                <input type="file" id="fallback-file-input" style="display: none;">
+                <button type="button" id="select-file-btn" class="tonal">选择文件</button>
+            </div>
+            <div id="selected-file-info" style="display: none;">
+                <span class="material-symbols-rounded">description</span>
+                <span id="selected-file-name"></span>
+            </div>
+        </div>
+        <fieldset>
+            <button type="button" id="file-picker-cancel">取消</button>
+            <button type="button" id="file-picker-ok" class="filled" disabled>确定</button>
+        </fieldset>
+    </dialog>
+    
     <!-- 应用脚本 -->
     <script type="module" src="src/app.js"></script>
 </body>

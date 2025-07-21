@@ -623,3 +623,64 @@ body.mmrl-webui-x {
 .nav-item:focus .material-symbols-rounded {
   background-color: color-mix(in oklch, var(--color) 10%, transparent);
 }
+
+/* 确认对话框样式 */
+#confirm-dialog {
+  max-width: 400px;
+}
+
+#confirm-content {
+  margin: var(--spacing-m) 0;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* 文件选择器对话框样式 */
+#file-picker-dialog {
+  max-width: 400px;
+}
+
+.file-drop-zone {
+  border: 2px dashed var(--outline);
+  border-radius: var(--border-radius-m);
+  padding: var(--spacing-xl);
+  text-align: center;
+  margin: var(--spacing-m) 0;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.file-drop-zone:hover {
+  border-color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+}
+
+.file-drop-zone.drag-over {
+  border-color: var(--primary);
+  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
+}
+
+.file-drop-zone .material-symbols-rounded {
+  font-size: 48px;
+  color: var(--on-surface-variant);
+  display: block;
+  margin-bottom: var(--spacing-s);
+}
+
+.file-drop-zone p {
+  margin: var(--spacing-s) 0;
+  color: var(--on-surface-variant);
+}
+
+#selected-file-info {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  padding: var(--spacing-m);
+  background-color: var(--surface-container);
+  border-radius: var(--border-radius-m);
+  margin: var(--spacing-m) 0;
+}
+
+#selected-file-info .material-symbols-rounded {
+  color: var(--primary);
+}
