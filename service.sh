@@ -5,7 +5,4 @@
 # Example: Switch profile logic
 MODDIR=${0%/*}
 
-# Placeholder for switching profiles
-echo "Switching profile..." >> /data/local/tmp/switchprofile.log
-
-# Add your profile switching commands here
+cp $MODDIR/Core.sh /data/local/tmp/SwitchProfile/Core.sh
