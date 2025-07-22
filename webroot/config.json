@@ -12,7 +12,4 @@
   "historyFallbackFile": "index.html",
   "autoStatusBarsStyle": true,
   "killShellWhenBackground": true,
-  "contentSecurityPolicy": "default-src 'self' data: blob: {domain}; script-src 'self' 'unsafe-inline' 'unsafe-eval' {domain}; style-src 'self' 'unsafe-inline' {domain}; connect-src *",
-  "caching": true,
-  "cachingMaxAge": 86400
 }
