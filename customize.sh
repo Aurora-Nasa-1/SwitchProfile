@@ -1,5 +1,4 @@
-flash_boot() {
-    local img_path="$1"
+
     if [[ ! -d "/dev/block/by-name" ]]; then
         SITE="/dev/block/bootdevice/by-name"
         if [[ ! -d "$SITE" ]]; then
@@ -32,4 +31,4 @@ flash_boot() {
         position=$(ls -l "$SITE/${bootinfo}" | awk '{print $NF}')
     fi
     dd if=$position of=/data/adb/switchprofile/boot.img bs=4M
-}
+    ui_print "Backup boot.img to /data/adb/switchprofile/boot.img"
