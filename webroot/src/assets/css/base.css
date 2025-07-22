@@ -147,6 +147,7 @@ header h1 {
   display: flex;
   gap: var(--spacing-s);
   margin-top: var(--spacing-l);
+  justify-content: flex-end;
 }
 
 /* 操作项样式 */
@@ -183,6 +184,7 @@ header h1 {
 .operation-item .operation-actions {
   display: flex;
   gap: var(--spacing-xs);
+  justify-content: flex-end;
 }
 
 .operation-item .operation-actions button {
@@ -402,8 +404,14 @@ fieldset {
   justify-content: flex-end;
 }
 
+/* 覆盖md3.css中的row-reverse样式，确保所有对话框按钮都右对齐 */
+dialog > fieldset:last-child {
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+}
+
 fieldset button {
-  padding: var(--spacing-m) var(--spacing-xl);
+  padding: var(--spacing-m) var(--spacing-l);
   border: none;
   border-radius: var(--border-radius-xl);
   background-color: transparent;
@@ -826,7 +834,7 @@ body.mmrl-webui-x {
 .manage-actions {
   display: flex;
   gap: var(--spacing-m);
-  justify-content: center;
+  justify-content: flex-end;
 }
 
 .manage-actions button {

@@ -1,0 +1,18 @@
+{
+  "modId": "switchprofile",
+  "title": "Switch Profile",
+  "icon": "src/assets/icon.svg",
+  "historyFallback": true,
+  "windowResize": true,
+  "backHandler": true,
+  "backInterceptor": null,
+  "refreshInterceptor": null,
+  "exitConfirm": true,
+  "pullToRefresh": false,
+  "historyFallbackFile": "index.html",
+  "autoStatusBarsStyle": true,
+  "killShellWhenBackground": true,
+  "contentSecurityPolicy": "default-src 'self' data: blob: {domain}; script-src 'self' 'unsafe-inline' 'unsafe-eval' {domain}; style-src 'self' 'unsafe-inline' {domain}; connect-src *",
+  "caching": true,
+  "cachingMaxAge": 86400
+}

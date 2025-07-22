@@ -1,0 +1,50 @@
+{
+  "name": "Switch Profile",
+  "short_name": "SwitchProfile",
+  "description": "一个用于管理和切换系统配置文件的 Magisk 模块",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1C1B1F",
+  "theme_color": "#6750A4",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "src/assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "情景模式",
+      "short_name": "情景",
+      "description": "查看和应用情景模式",
+      "url": "/#home",
+      "icons": [
+        {
+          "src": "src/assets/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "管理情景",
+      "short_name": "管理",
+      "description": "管理和编辑情景模式",
+      "url": "/#manage",
+      "icons": [
+        {
+          "src": "src/assets/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "categories": ["utilities", "productivity"],
+  "prefer_related_applications": false
+}

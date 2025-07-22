@@ -3,7 +3,7 @@ export class SettingsManager {
         this.settings = {
             noConfirm: false,
             hue: 300,
-            exportPath: '/data/adb/switchprofile/export/'
+            exportPath: '/sdcard/Download/'
         };
         this.loadSettings();
     }

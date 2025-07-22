@@ -4,7 +4,7 @@ export class ScenarioManager {
     constructor() {
         this.scenarios = [];
         this.scriptsPath = `/data/adb/switchprofile/scenarios/`;
-        this.exportPath = '/data/adb/switchprofile/export/';
+        this.exportPath = '/sdcard/Download/';
     }
     
     async loadScenarios() {
