@@ -3,7 +3,8 @@ import { Core } from '../core.js';
 export class ScenarioManager {
     constructor() {
         this.scenarios = [];
-        this.scriptsPath = `${Core.MODULE_PATH}scenarios/`;
+        this.scriptsPath = `/data/adb/switchprofile/scenarios/`;
+        this.exportPath = '/data/adb/switchprofile/export/';
     }
     
     async loadScenarios() {
@@ -165,6 +166,88 @@ export class ScenarioManager {
     getScenario(id) {
         return this.scenarios.find(scenario => scenario.id === id);
     }
+
+    // 导出情景到指定路径
+    async exportScenario(scenarioId, exportPath) {
+        return new Promise((resolve, reject) => {
+            const scenario = this.getScenario(scenarioId);
+            if (!scenario) {
+                reject(new Error('情景不存在'));
+                return;
+            }
+
+            const sourceFile = `${this.scriptsPath}${scenarioId}.sh`;
+            const targetFile = `${exportPath}/${scenario.name}_${scenarioId}.sh`;
+            
+            // 确保目标目录存在
+            Core.execCommand(`mkdir -p "${exportPath}"`, (mkdirOutput) => {
+                if (mkdirOutput && mkdirOutput.includes('ERROR')) {
+                    reject(new Error('创建导出目录失败'));
+                    return;
+                }
+                
+                // 复制文件
+                Core.execCommand(`cp "${sourceFile}" "${targetFile}"`, (cpOutput) => {
+                    if (cpOutput && cpOutput.includes('ERROR')) {
+                        reject(new Error('导出文件失败'));
+                    } else {
+                        resolve(targetFile);
+                    }
+                });
+            });
+        });
+    }
+
+    // 从指定路径导入情景
+    async importScenario(importPath) {
+        return new Promise((resolve, reject) => {
+            // 检查文件是否存在
+            Core.execCommand(`test -f "${importPath}" && echo "exists"`, (testOutput) => {
+                if (!testOutput || !testOutput.includes('exists')) {
+                    reject(new Error('导入文件不存在'));
+                    return;
+                }
+                
+                // 生成新的情景ID
+                const newId = Date.now().toString();
+                const targetFile = `${this.scriptsPath}${newId}.sh`;
+                
+                // 确保脚本目录存在
+                Core.execCommand(`mkdir -p "${this.scriptsPath}"`, (mkdirOutput) => {
+                    if (mkdirOutput && mkdirOutput.includes('ERROR')) {
+                        reject(new Error('创建脚本目录失败'));
+                        return;
+                    }
+                    
+                    // 复制文件到脚本目录
+                    Core.execCommand(`cp "${importPath}" "${targetFile}"`, (cpOutput) => {
+                        if (cpOutput && cpOutput.includes('ERROR')) {
+                            reject(new Error('导入文件失败'));
+                        } else {
+                            // 解析导入的脚本文件
+                            this.parseScriptFile(targetFile, () => {
+                                resolve(newId);
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    }
+
+    // 批量导出所有情景
+    async exportAllScenarios(exportPath) {
+        const results = [];
+        for (const scenario of this.scenarios) {
+            try {
+                const result = await this.exportScenario(scenario.id, exportPath);
+                results.push({ success: true, scenario: scenario.name, file: result });
+            } catch (error) {
+                results.push({ success: false, scenario: scenario.name, error: error.message });
+            }
+        }
+        return results;
+    }
     
     async addScenario(scenario) {
         // 确保ID唯一
@@ -236,49 +319,46 @@ export class ScenarioManager {
     generateScript(scenario) {
         let script = '#!/system/bin/sh\n\n';
         
-        // 添加脚本头部信息
-        script += `# Scenario: ${scenario.name}\n`;
-        script += `# Compatibility Mode: ${scenario.compatibilityMode}\n`;
-        script += `# Auto Reboot: ${scenario.autoReboot ? 'true' : 'false'}\n`;
-        script += `# Generated: ${new Date().toISOString()}\n\n`;
-        
-        // 引入Core.sh并检查是否存在
-        script += '# Source Core.sh functions\n';
-        script += `CORE_SH="${Core.MODULE_PATH}/Core.sh"\n`;
-        script += 'if [ ! -f "$CORE_SH" ]; then\n';
-        script += '    echo "Error: Core.sh not found at $CORE_SH"\n';
-        script += '    exit 1\n';
-        script += 'fi\n';
-        script += 'source "$CORE_SH"\n\n';
-        
-        script += '\n';
-        
-        // 设置变量
-        script += `# Configuration\n`;
+        // 基本设置
+        script += `# ${scenario.name}\n`;
+        script += `source "${Core.MODULE_PATH}/Core.sh"\n`;
         script += `Installer_Compatibility="${scenario.compatibilityMode ? 'true' : 'false'}"\n`;
         script += `Installer_Log="true"\n\n`;
-        // 执行操作
-        script += `# Execute operations\n`;
+        
+        // 进度报告函数
+        script += 'report_progress() {\n';
+        script += '    echo "PROGRESS:$1:$2:$3"\n';
+        script += '}\n\n';
+        
+        script += `log_info "Starting scenario: ${scenario.name}"\n`;
+        script += `report_progress "0" "${scenario.operations.length}" "开始执行情景"\n\n`;
+        
+        // 生成操作脚本
         scenario.operations.forEach((operation, index) => {
-            script += `log_info "Executing operation ${index + 1}: ${this.getOperationDescription(operation)}"\n`;
-            script += this.generateOperationScript(operation);
-            script += '\n';
+            const operationNumber = index + 1;
+            
+            script += `# Operation ${operationNumber}\n`;
+            script += `log_info "[${operationNumber}/${scenario.operations.length}] ${this.getOperationDescription(operation)}"\n`;
+            script += `report_progress "${index}" "${scenario.operations.length}" "${this.getOperationDescription(operation)}"\n`;
+            
+            // 生成具体操作脚本
+            script += this.generateOperationScript(operation, operationNumber);
+            
+            script += `report_progress "${operationNumber}" "${scenario.operations.length}" "操作 ${operationNumber} 完成"\n\n`;
         });
+        
+        // 完成
+        script += `log_info "All operations completed successfully"\n`;
+        script += `report_progress "${scenario.operations.length}" "${scenario.operations.length}" "所有操作完成"\n`;
         
         // 自动重启
         if (scenario.autoReboot) {
-            script += `# Auto reboot after completion\n`;
-            script += `log_info "All operations completed successfully"\n`;
-            script += `log_info "Auto reboot enabled, rebooting in 3 seconds..."\n`;
-            script += `sleep 3\n`;
-            script += `reboot\n`;
-        } else {
-            script += `# Scenario completion\n`;
-            script += `log_info "All operations completed successfully"\n`;
-            script += `log_info "Scenario execution finished"\n`;
+            script += '\nlog_info "Auto reboot in 3 seconds..."\n';
+            script += 'sleep 3\n';
+            script += 'reboot\n';
         }
         
-        script += `\nexit 0\n`;        
+        script += '\nexit 0\n';
         return script;
     }
     
@@ -297,7 +377,24 @@ export class ScenarioManager {
         }
     }
     
-    generateOperationScript(operation) {
+    generateOperationId(operation, index) {
+        // 生成唯一的操作标识符，用于脚本中的标记和错误处理
+        const typePrefix = {
+            'install_module': 'INST',
+            'delete_module': 'DEL',
+            'flash_boot': 'FLASH',
+            'custom_script': 'CUSTOM'
+        }[operation.type] || 'UNK';
+        
+        const timestamp = Date.now().toString().slice(-6); // 取时间戳后6位
+        return `${typePrefix}_${String(index + 1).padStart(3, '0')}_${timestamp}`;
+    }
+    
+
+    
+
+    
+    generateOperationScript(operation, operationNumber) {
         switch (operation.type) {
             case 'install_module':
                 return this.generateInstallModuleScript(operation);
@@ -308,104 +405,40 @@ export class ScenarioManager {
             case 'custom_script':
                 return this.generateCustomScript(operation);
             default:
-                return `log_error "Unknown operation type: ${operation.type}"\n`;
+                return `log_error "Unknown operation type: ${operation.type}"\nexit 1\n`;
         }
     }
     
     generateInstallModuleScript(operation) {
-        let script = '';
-        
         if (!operation.path) {
-            script += `log_error "Module path not specified"\n`;
-            script += `exit 1\n`;
-            return script;
+            return `log_error "Module path not specified"\nexit 1\n`;
         }
         
-        script += `# Check if module file exists\n`;
-        script += `if [ ! -f "${operation.path}" ]; then\n`;
-        script += `    log_error "Module file not found: ${operation.path}"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n\n`;
-        
-        script += `# Install module using Core.sh function\n`;
-        script += `log_info "Installing module: ${operation.path}"\n`;
-        script += `if Installer_Module "${operation.path}"; then\n`;
-        script += `    log_info "Module installed successfully"\n`;
-        script += `else\n`;
-        script += `    log_error "Failed to install module"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n`;
-        
-        return script;
+        return `Installer_Module "${operation.path}" || exit 1\n`;
     }
     
     generateDeleteModuleScript(operation) {
-        let script = '';
-        
         if (!operation.path) {
-            script += `log_error "Module path not specified"\n`;
-            script += `exit 1\n`;
-            return script;
+            return `log_error "Module path not specified"\nexit 1\n`;
         }
         
-        script += `# Delete module using Core.sh function\n`;
-        script += `log_info "Deleting module: ${operation.path}"\n`;
-        script += `if Delete_Module "${operation.path}"; then\n`;
-        script += `    log_info "Module deleted successfully"\n`;
-        script += `else\n`;
-        script += `    log_error "Failed to delete module"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n`;
-        
-        return script;
+        return `Delete_Module "${operation.path}" || exit 1\n`;
     }
     
     generateFlashBootScript(operation) {
-        let script = '';
-        
         if (!operation.path) {
-            script += `log_error "Boot image path not specified"\n`;
-            script += `exit 1\n`;
-            return script;
+            return `log_error "Boot image path not specified"\nexit 1\n`;
         }
         
-        script += `# Check if boot image file exists\n`;
-        script += `if [ ! -f "${operation.path}" ]; then\n`;
-        script += `    log_error "Boot image not found: ${operation.path}"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n\n`;
-        
-        script += `# Flash boot image using Core.sh function\n`;
-        script += `log_info "Flashing boot image: ${operation.path}"\n`;
-        script += `if flash_boot "${operation.path}" "${operation.anykernel ? 'true' : 'false'}"; then\n`;
-        script += `    log_info "Boot image flashed successfully"\n`;
-        script += `else\n`;
-        script += `    log_error "Failed to flash boot image"\n`;
-        script += `    exit 1\n`;
-        script += `fi\n`;
-        
-        return script;
+        return `flash_boot "${operation.path}" "${operation.anykernel ? 'true' : 'false'}" || exit 1\n`;
     }
     
     generateCustomScript(operation) {
-        let script = '';
-        
-        if (!operation.script) {
-            script += `log_error "Custom script content not specified"\n`;
-            script += `exit 1\n`;
-            return script;
+        if (!operation.script || operation.script.trim() === '') {
+            return `log_error "Custom script content is empty"\nexit 1\n`;
         }
         
-        script += `log_info "Executing custom script"\n`;
-        script += `# Custom script start\n`;
-        script += operation.script;
-        if (!operation.script.endsWith('\n')) {
-            script += '\n';
-        }
-        script += `# Custom script end\n`;
-        script += `log_info "Custom script completed"\n`;
-        
-        return script;
+        return operation.script + '\n';
     }
     
     async executeScenario(scenarioId) {
@@ -455,5 +488,177 @@ export class ScenarioManager {
                 }
             });
         });
+    }
+    
+    // 操作管理方法 - 确保安全的插入、删除和修改
+    
+    insertOperation(scenarioId, operation, position = -1) {
+        const scenario = this.getScenario(scenarioId);
+        if (!scenario) {
+            throw new Error('情景不存在');
+        }
+        
+        // 验证操作数据
+        if (!this.validateOperation(operation)) {
+            throw new Error('操作数据无效');
+        }
+        
+        // 确保位置有效
+        const targetPosition = position === -1 ? scenario.operations.length : Math.max(0, Math.min(position, scenario.operations.length));
+        
+        // 插入操作
+        scenario.operations.splice(targetPosition, 0, operation);
+        
+        // 重新生成操作编号和标识符
+        this.renumberOperations(scenario);
+        
+        // 保存更新后的情景
+        return this.updateScenario(scenarioId, scenario);
+    }
+    
+    deleteOperation(scenarioId, operationIndex) {
+        const scenario = this.getScenario(scenarioId);
+        if (!scenario) {
+            throw new Error('情景不存在');
+        }
+        
+        if (operationIndex < 0 || operationIndex >= scenario.operations.length) {
+            throw new Error('操作索引无效');
+        }
+        
+        // 删除操作
+        scenario.operations.splice(operationIndex, 1);
+        
+        // 重新生成操作编号和标识符
+        this.renumberOperations(scenario);
+        
+        // 保存更新后的情景
+        return this.updateScenario(scenarioId, scenario);
+    }
+    
+    moveOperation(scenarioId, fromIndex, toIndex) {
+        const scenario = this.getScenario(scenarioId);
+        if (!scenario) {
+            throw new Error('情景不存在');
+        }
+        
+        if (fromIndex < 0 || fromIndex >= scenario.operations.length || 
+            toIndex < 0 || toIndex >= scenario.operations.length) {
+            throw new Error('操作索引无效');
+        }
+        
+        // 移动操作
+        const operation = scenario.operations.splice(fromIndex, 1)[0];
+        scenario.operations.splice(toIndex, 0, operation);
+        
+        // 重新生成操作编号和标识符
+        this.renumberOperations(scenario);
+        
+        // 保存更新后的情景
+        return this.updateScenario(scenarioId, scenario);
+    }
+    
+    modifyOperation(scenarioId, operationIndex, newOperation) {
+        const scenario = this.getScenario(scenarioId);
+        if (!scenario) {
+            throw new Error('情景不存在');
+        }
+        
+        if (operationIndex < 0 || operationIndex >= scenario.operations.length) {
+            throw new Error('操作索引无效');
+        }
+        
+        // 验证新操作数据
+        if (!this.validateOperation(newOperation)) {
+            throw new Error('操作数据无效');
+        }
+        
+        // 修改操作
+        scenario.operations[operationIndex] = { ...newOperation };
+        
+        // 重新生成操作编号和标识符
+        this.renumberOperations(scenario);
+        
+        // 保存更新后的情景
+        return this.updateScenario(scenarioId, scenario);
+    }
+    
+    validateOperation(operation) {
+        if (!operation || typeof operation !== 'object') {
+            return false;
+        }
+        
+        // 检查操作类型
+        const validTypes = ['install_module', 'delete_module', 'flash_boot', 'custom_script'];
+        if (!validTypes.includes(operation.type)) {
+            return false;
+        }
+        
+        // 根据操作类型验证必需字段
+        switch (operation.type) {
+            case 'install_module':
+            case 'delete_module':
+                return operation.path && typeof operation.path === 'string' && operation.path.trim() !== '';
+                
+            case 'flash_boot':
+                return operation.path && typeof operation.path === 'string' && operation.path.trim() !== '';
+                
+            case 'custom_script':
+                return operation.script && typeof operation.script === 'string' && operation.script.trim() !== '';
+                
+            default:
+                return false;
+        }
+    }
+    
+    renumberOperations(scenario) {
+        // 重新为所有操作分配编号和生成标识符
+        scenario.operations.forEach((operation, index) => {
+            operation.index = index;
+            operation.number = index + 1;
+            // 为操作添加时间戳以确保唯一性
+            if (!operation.timestamp) {
+                operation.timestamp = Date.now();
+            }
+        });
+    }
+    
+    getOperationSafetyInfo(operation) {
+        // 获取操作的安全性信息
+        const safetyInfo = {
+            riskLevel: 'low',
+            warnings: [],
+            requirements: []
+        };
+        
+        switch (operation.type) {
+            case 'install_module':
+                safetyInfo.riskLevel = 'medium';
+                safetyInfo.warnings.push('模块安装可能影响系统稳定性');
+                safetyInfo.requirements.push('确保模块文件完整且兼容');
+                break;
+                
+            case 'delete_module':
+                safetyInfo.riskLevel = 'medium';
+                safetyInfo.warnings.push('删除模块可能导致功能缺失');
+                safetyInfo.requirements.push('确认模块可以安全删除');
+                break;
+                
+            case 'flash_boot':
+                safetyInfo.riskLevel = 'high';
+                safetyInfo.warnings.push('刷入Boot镜像有变砖风险');
+                safetyInfo.requirements.push('确保Boot镜像正确且兼容设备');
+                safetyInfo.requirements.push('建议在刷入前创建备份');
+                break;
+                
+            case 'custom_script':
+                safetyInfo.riskLevel = 'high';
+                safetyInfo.warnings.push('自定义脚本可能执行危险操作');
+                safetyInfo.requirements.push('仔细检查脚本内容');
+                safetyInfo.requirements.push('确保脚本来源可信');
+                break;
+        }
+        
+        return safetyInfo;
     }
 }

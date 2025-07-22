@@ -57,6 +57,12 @@
             </div>
           </label>
         </div>
+        <div class="setting-item">
+          <label>
+            <span>导出路径</span>
+            <input type="text" id="export-path-setting" placeholder="/data/adb/switchprofile/export/" />
+          </label>
+        </div>
       </div>
       <fieldset>
         <button type="button" id="close-settings">关闭</button>
@@ -72,6 +78,18 @@
 
       <!-- 管理页 - 情景管理 -->
       <main id="manage-page" class="page">
+        <div class="manage-header">
+          <div class="manage-actions">
+            <button id="import-scenario-btn" class="tonal">
+              <span class="material-symbols-rounded">upload</span>
+              导入情景
+            </button>
+            <button id="export-all-btn" class="tonal">
+              <span class="material-symbols-rounded">download</span>
+              导出全部
+            </button>
+          </div>
+        </div>
         <div id="manage-list">
           <!-- 管理列表将在这里动态生成 -->
         </div>
@@ -190,6 +208,36 @@
         <button type="button" id="confirm-cancel">取消</button>
         <button type="button" id="confirm-ok" class="filled">确定</button>
       </fieldset>
+    </dialog>
+
+    <!-- 导入情景对话框 -->
+    <dialog id="import-dialog">
+      <h2>导入情景</h2>
+      <form id="import-form">
+        <label>
+          <span>情景文件路径</span>
+          <input type="text" id="import-path" name="import-path" placeholder="/path/to/scenario.sh" required />
+        </label>
+        <fieldset>
+          <button type="button" id="cancel-import">取消</button>
+          <button type="submit" class="filled">导入</button>
+        </fieldset>
+      </form>
+    </dialog>
+
+    <!-- 导出路径对话框 -->
+    <dialog id="export-dialog">
+      <h2>导出情景</h2>
+      <form id="export-form">
+        <label>
+          <span>导出路径</span>
+          <input type="text" id="export-path" name="export-path" placeholder="/data/adb/switchprofile/export/" required />
+        </label>
+        <fieldset>
+          <button type="button" id="cancel-export">取消</button>
+          <button type="submit" class="filled">导出</button>
+        </fieldset>
+      </form>
     </dialog>
 
     <!-- 应用脚本 -->

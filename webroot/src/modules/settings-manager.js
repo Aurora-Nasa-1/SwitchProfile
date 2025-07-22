@@ -2,7 +2,8 @@ export class SettingsManager {
     constructor() {
         this.settings = {
             noConfirm: false,
-            hue: 300
+            hue: 300,
+            exportPath: '/data/adb/switchprofile/export/'
         };
         this.loadSettings();
     }
@@ -49,6 +50,7 @@ export class SettingsManager {
         const noConfirmCheckbox = document.getElementById('no-confirm-setting');
         const hueSlider = document.getElementById('hue-slider');
         const hueValue = document.getElementById('hue-value');
+        const exportPathInput = document.getElementById('export-path-setting');
         
         if (noConfirmCheckbox) {
             noConfirmCheckbox.checked = this.settings.noConfirm;
@@ -62,6 +64,10 @@ export class SettingsManager {
             hueValue.textContent = this.settings.hue;
         }
         
+        if (exportPathInput) {
+            exportPathInput.value = this.settings.exportPath;
+        }
+        
         this.setupEventListeners();
     }
 
@@ -72,6 +78,7 @@ export class SettingsManager {
         const noConfirmCheckbox = document.getElementById('no-confirm-setting');
         const hueSlider = document.getElementById('hue-slider');
         const hueValue = document.getElementById('hue-value');
+        const exportPathInput = document.getElementById('export-path-setting');
 
         // 设置按钮点击事件
         if (settingsBtn && settingsDialog) {
@@ -109,6 +116,13 @@ export class SettingsManager {
                 const value = parseInt(e.target.value);
                 hueValue.textContent = value;
                 this.setSetting('hue', value);
+            });
+        }
+        
+        // 导出路径变更
+        if (exportPathInput) {
+            exportPathInput.addEventListener('change', (e) => {
+                this.setSetting('exportPath', e.target.value);
             });
         }
     }

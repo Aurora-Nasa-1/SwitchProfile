@@ -2,7 +2,6 @@ import { Core } from './core.js';
 import { HomePage } from './modules/home.js';
 import { ManagePage } from './modules/manage.js';
 import { ScenarioManager } from './modules/scenario-manager.js';
-import { FileManager } from './modules/file-manager.js';
 import { SettingsManager } from './modules/settings-manager.js';
 import './modules/dialog-manager.js';
 
@@ -10,10 +9,9 @@ class App {
     constructor() {
         this.currentPage = 'home';
         this.scenarioManager = new ScenarioManager();
-        this.fileManager = new FileManager();
         this.settingsManager = new SettingsManager();
         this.homePage = new HomePage(this.scenarioManager, this.settingsManager);
-        this.managePage = new ManagePage(this.scenarioManager, this.fileManager);
+        this.managePage = new ManagePage(this.scenarioManager, this.settingsManager);
         
         this.init();
     }

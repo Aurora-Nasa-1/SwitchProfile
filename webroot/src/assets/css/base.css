@@ -1,6 +1,8 @@
 /* 基础样式 - Material Design 3 */
 :root {
   -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  overflow: hidden;
   --icon-size: 40px;
   --border-radius-xl: 28px;
   --border-radius-l: 16px;
@@ -811,6 +813,49 @@ body.mmrl-webui-x {
   line-height: 1.5;
   white-space: pre-line;
   color: var(--on-surface-variant);
+}
+
+/* 管理页面头部样式 */
+.manage-header {
+  margin-bottom: var(--spacing-l);
+  padding: var(--spacing-m);
+  background-color: var(--surface-container-low);
+  border-radius: var(--border-radius-l);
+}
+
+.manage-actions {
+  display: flex;
+  gap: var(--spacing-m);
+  justify-content: center;
+}
+
+.manage-actions button {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-s) var(--spacing-m);
+  border: none;
+  border-radius: var(--border-radius-xl);
+  background-color: var(--secondary-container);
+  color: var(--on-secondary-container);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.manage-actions button:hover {
+  background-color: var(--secondary);
+  color: var(--on-secondary);
+  transform: translateY(-1px);
+}
+
+.manage-actions button:active {
+  transform: translateY(0);
+}
+
+.manage-actions button .material-symbols-rounded {
+  font-size: 18px;
 }
 
 @media (min-width: 768px) {

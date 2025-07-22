@@ -1,13 +1,15 @@
 import { Core } from '../core.js';
 
 export class ManagePage {
-    constructor(scenarioManager, fileManager) {
+    constructor(scenarioManager, settingsManager) {
         this.scenarioManager = scenarioManager;
-        this.fileManager = fileManager;
+        this.settingsManager = settingsManager;
         this.container = document.getElementById('manage-list');
         this.editDialog = document.getElementById('edit-dialog');
         this.operationDialog = document.getElementById('operation-dialog');
         this.operationEditDialog = document.getElementById('operation-edit-dialog');
+        this.importDialog = document.getElementById('import-dialog');
+        this.exportDialog = document.getElementById('export-dialog');
         
         this.currentScenario = null;
         this.currentOperationIndex = -1;
@@ -74,6 +76,38 @@ export class ManagePage {
             this.currentOperationIndex = -1;
             this.showDialogWithAnimation(this.operationDialog);
         });
+        
+        // 导入情景按钮
+        document.getElementById('import-scenario-btn').addEventListener('click', () => {
+            this.showDialogWithAnimation(this.importDialog);
+        });
+        
+        // 导出全部按钮
+        document.getElementById('export-all-btn').addEventListener('click', () => {
+            const exportPath = this.settingsManager.getSetting('exportPath');
+            document.getElementById('export-path').value = exportPath;
+            this.showDialogWithAnimation(this.exportDialog);
+        });
+        
+        // 导入对话框事件
+        document.getElementById('cancel-import').addEventListener('click', () => {
+            this.closeDialogWithAnimation(this.importDialog);
+        });
+        
+        document.getElementById('import-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleImport();
+        });
+        
+        // 导出对话框事件
+        document.getElementById('cancel-export').addEventListener('click', () => {
+            this.closeDialogWithAnimation(this.exportDialog);
+        });
+        
+        document.getElementById('export-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleExportAll();
+        });
     }
     
     refresh() {
@@ -116,6 +150,9 @@ export class ManagePage {
                 <fieldset>
                     <button type="button" class="delete-scenario" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">delete</span>
+                    </button>
+                    <button type="button" class="export-scenario" data-id="${scenario.id}">
+                        <span class="material-symbols-rounded">file_download</span>
                     </button>
                     <button type="button" class="execute-scenario tonal" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">play_arrow</span>
@@ -176,6 +213,8 @@ export class ManagePage {
             this.deleteScenario(scenarioId);
         } else if (target.classList.contains('execute-scenario')) {
             this.executeScenario(scenarioId);
+        } else if (target.classList.contains('export-scenario')) {
+            this.exportScenario(scenarioId);
         } else if (target.classList.contains('edit-operation')) {
             const operationIndex = parseInt(target.dataset.index);
             this.editOperation(scenarioId, operationIndex);
@@ -324,6 +363,50 @@ export class ManagePage {
         }
     }
     
+    async handleImport() {
+        const importPath = document.getElementById('import-path').value.trim();
+        if (!importPath) {
+            Core.showToast('请输入导入文件路径', 'error');
+            return;
+        }
+        
+        try {
+            const newId = await this.scenarioManager.importScenario(importPath);
+            Core.showToast('导入成功', 'success');
+            this.closeDialogWithAnimation(this.importDialog);
+            this.refresh();
+            document.getElementById('import-path').value = '';
+        } catch (error) {
+            Core.showToast(`导入失败: ${error.message}`, 'error');
+        }
+    }
+    
+    async handleExportAll() {
+        const exportPath = document.getElementById('export-path').value.trim();
+        if (!exportPath) {
+            Core.showToast('请输入导出路径', 'error');
+            return;
+        }
+        
+        try {
+            const results = await this.scenarioManager.exportAllScenarios(exportPath);
+            const successCount = results.filter(r => r.success).length;
+            const totalCount = results.length;
+            
+            if (successCount === totalCount) {
+                Core.showToast(`成功导出 ${successCount} 个情景`, 'success');
+            } else {
+                Core.showToast(`导出完成: ${successCount}/${totalCount} 个成功`, 'warning');
+            }
+            
+            this.closeDialogWithAnimation(this.exportDialog);
+            // 更新设置中的导出路径
+            this.settingsManager.setSetting('exportPath', exportPath);
+        } catch (error) {
+            Core.showToast(`导出失败: ${error.message}`, 'error');
+        }
+    }
+    
     setupFileInputs() {
         // 文件选择功能已移除，用户需要手动输入路径
         // 这个方法保留为空，以防其他地方调用
@@ -459,6 +542,16 @@ export class ManagePage {
             // 恢复按钮状态
             saveButton.disabled = false;
             saveButton.textContent = originalText;
+        }
+    }
+    
+    async exportScenario(scenarioId) {
+        try {
+            const exportPath = this.settingsManager.getSetting('exportPath');
+            const result = await this.scenarioManager.exportScenario(scenarioId, exportPath);
+            Core.showToast('导出成功', 'success');
+        } catch (error) {
+            Core.showToast(`导出失败: ${error.message}`, 'error');
         }
     }
     
