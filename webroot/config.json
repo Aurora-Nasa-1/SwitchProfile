@@ -1,15 +1,6 @@
 {
-  "modId": "switchprofile",
   "title": "Switch Profile",
-  "icon": "src/assets/icon.svg",
-  "historyFallback": true,
+  "icon": "src/assets/icon.png",
   "windowResize": true,
-  "backHandler": true,
-  "backInterceptor": null,
-  "refreshInterceptor": null,
-  "exitConfirm": true,
-  "pullToRefresh": false,
-  "historyFallbackFile": "index.html",
-  "autoStatusBarsStyle": true,
-  "killShellWhenBackground": true,
+  "exitConfirm": true
 }
