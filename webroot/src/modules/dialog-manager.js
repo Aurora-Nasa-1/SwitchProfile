@@ -12,8 +12,27 @@ class DialogManager {
     setupEventListeners() {
         // 确认对话框事件
         this.confirmCancel.addEventListener('click', () => {
-            this.confirmDialog.close();
+            this.closeDialogWithAnimation(this.confirmDialog);
         });
+    }
+    
+    showDialogWithAnimation(dialog) {
+        dialog.showModal();
+        // 触发进入动画
+        setTimeout(() => {
+            dialog.classList.add('showing');
+        }, 10);
+    }
+    
+    closeDialogWithAnimation(dialog) {
+        dialog.classList.remove('showing');
+        dialog.classList.add('closing');
+        
+        // 等待动画完成后关闭对话框
+        setTimeout(() => {
+            dialog.close();
+            dialog.classList.remove('closing');
+        }, 200); // 与CSS动画时间一致
     }
     
     /**
@@ -34,7 +53,7 @@ class DialogManager {
             
             // 添加新的事件监听器
             this.confirmOk.addEventListener('click', () => {
-                this.confirmDialog.close();
+                this.closeDialogWithAnimation(this.confirmDialog);
                 resolve(true);
             });
             
@@ -45,7 +64,7 @@ class DialogManager {
             };
             
             this.confirmDialog.addEventListener('close', handleClose);
-            this.confirmDialog.showModal();
+            this.showDialogWithAnimation(this.confirmDialog);
         });
     }
     
@@ -57,8 +76,8 @@ class DialogManager {
      * @returns {Promise<string|null>} - 选择的文件路径
      */
     async selectFile(accept = '*') {
-        // 直接使用内置文件浏览器
-        return window.FileBrowser.showFileBrowser(accept);
+        // 文件选择功能已移除，用户需要手动输入路径
+        throw new Error('文件选择功能已移除，请手动输入文件路径');
     }
 }
 

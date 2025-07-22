@@ -11,14 +11,34 @@ export class ManagePage {
         
         this.currentScenario = null;
         this.currentOperationIndex = -1;
+        this.boundHandleClick = this.handleClick.bind(this);
         
         this.setupDialogs();
+    }
+    
+    showDialogWithAnimation(dialog) {
+        dialog.showModal();
+        // 触发进入动画
+        setTimeout(() => {
+            dialog.classList.add('showing');
+        }, 10);
+    }
+    
+    closeDialogWithAnimation(dialog) {
+        dialog.classList.remove('showing');
+        dialog.classList.add('closing');
+        
+        // 等待动画完成后关闭对话框
+        setTimeout(() => {
+            dialog.close();
+            dialog.classList.remove('closing');
+        }, 200); // 与CSS动画时间一致
     }
     
     setupDialogs() {
         // 编辑对话框事件
         document.getElementById('cancel-edit').addEventListener('click', () => {
-            this.editDialog.close();
+            this.closeDialogWithAnimation(this.editDialog);
         });
         
         document.getElementById('scenario-form').addEventListener('submit', (e) => {
@@ -28,20 +48,20 @@ export class ManagePage {
         
         // 操作类型选择对话框事件
         document.getElementById('cancel-operation').addEventListener('click', () => {
-            this.operationDialog.close();
+            this.closeDialogWithAnimation(this.operationDialog);
         });
         
         this.operationDialog.querySelectorAll('.operation-type-card').forEach(card => {
             card.addEventListener('click', (e) => {
                 const type = e.target.closest('[data-type]').dataset.type;
-                this.operationDialog.close();
+                this.closeDialogWithAnimation(this.operationDialog);
                 this.showOperationEditDialog(type);
             });
         });
         
         // 操作编辑对话框事件
         document.getElementById('cancel-operation-edit').addEventListener('click', () => {
-            this.operationEditDialog.close();
+            this.closeDialogWithAnimation(this.operationEditDialog);
         });
         
         document.getElementById('operation-form').addEventListener('submit', (e) => {
@@ -52,7 +72,7 @@ export class ManagePage {
         // 添加操作按钮事件
         document.getElementById('add-operation').addEventListener('click', () => {
             this.currentOperationIndex = -1;
-            this.operationDialog.showModal();
+            this.showDialogWithAnimation(this.operationDialog);
         });
     }
     
@@ -90,29 +110,18 @@ export class ManagePage {
                         <div class="operation-item" data-index="${index}">
                             <div class="operation-type">${this.getOperationTypeName(op.type)}</div>
                             <div class="operation-content">${this.getOperationContent(op)}</div>
-                            <div class="operation-actions">
-                                <button type="button" class="edit-operation" data-index="${index}" title="编辑">
-                                    <span class="material-symbols-rounded">edit</span>
-                                </button>
-                                <button type="button" class="delete-operation" data-index="${index}" title="删除">
-                                    <span class="material-symbols-rounded">delete</span>
-                                </button>
-                            </div>
                         </div>
                     `).join('')}
                 </div>
                 <fieldset>
                     <button type="button" class="delete-scenario" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">delete</span>
-                        删除
                     </button>
                     <button type="button" class="execute-scenario tonal" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">play_arrow</span>
-                        执行脚本
                     </button>
                     <button type="button" class="edit-scenario filled" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">edit</span>
-                        编辑
                     </button>
                 </fieldset>
             </div>
@@ -145,30 +154,35 @@ export class ManagePage {
     }
     
     bindEvents() {
+        // 移除旧的事件监听器
+        this.container.removeEventListener('click', this.boundHandleClick);
+        
         // 使用事件委托来处理动态生成的按钮
-        this.container.addEventListener('click', (e) => {
-            const target = e.target.closest('button');
-            if (!target) return;
-            
-            const scenarioCard = target.closest('.scenario-card');
-            if (!scenarioCard) return;
-            
-            const scenarioId = scenarioCard.dataset.id;
-            
-            if (target.classList.contains('edit-scenario')) {
-                this.showEditDialog(scenarioId);
-            } else if (target.classList.contains('delete-scenario')) {
-                this.deleteScenario(scenarioId);
-            } else if (target.classList.contains('execute-scenario')) {
-                this.executeScenario(scenarioId);
-            } else if (target.classList.contains('edit-operation')) {
-                const operationIndex = parseInt(target.dataset.index);
-                this.editOperation(scenarioId, operationIndex);
-            } else if (target.classList.contains('delete-operation')) {
-                const operationIndex = parseInt(target.dataset.index);
-                this.deleteOperation(scenarioId, operationIndex);
-            }
-        });
+        this.container.addEventListener('click', this.boundHandleClick);
+    }
+    
+    handleClick(e) {
+        const target = e.target.closest('button');
+        if (!target) return;
+        
+        const scenarioCard = target.closest('.scenario-card');
+        if (!scenarioCard) return;
+        
+        const scenarioId = scenarioCard.dataset.id;
+        
+        if (target.classList.contains('edit-scenario')) {
+            this.showEditDialog(scenarioId);
+        } else if (target.classList.contains('delete-scenario')) {
+            this.deleteScenario(scenarioId);
+        } else if (target.classList.contains('execute-scenario')) {
+            this.executeScenario(scenarioId);
+        } else if (target.classList.contains('edit-operation')) {
+            const operationIndex = parseInt(target.dataset.index);
+            this.editOperation(scenarioId, operationIndex);
+        } else if (target.classList.contains('delete-operation')) {
+            const operationIndex = parseInt(target.dataset.index);
+            this.deleteOperation(scenarioId, operationIndex);
+        }
     }
     
     showEditDialog(scenarioId = null) {
@@ -192,7 +206,7 @@ export class ManagePage {
             this.renderOperationsList([]);
         }
         
-        this.editDialog.showModal();
+        this.showDialogWithAnimation(this.editDialog);
     }
     
     renderOperationsList(operations) {
@@ -261,7 +275,7 @@ export class ManagePage {
         // 绑定文件选择事件
         this.setupFileInputs();
         
-        this.operationEditDialog.showModal();
+        this.showDialogWithAnimation(this.operationEditDialog);
     }
     
     getOperationFields(type, operation = null) {
@@ -271,45 +285,24 @@ export class ManagePage {
                     <input type="hidden" name="type" value="install_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入模块文件路径 (如: /sdcard/module.zip)">
                     </label>
-                    <div class="file-input-wrapper">
-                        <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
-                            <span class="material-symbols-rounded">folder_open</span>
-                            选择文件
-                        </button>
-                        <input type="file" accept=".zip" style="display: none;">
-                    </div>
                 `;
             case 'delete_module':
                 return `
                     <input type="hidden" name="type" value="delete_module">
                     <label>
                         <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入模块文件路径 (如: /sdcard/module.zip)">
                     </label>
-                    <div class="file-input-wrapper">
-                        <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".zip">
-                            <span class="material-symbols-rounded">folder_open</span>
-                            选择文件
-                        </button>
-                        <input type="file" accept=".zip" style="display: none;">
-                    </div>
                 `;
             case 'flash_boot':
                 return `
                     <input type="hidden" name="type" value="flash_boot">
                     <label>
                         <span>镜像路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入镜像文件路径 (如: /sdcard/boot.img)">
                     </label>
-                    <div class="file-input-wrapper">
-                        <button type="button" class="tonal file-select-btn" data-target="path" data-accept=".img,.zip">
-                            <span class="material-symbols-rounded">folder_open</span>
-                            选择文件
-                        </button>
-                        <input type="file" accept=".img,.zip" style="display: none;">
-                    </div>
                     <fieldset class="switches">
                         <label>
                             <span>AnyKernel3格式</span>
@@ -332,43 +325,8 @@ export class ManagePage {
     }
     
     setupFileInputs() {
-        // 为所有文件选择按钮绑定事件
-        this.operationEditDialog.querySelectorAll('.file-select-btn').forEach(button => {
-            const fileInput = button.parentElement.querySelector('input[type="file"]');
-            const accept = fileInput ? fileInput.accept || '*' : '*';
-            
-            button.addEventListener('click', async () => {
-                try {
-                    // 使用DialogManager选择文件，自动处理兼容性
-                    const filePath = await window.DialogManager.selectFile(accept);
-                    
-                    if (filePath) {
-                        const targetInput = button.parentElement.parentElement.querySelector('input[type="text"]');
-                        
-                        try {
-                            // 复制文件到目标目录
-                            const targetPath = await this.fileManager.copyFile(filePath);
-                            targetInput.value = targetPath;
-                            
-                            // 更新按钮文本
-                            const fileName = filePath.split('/').pop();
-                            const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
-                            if (textSpan) {
-                                textSpan.textContent = fileName;
-                            }
-                            
-                            Core.showToast('文件已选择', 'success');
-                        } catch (error) {
-                            console.error('File copy failed:', error);
-                            Core.showToast('文件复制失败', 'error');
-                        }
-                    }
-                } catch (error) {
-                    console.error('File selection failed:', error);
-                    Core.showToast('文件选择失败', 'error');
-                }
-            });
-        });
+        // 文件选择功能已移除，用户需要手动输入路径
+        // 这个方法保留为空，以防其他地方调用
     }
     
     saveOperation() {
@@ -452,7 +410,7 @@ export class ManagePage {
             this.tempOperations = operations;
         }
         
-        this.operationEditDialog.close();
+        this.closeDialogWithAnimation(this.operationEditDialog);
         Core.showToast('操作已保存', 'success');
     }
     
@@ -491,7 +449,7 @@ export class ManagePage {
                 Core.showToast('情景已创建', 'success');
             }
             
-            this.editDialog.close();
+            this.closeDialogWithAnimation(this.editDialog);
             this.refresh();
             
         } catch (error) {

@@ -1,190 +1,198 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#6750A4">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <meta name="theme-color" content="#6750A4" />
     <title>SwitchProfile</title>
-    
-    <!-- Material Design 3 CSS -->
-    <link rel="stylesheet" href="src/assets/css/md3.css">
-    <link rel="stylesheet" href="src/assets/css/base.css">
-    
-    <!-- Preload fonts -->
-    <link rel="preload" href="src/assets/fonts/google.woff2" as="font" type="font/woff2" crossorigin>
-    
 
-</head>
-<body>
+    <!-- Material Design 3 CSS -->
+    <link rel="stylesheet" href="src/assets/css/md3.css" />
+    <link rel="stylesheet" href="src/assets/css/base.css" />
+
+    <!-- Preload fonts -->
+    <link
+      rel="preload"
+      href="src/assets/fonts/google.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+  <body>
     <!-- Toast容器 -->
     <div id="toast-container"></div>
-    
+
     <!-- 应用主容器 -->
     <div id="app">
-        <!-- 顶栏 -->
-        <header>
-            <h1 id="page-title">情景模式</h1>
-        </header>
-        
-        <!-- 首页 - 情景列表 -->
-        <main id="home-page" class="page active">
-            <div id="scenario-list" class="cards">
-                <!-- 情景卡片将在这里动态生成 -->
-            </div>
-        </main>
-        
-        <!-- 管理页 - 情景管理 -->
-        <main id="manage-page" class="page">
-            <div id="manage-list">
-                <!-- 管理列表将在这里动态生成 -->
-            </div>
-        </main>
-        
-        <!-- 浮动操作按钮 -->
-        <button id="fab" class="fab" style="display: none;">
-            <span class="material-symbols-rounded">add</span>
+      <!-- 顶栏 -->
+      <header>
+        <h1 id="page-title">情景模式</h1>
+        <button id="settings-btn" class="settings-btn">
+          <span class="material-symbols-rounded">settings</span>
         </button>
-        
-        <!-- 底部导航栏 -->
-        <nav class="app-nav">
-            <div class="nav-content">
-                <a href="#home" class="nav-item active" data-page="home">
-                    <span class="material-symbols-rounded">home</span>
-                    <span>首页</span>
-                </a>
-                <a href="#manage" class="nav-item" data-page="manage">
-                    <span class="material-symbols-rounded">settings</span>
-                    <span>管理</span>
-                </a>
-            </div>
-        </nav>
-    </div>
-    
-    <!-- 编辑对话框 -->
-    <dialog id="edit-dialog">
-        <h2 id="dialog-title">新建情景</h2>
-        <form id="scenario-form">
-            <label>
-                <span>情景名称</span>
-                <input type="text" id="scenario-name" name="scenario-name" required>
-            </label>
-            
-            <div class="settings-section">
-                <h4>设置</h4>
-                <fieldset class="switches">
-                    <label>
-                        <span>兼容模式</span>
-                        <input type="checkbox" id="compatibility-mode" name="compatibility-mode">
-                    </label>
-                    <label>
-                        <span>自动重启</span>
-                        <input type="checkbox" id="auto-reboot" name="auto-reboot">
-                    </label>
-                </fieldset>
-            </div>
-            
-            <div class="settings-section">
-                <h4>操作列表</h4>
-                <div id="operations-list">
-                    <!-- 操作项将在这里动态生成 -->
-                </div>
-                <fieldset>
-                    <button type="button" id="add-operation" class="tonal">
-                        <span class="material-symbols-rounded">add</span>
-                        添加操作
-                    </button>
-                </fieldset>
-            </div>
-            
-            <fieldset>
-                <button type="button" id="cancel-edit">取消</button>
-                <button type="submit" class="filled">保存</button>
-            </fieldset>
-        </form>
-    </dialog>
-    
-    <!-- 操作类型选择对话框 -->
-    <dialog id="operation-dialog">
-        <h2>选择操作</h2>
-        <div class="operation-types">
-            <div class="operation-type-card" data-type="install_module">
-                <h3>安装模块</h3>
-            </div>
-            <div class="operation-type-card" data-type="delete_module">
-                <h3>删除模块</h3>
-            </div>
-            <div class="operation-type-card" data-type="flash_boot">
-                <h3>刷入Boot</h3>
-            </div>
-            <div class="operation-type-card" data-type="custom_script">
-                <h3>自定义脚本</h3>
-            </div>
+      </header>
+
+    <!-- 设置对话框 -->
+    <dialog id="settings-dialog">
+      <h2>设置</h2>
+      <div class="settings-content">
+        <div class="setting-item">
+            <fieldset class="switches">
+          <label>
+            <span>应用情景无需确认</span>
+            <input type="checkbox" id="no-confirm-setting" name="no-confirm-setting">
+          </label>
+          </fieldset>
         </div>
-        <fieldset>
-            <button type="button" id="cancel-operation">取消</button>
-        </fieldset>
-    </dialog>
-    
-    <!-- 操作编辑对话框 -->
-    <dialog id="operation-edit-dialog">
-        <h2 id="operation-edit-title">编辑操作</h2>
-        <form id="operation-form">
-            <div id="operation-fields">
-                <!-- 操作字段将根据类型动态生成 -->
+        <div class="setting-item">
+          <label class="setting-label">
+            <span>主题色调</span>
+            <div class="hue-slider-container">
+              <input type="range" id="hue-slider" class="hue-slider" min="0" max="360" value="300">
+              <span id="hue-value">300</span>
             </div>
-            <fieldset>
-                <button type="button" id="cancel-operation-edit">取消</button>
-                <button type="submit" class="filled">确定</button>
-            </fieldset>
-        </form>
-    </dialog>
-    
-    <!-- 确认对话框 -->
-    <dialog id="confirm-dialog">
-        <h2 id="confirm-title">确认操作</h2>
-        <div id="confirm-content">
-            <!-- 确认内容将在这里动态生成 -->
+          </label>
         </div>
-        <fieldset>
-            <button type="button" id="confirm-cancel">取消</button>
-            <button type="button" id="confirm-ok" class="filled">确定</button>
-        </fieldset>
+      </div>
+      <fieldset>
+        <button type="button" id="close-settings">关闭</button>
+      </fieldset>
     </dialog>
 
-    <!-- 文件浏览器对话框 -->
-    <dialog id="file-browser-dialog">
-        <div class="file-browser-header">
-            <h2>选择文件</h2>
-            <button type="button" id="file-browser-close" class="icon-button">
-                <span class="material-symbols-rounded">close</span>
+      <!-- 首页 - 情景列表 -->
+      <main id="home-page" class="page active">
+        <div id="scenario-list" class="cards">
+          <!-- 情景卡片将在这里动态生成 -->
+        </div>
+      </main>
+
+      <!-- 管理页 - 情景管理 -->
+      <main id="manage-page" class="page">
+        <div id="manage-list">
+          <!-- 管理列表将在这里动态生成 -->
+        </div>
+      </main>
+
+      <!-- 浮动操作按钮 -->
+      <button id="fab" class="fab" style="display: none">
+        <span class="material-symbols-rounded">add</span>
+      </button>
+
+      <!-- 底部导航栏 -->
+      <nav class="app-nav">
+        <div class="nav-content">
+          <a href="#home" class="nav-item active" data-page="home">
+            <span class="material-symbols-rounded">home</span>
+            <span>首页</span>
+          </a>
+          <a href="#manage" class="nav-item" data-page="manage">
+            <span class="material-symbols-rounded">settings</span>
+            <span>管理</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+
+    <!-- 编辑对话框 -->
+    <dialog id="edit-dialog">
+      <h2 id="dialog-title">新建情景</h2>
+      <form id="scenario-form">
+        <label>
+          <span>情景名称</span>
+          <input type="text" id="scenario-name" name="scenario-name" required />
+        </label>
+
+        <div class="settings-section">
+          <h4>设置</h4>
+          <fieldset class="switches">
+            <label>
+              <span>兼容模式</span>
+              <input
+                type="checkbox"
+                id="compatibility-mode"
+                name="compatibility-mode"
+              />
+            </label>
+            <label>
+              <span>自动重启</span>
+              <input type="checkbox" id="auto-reboot" name="auto-reboot" />
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="settings-section">
+          <h4>操作列表</h4>
+          <div id="operations-list">
+            <!-- 操作项将在这里动态生成 -->
+          </div>
+          <fieldset>
+            <button type="button" id="add-operation" class="tonal">
+              <span class="material-symbols-rounded">add</span>
+              添加操作
             </button>
+          </fieldset>
         </div>
-        <div class="file-browser-path">
-            <button type="button" id="file-browser-up" class="icon-button">
-                <span class="material-symbols-rounded">arrow_upward</span>
-            </button>
-            <span id="file-browser-current-path">/sdcard/</span>
+
+        <fieldset>
+          <button type="button" id="cancel-edit">取消</button>
+          <button type="submit" class="filled">保存</button>
+        </fieldset>
+      </form>
+    </dialog>
+
+    <!-- 操作类型选择对话框 -->
+    <dialog id="operation-dialog">
+      <h2>选择操作</h2>
+      <div class="operation-types">
+        <div class="operation-type-card" data-type="install_module">
+          <h3>安装模块</h3>
         </div>
-        <div class="file-browser-loading" id="file-browser-loading">
-            <div class="loading-spinner"></div>
-            <span>加载中...</span>
+        <div class="operation-type-card" data-type="delete_module">
+          <h3>删除模块</h3>
         </div>
-        <div class="file-browser-content" id="file-browser-content">
-            <div class="file-browser-list" id="file-browser-list">
-                <!-- 文件列表将在这里动态生成 -->
-            </div>
-            <div class="file-browser-empty" id="file-browser-empty" style="display: none;">
-                <span class="material-symbols-rounded">folder_open</span>
-                <p>此目录为空</p>
-            </div>
+        <div class="operation-type-card" data-type="flash_boot">
+          <h3>刷入Boot</h3>
+        </div>
+        <div class="operation-type-card" data-type="custom_script">
+          <h3>自定义脚本</h3>
+        </div>
+      </div>
+      <fieldset>
+        <button type="button" id="cancel-operation">取消</button>
+      </fieldset>
+    </dialog>
+
+    <!-- 操作编辑对话框 -->
+    <dialog id="operation-edit-dialog">
+      <h2 id="operation-edit-title">编辑操作</h2>
+      <form id="operation-form">
+        <div id="operation-fields">
+          <!-- 操作字段将根据类型动态生成 -->
         </div>
         <fieldset>
-            <button type="button" id="file-browser-cancel">取消</button>
-            <button type="button" id="file-browser-ok" class="filled" disabled>确定</button>
+          <button type="button" id="cancel-operation-edit">取消</button>
+          <button type="submit" class="filled">确定</button>
         </fieldset>
+      </form>
     </dialog>
-    
+
+    <!-- 确认对话框 -->
+    <dialog id="confirm-dialog">
+      <h2 id="confirm-title">确认操作</h2>
+      <div id="confirm-content">
+        <!-- 确认内容将在这里动态生成 -->
+      </div>
+      <fieldset>
+        <button type="button" id="confirm-cancel">取消</button>
+        <button type="button" id="confirm-ok" class="filled">确定</button>
+      </fieldset>
+    </dialog>
+
     <!-- 应用脚本 -->
     <script type="module" src="src/app.js"></script>
-</body>
+  </body>
 </html>

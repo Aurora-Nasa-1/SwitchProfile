@@ -1,9 +1,11 @@
 import { Core } from '../core.js';
 
 export class HomePage {
-    constructor(scenarioManager) {
+    constructor(scenarioManager, settingsManager) {
         this.scenarioManager = scenarioManager;
+        this.settingsManager = settingsManager;
         this.container = document.getElementById('scenario-list');
+        this.boundApplyScenario = this.handleApplyScenario.bind(this);
     }
     
     refresh() {
@@ -40,12 +42,12 @@ export class HomePage {
                 <p>${operationsText}</p>
                 <div class="scenario-details">
                     ${scenario.operations.slice(0, 3).map(op => `
-                        <div style="font-size: 0.75rem; color: var(--on-surface-variant); margin-bottom: 0.25rem;">
+                        <div style="font-size: 0.85rem; color: var(--on-surface-variant);">
                             <span style="color: var(--primary); font-weight: 500;">${this.getOperationTypeName(op.type)}</span>
                             ${this.getOperationSummary(op)}
                         </div>
                     `).join('')}
-                    ${scenario.operations.length > 3 ? `<div style="font-size: 0.75rem; color: var(--on-surface-variant);">...还有 ${scenario.operations.length - 3} 个操作</div>` : ''}
+                    ${scenario.operations.length > 3 ? `<div style="font-size: 0.85rem; color: var(--on-surface-variant);">...还有 ${scenario.operations.length - 3} 个操作</div>` : ''}
                 </div>
                 <fieldset>
                     <button type="button" class="apply-scenario filled" data-id="${scenario.id}">
@@ -83,14 +85,19 @@ export class HomePage {
     }
     
     bindEvents() {
-        const applyButtons = this.container.querySelectorAll('.apply-scenario');
+        // 移除旧的事件监听器
+        this.container.removeEventListener('click', this.boundApplyScenario);
         
-        applyButtons.forEach(button => {
-            button.addEventListener('click', async (e) => {
-                const scenarioId = e.target.closest('[data-id]').dataset.id;
-                await this.applyScenario(scenarioId);
-            });
-        });
+        // 使用事件委托绑定新的事件监听器
+        this.container.addEventListener('click', this.boundApplyScenario);
+    }
+    
+    handleApplyScenario(e) {
+        const button = e.target.closest('.apply-scenario');
+        if (!button) return;
+        
+        const scenarioId = button.closest('[data-id]').dataset.id;
+        this.applyScenario(scenarioId);
     }
     
     async applyScenario(scenarioId) {
@@ -106,13 +113,17 @@ export class HomePage {
                 return;
             }
             
-            // 显示确认对话框
-            const confirmContent = `此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`;
-            
-            const confirmed = await window.DialogManager.showConfirm(
-                `应用情景 "${scenario.name}"`,
-                confirmContent
-            );
+            // 检查是否需要确认
+            let confirmed = true;
+            if (this.settingsManager && !this.settingsManager.shouldSkipConfirm()) {
+                // 显示确认对话框
+                const confirmContent = `此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`;
+                
+                confirmed = await window.DialogManager.showConfirm(
+                    `应用情景 "${scenario.name}"`,
+                    confirmContent
+                );
+            }
             
             if (!confirmed) {
                 return;

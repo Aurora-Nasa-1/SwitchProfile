@@ -3,15 +3,16 @@ import { HomePage } from './modules/home.js';
 import { ManagePage } from './modules/manage.js';
 import { ScenarioManager } from './modules/scenario-manager.js';
 import { FileManager } from './modules/file-manager.js';
+import { SettingsManager } from './modules/settings-manager.js';
 import './modules/dialog-manager.js';
-import './modules/file-browser.js';
 
 class App {
     constructor() {
         this.currentPage = 'home';
         this.scenarioManager = new ScenarioManager();
         this.fileManager = new FileManager();
-        this.homePage = new HomePage(this.scenarioManager);
+        this.settingsManager = new SettingsManager();
+        this.homePage = new HomePage(this.scenarioManager, this.settingsManager);
         this.managePage = new ManagePage(this.scenarioManager, this.fileManager);
         
         this.init();
@@ -20,6 +21,7 @@ class App {
     init() {
         this.setupNavigation();
         this.setupFAB();
+        this.settingsManager.initializeUI();
         this.loadScenarios();
         this.showApp();
     }
@@ -102,3 +104,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 导出给全局使用
 window.App = App;
+window.SettingsManager = SettingsManager;
