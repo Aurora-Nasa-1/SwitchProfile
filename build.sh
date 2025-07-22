@@ -15,6 +15,7 @@ setting() {
     echo "versionCode=$VERSION_CODE" >> module.prop
     echo "author=$AUTHOR" >> module.prop
     echo "description=$DESCRIPTION" >> module.prop
+    echo "updateJson=https://raw.githubusercontent.com/${AUTHOR}/${ID}/main/update.json" >> module.prop
 }
 Main() {
     case "${1:-}" in
