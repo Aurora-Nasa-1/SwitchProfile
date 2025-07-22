@@ -35,15 +35,8 @@ jobs:
             rm update.json
           fi
           . ./build.sh -c
-          cat > update.json << EOF
-          {
-            "version": "${VERSION}",
-            "versionCode": "${VERSION_CODE}",
-            "zipUrl": "https://github.com/${AUTHOR}/${ID}/releases/download/${VERSION}/${NAME}-${VERSION}.zip",
-            "changelog": "https://github.com/${AUTHOR}/${ID}/releases/tag/${VERSION}"
-          }
-          EOF
-
+          echo "{\n  \"version\": \"${VERSION}\",\n  \"versionCode\": \"${VERSION_CODE}\",\n  \"zipUrl\": \"https://github.com/${AUTHOR}/${ID}/releases/download/${VERSION}/${NAME}-${VERSION}.zip\",\n  \"changelog\": \"https://github.com/${AUTHOR}/${ID}/releases/tag/${VERSION}\"\n}" > update.json  
+          cat update.json
       - name: Upload update.json
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
