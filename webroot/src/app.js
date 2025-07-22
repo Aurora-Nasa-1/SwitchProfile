@@ -4,6 +4,7 @@ import { ManagePage } from './modules/manage.js';
 import { ScenarioManager } from './modules/scenario-manager.js';
 import { FileManager } from './modules/file-manager.js';
 import './modules/dialog-manager.js';
+import './modules/file-browser.js';
 
 class App {
     constructor() {

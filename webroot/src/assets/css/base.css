@@ -635,108 +635,155 @@ body.mmrl-webui-x {
   white-space: pre-line;
 }
 
-/* 文件选择器对话框样式 */
-#file-picker-dialog {
-  max-width: 400px;
+
+
+/* 文件浏览器样式 */
+#file-browser-dialog {
+  max-width: 500px;
+  width: 90vw;
+  max-height: 80vh;
+  padding: 0;
 }
 
-.file-drop-zone {
-  border: 2px dashed var(--outline);
-  border-radius: var(--border-radius-m);
-  padding: var(--spacing-xl);
-  text-align: center;
-  margin: var(--spacing-m) 0;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+.file-browser-header {
+  padding: var(--spacing-m);
+  border-bottom: 1px solid var(--outline-variant);
 }
 
-.file-drop-zone:hover {
-  border-color: var(--primary);
-  background-color: color-mix(in oklch, var(--primary) 5%, transparent);
+.file-browser-header h2 {
+  margin: 0 0 var(--spacing-s) 0;
+  font-size: 1.25rem;
 }
 
-.file-drop-zone.drag-over {
-  border-color: var(--primary);
-  background-color: color-mix(in oklch, var(--primary) 10%, transparent);
-}
-
-.file-drop-zone .material-symbols-rounded {
-  font-size: 48px;
+.file-browser-path {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  font-size: 0.875rem;
   color: var(--on-surface-variant);
-  display: block;
+}
+
+.file-browser-path .icon-button {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--on-surface-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.file-browser-path .icon-button:hover:not(:disabled) {
+  background-color: var(--surface-container-high);
+}
+
+.file-browser-path .icon-button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.file-browser-content {
+  height: 400px;
+  overflow: hidden;
+  position: relative;
+}
+
+.file-browser-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--on-surface-variant);
+}
+
+.file-browser-loading .material-symbols-rounded {
+  font-size: 48px;
   margin-bottom: var(--spacing-s);
 }
 
-.file-drop-zone p {
-  margin: var(--spacing-s) 0;
-  color: var(--on-surface-variant);
+.file-browser-loading .spinning {
+  animation: spin 1s linear infinite;
 }
 
-#selected-file-info {
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.file-browser-list {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--spacing-xs);
+}
+
+.file-browser-item {
   display: flex;
   align-items: center;
   gap: var(--spacing-s);
-  padding: var(--spacing-m);
+  padding: var(--spacing-s) var(--spacing-m);
+  border-radius: var(--border-radius-s);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none;
+}
+
+.file-browser-item:hover:not(.disabled) {
   background-color: var(--surface-container);
-  border-radius: var(--border-radius-m);
-  margin: var(--spacing-m) 0;
 }
 
-#selected-file-info .material-symbols-rounded {
-   color: var(--primary);
-  }
-
-/* 文件浏览器样式 */
-#file-browser-header {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-s);
-  margin-bottom: var(--spacing-m);
+.file-browser-item.selected {
+  background-color: var(--primary-container);
+  color: var(--on-primary-container);
 }
 
-#file-browser-header button {
+.file-browser-item.disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.file-browser-item .file-icon {
+  color: var(--on-surface-variant);
   flex-shrink: 0;
 }
 
-#current-path {
-  flex-grow: 1;
+.file-browser-item.selected .file-icon {
+  color: var(--on-primary-container);
+}
+
+.file-browser-item .file-name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.file-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid var(--outline);
-  border-radius: var(--border-radius-m);
-}
-
-.file-item {
-  display: flex;
-  align-items: center;
-  padding: var(--spacing-m);
-  gap: var(--spacing-s);
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.file-item:hover {
-  background-color: var(--surface-container-high);
-}
-
-.file-item.selected {
-  background-color: var(--primary-container);
-}
-
-.file-item .material-symbols-rounded {
-  font-size: 24px;
+.file-browser-item .material-symbols-rounded:last-child {
   color: var(--on-surface-variant);
+  opacity: 0.6;
 }
 
-.file-item.directory .material-symbols-rounded {
-  color: var(--primary);
+.file-browser-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--on-surface-variant);
+  text-align: center;
 }
 
-.file-item .file-name {
-  flex-grow: 1;
+.file-browser-empty .material-symbols-rounded {
+  font-size: 48px;
+  margin-bottom: var(--spacing-s);
+  opacity: 0.6;
+}
+
+.file-browser-empty p {
+  margin: 0;
+  font-size: 0.875rem;
 }

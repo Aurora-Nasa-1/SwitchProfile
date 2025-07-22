@@ -20,17 +20,7 @@ export class FileManager {
      * @param {File} file - 要复制的文件对象
      * @returns {Promise<string>} - 返回复制后的文件路径
      */
-    async copyFile(source) {
-        if (typeof source === 'string') {
-            return this.copyFromDevicePath(source);
-        } else if (source instanceof File) {
-            return this.copyFromBrowserFile(source);
-        } else {
-            throw new Error('Invalid source type');
-        }
-    }
-
-    async copyFromBrowserFile(file) {
+    async copyFile(file) {
         return new Promise((resolve, reject) => {
             try {
                 const reader = new FileReader();
@@ -40,6 +30,7 @@ export class FileManager {
                     const fileName = this.generateFileName(file.name);
                     const targetPath = `${this.targetDirectory}${fileName}`;
                     
+                    // 将文件内容写入目标路径
                     this.writeFileContent(targetPath, content)
                         .then(() => resolve(targetPath))
                         .catch(reject);
@@ -49,6 +40,7 @@ export class FileManager {
                     reject(new Error('Failed to read file'));
                 };
                 
+                // 根据文件类型选择读取方式
                 if (this.isBinaryFile(file.name)) {
                     reader.readAsArrayBuffer(file);
                 } else {
@@ -58,21 +50,6 @@ export class FileManager {
             } catch (error) {
                 reject(error);
             }
-        });
-    }
-
-    async copyFromDevicePath(sourcePath) {
-        return new Promise((resolve, reject) => {
-            const fileName = this.generateFileName(sourcePath.split('/').pop());
-            const targetPath = `${this.targetDirectory}${fileName}`;
-
-            Core.execCommand(`cp -f "${sourcePath}" "${targetPath}"`, (output) => {
-                if (output.includes('ERROR') || output.includes('No such file')) {
-                    reject(new Error(`Failed to copy file: ${output}`));
-                } else {
-                    resolve(targetPath);
-                }
-            });
         });
     }
     

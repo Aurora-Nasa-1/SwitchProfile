@@ -332,26 +332,36 @@ export class ManagePage {
     }
     
     setupFileInputs() {
+        // 为所有文件选择按钮绑定事件
         this.operationEditDialog.querySelectorAll('.file-select-btn').forEach(button => {
-            const targetInput = button.closest('label').querySelector('input[type="text"]');
-            const accept = button.dataset.accept || '*';
-
+            const fileInput = button.parentElement.querySelector('input[type="file"]');
+            const accept = fileInput ? fileInput.accept || '*' : '*';
+            
             button.addEventListener('click', async () => {
                 try {
-                    const selectedPath = await window.DialogManager.selectFile(accept);
-
-                    if (selectedPath) {
-                        const fileName = selectedPath.split('/').pop();
-
-                        const targetPath = await this.fileManager.copyFile(selectedPath);
-                        targetInput.value = targetPath;
-
-                        const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
-                        if (textSpan) {
-                            textSpan.textContent = fileName;
+                    // 使用DialogManager选择文件，自动处理兼容性
+                    const filePath = await window.DialogManager.selectFile(accept);
+                    
+                    if (filePath) {
+                        const targetInput = button.parentElement.parentElement.querySelector('input[type="text"]');
+                        
+                        try {
+                            // 复制文件到目标目录
+                            const targetPath = await this.fileManager.copyFile(filePath);
+                            targetInput.value = targetPath;
+                            
+                            // 更新按钮文本
+                            const fileName = filePath.split('/').pop();
+                            const textSpan = button.querySelector('span:not(.material-symbols-rounded)');
+                            if (textSpan) {
+                                textSpan.textContent = fileName;
+                            }
+                            
+                            Core.showToast('文件已选择', 'success');
+                        } catch (error) {
+                            console.error('File copy failed:', error);
+                            Core.showToast('文件复制失败', 'error');
                         }
-
-                        Core.showToast('文件已选择', 'success');
                     }
                 } catch (error) {
                     console.error('File selection failed:', error);

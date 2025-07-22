@@ -244,20 +244,19 @@ export class ScenarioManager {
         
         // 引入Core.sh并检查是否存在
         script += '# Source Core.sh functions\n';
-        script += `CORE_SH="${Core.MODULE_PATH}Core.sh"\n`;
+        script += `CORE_SH="${Core.MODULE_PATH}/Core.sh"\n`;
         script += 'if [ ! -f "$CORE_SH" ]; then\n';
         script += '    echo "Error: Core.sh not found at $CORE_SH"\n';
         script += '    exit 1\n';
         script += 'fi\n';
         script += 'source "$CORE_SH"\n\n';
+        
         script += '\n';
         
         // 设置变量
         script += `# Configuration\n`;
-
         script += `Installer_Compatibility="${scenario.compatibilityMode ? 'true' : 'false'}"\n`;
         script += `Installer_Log="true"\n\n`;
-        
         // 执行操作
         script += `# Execute operations\n`;
         scenario.operations.forEach((operation, index) => {

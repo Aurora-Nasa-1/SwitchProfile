@@ -150,21 +150,37 @@
             <button type="button" id="confirm-ok" class="filled">确定</button>
         </fieldset>
     </dialog>
-    
-    <!-- 文件选择器对话框 -->
-    <dialog id="file-picker-dialog">
-        <h2>选择文件</h2>
-        <div id="file-browser-header">
-            <button type="button" id="file-browser-back" class="tonal">
-                <span class="material-symbols-rounded">arrow_back</span>
-                上级目录
+
+    <!-- 文件浏览器对话框 -->
+    <dialog id="file-browser-dialog">
+        <div class="file-browser-header">
+            <h2>选择文件</h2>
+            <button type="button" id="file-browser-close" class="icon-button">
+                <span class="material-symbols-rounded">close</span>
             </button>
-            <span id="current-path">/sdcard/</span>
         </div>
-        <div id="file-list" class="file-list"></div>
+        <div class="file-browser-path">
+            <button type="button" id="file-browser-up" class="icon-button">
+                <span class="material-symbols-rounded">arrow_upward</span>
+            </button>
+            <span id="file-browser-current-path">/sdcard/</span>
+        </div>
+        <div class="file-browser-loading" id="file-browser-loading">
+            <div class="loading-spinner"></div>
+            <span>加载中...</span>
+        </div>
+        <div class="file-browser-content" id="file-browser-content">
+            <div class="file-browser-list" id="file-browser-list">
+                <!-- 文件列表将在这里动态生成 -->
+            </div>
+            <div class="file-browser-empty" id="file-browser-empty" style="display: none;">
+                <span class="material-symbols-rounded">folder_open</span>
+                <p>此目录为空</p>
+            </div>
+        </div>
         <fieldset>
-            <button type="button" id="file-picker-cancel">取消</button>
-            <button type="button" id="file-picker-ok" class="filled" disabled>确定</button>
+            <button type="button" id="file-browser-cancel">取消</button>
+            <button type="button" id="file-browser-ok" class="filled" disabled>确定</button>
         </fieldset>
     </dialog>
     
