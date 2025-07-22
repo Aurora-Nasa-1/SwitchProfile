@@ -321,7 +321,7 @@ export class ScenarioManager {
         
         // 基本设置
         script += `# ${scenario.name}\n`;
-        script += `source "${Core.MODULE_PATH}/Core.sh"\n`;
+        script += `source "${Core.MODULE_PATH}Core.sh"\n`;
         script += `Installer_Compatibility="${scenario.compatibilityMode ? 'true' : 'false'}"\n`;
         script += `Installer_Log="true"\n\n`;
         

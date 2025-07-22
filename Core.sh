@@ -47,6 +47,7 @@ flash_boot() {
             log_error "Not found AnyKernel3 zip $img_path"
             return 1
         fi
+        rm -rf /tmp/anykernel/
         unzip -o "$img_path" -d /tmp/anykernel
         chmod -R 755 /tmp/anykernel/
         if [[ ! -f /tmp/anykernel/anykernel.sh ]]; then
