@@ -31,7 +31,7 @@ jobs:
       - name: Create update.json
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
-          ./build.sh -c
+          . ./build.sh -c
           cat > update.json << EOF
           {
             "version": "${VERSION}",
