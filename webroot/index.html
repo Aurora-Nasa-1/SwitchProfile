@@ -28,7 +28,7 @@
     <link rel="preload" href="src/assets/css/base.css" as="style" />
     <link rel="preload" href="src/core.js" as="script" />
     <link rel="preload" href="src/app.js" as="script" />
-    
+
     <!-- Preload fonts with font-display: swap -->
     <link
       rel="preload"
@@ -37,78 +37,85 @@
       type="font/woff2"
       crossorigin
     />
-    
+
     <!-- Material Design 3 CSS -->
     <link rel="stylesheet" href="src/assets/css/md3.css" />
     <link rel="stylesheet" href="src/assets/css/base.css" />
-        
+    <!-- Window Safe Area Insets -->
+    <link rel="stylesheet" type="text/css" href="https://mui.kernelsu.org/internal/insets.css" />
+    <!-- App Theme which the user has currently selected -->
+    <link rel="stylesheet" type="text/css" href="https://mui.kernelsu.org/internal/colors.css" />
     <!-- Optimize font loading and initial loading state -->
-     <style>
-       @font-face {
-         font-family: 'Google Sans';
-         src: url('src/assets/fonts/google.woff2') format('woff2');
-         font-display: swap;
-         font-weight: 100 900;
-       }
-       
-       /* Initial loading state */
-       #app {
-         opacity: 0;
-         transition: opacity 0.3s ease;
-       }
-       
-       body.app-loaded #app {
-         opacity: 1;
-       }
-       
-       /* Prevent FOUC (Flash of Unstyled Content) */
-       body {
-         visibility: hidden;
-       }
-       
-       body.app-loaded {
-         visibility: visible;
-       }
-       
-       /* Loading indicator styles */
-       .loading-overlay {
-         position: fixed;
-         top: 0;
-         left: 0;
-         width: 100%;
-         height: 100%;
-         background: rgba(0, 0, 0, 0.8);
-         display: flex;
-         align-items: center;
-         justify-content: center;
-         z-index: 9999;
-         color: white;
-       }
-       
-       .loading-content {
-         text-align: center;
-       }
-       
-       .loading-spinner {
-         width: 40px;
-         height: 40px;
-         border: 3px solid rgba(255, 255, 255, 0.3);
-         border-top: 3px solid white;
-         border-radius: 50%;
-         animation: spin 1s linear infinite;
-         margin: 0 auto 16px;
-       }
-       
-       @keyframes spin {
-         0% { transform: rotate(0deg); }
-         100% { transform: rotate(360deg); }
-       }
-       
-       .loading-text {
-         font-size: 16px;
-         opacity: 0.9;
-       }
-     </style>
+    <style>
+      @font-face {
+        font-family: "Google Sans";
+        src: url("src/assets/fonts/google.woff2") format("woff2");
+        font-display: swap;
+        font-weight: 100 900;
+      }
+
+      /* Initial loading state */
+      #app {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      body.app-loaded #app {
+        opacity: 1;
+      }
+
+      /* Prevent FOUC (Flash of Unstyled Content) */
+      body {
+        visibility: hidden;
+      }
+
+      body.app-loaded {
+        visibility: visible;
+      }
+
+      /* Loading indicator styles */
+      .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        color: white;
+      }
+
+      .loading-content {
+        text-align: center;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-top: 3px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 16px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        font-size: 16px;
+        opacity: 0.9;
+      }
+    </style>
   </head>
   <body>
     <!-- Initial Loading Indicator -->
@@ -118,18 +125,66 @@
         <div class="loading-text">正在加载...</div>
       </div>
     </div>
-    
+
     <!-- Toast容器 -->
     <div id="toast-container"></div>
 
     <!-- 应用主容器 -->
     <div id="app">
+      <!-- 侧栏导航 (横屏时显示) -->
+      <nav class="sidebar-nav">
+        <div class="sidebar-nav-items">
+          <a href="#home" class="sidebar-nav-item active" data-page="home">
+            <span class="material-symbols-rounded">home</span>
+            <span data-i18n="nav.home">首页</span>
+          </a>
+          <a href="#manage" class="sidebar-nav-item" data-page="manage">
+            <span class="material-symbols-rounded">settings</span>
+            <span data-i18n="nav.manage">管理</span>
+          </a>
+        </div>
+        <div class="sidebar-actions">
+          <button class="sidebar-action-btn" id="sidebar-import-btn">
+            <span class="material-symbols-rounded">upload</span>
+            <span data-i18n="manage.importScenario">导入情景</span>
+          </button>
+          <button class="sidebar-action-btn" id="sidebar-export-btn">
+            <span class="material-symbols-rounded">download</span>
+            <span data-i18n="manage.exportAll">导出全部</span>
+          </button>
+          <button class="sidebar-action-btn" id="sidebar-settings-btn">
+            <span class="material-symbols-rounded">settings</span>
+            <span data-i18n="app.settings">设置</span>
+          </button>
+        </div>
+      </nav>
+
       <!-- 顶栏 -->
       <header>
         <h1 id="page-title" data-i18n="nav.scenarios">情景模式</h1>
-        <button id="settings-btn" class="settings-btn" data-i18n-title="app.settings">
-          <span class="material-symbols-rounded">settings</span>
-        </button>
+        <div class="header-actions">
+          <button
+            id="import-scenario-btn"
+            class="header-btn"
+            data-i18n-title="manage.importScenario"
+          >
+            <span class="material-symbols-rounded">upload</span>
+          </button>
+          <button
+            id="export-all-btn"
+            class="header-btn"
+            data-i18n-title="manage.exportAll"
+          >
+            <span class="material-symbols-rounded">download</span>
+          </button>
+          <button
+            id="settings-btn"
+            class="header-btn"
+            data-i18n-title="app.settings"
+          >
+            <span class="material-symbols-rounded">settings</span>
+          </button>
+        </div>
       </header>
 
       <!-- 设置对话框 -->
@@ -202,7 +257,9 @@
           </div>
         </div>
         <fieldset>
-          <button type="button" id="close-settings" data-i18n="app.close">关闭</button>
+          <button type="button" id="close-settings" data-i18n="app.close">
+            关闭
+          </button>
         </fieldset>
       </dialog>
 
@@ -215,18 +272,6 @@
 
       <!-- 管理页 - 情景管理 -->
       <main id="manage-page" class="page">
-        <div class="manage-header">
-          <div class="manage-actions">
-            <button id="import-scenario-btn" class="tonal">
-              <span class="material-symbols-rounded">upload</span>
-              <span data-i18n="manage.importScenario">导入情景</span>
-            </button>
-            <button id="export-all-btn" class="tonal">
-              <span class="material-symbols-rounded">download</span>
-              <span data-i18n="manage.exportAll">导出全部</span>
-            </button>
-          </div>
-        </div>
         <div id="manage-list" class="cards">
           <!-- 管理列表将在这里动态生成 -->
         </div>
@@ -258,7 +303,13 @@
       <form id="scenario-form">
         <label>
           <span data-i18n="manage.scenarioName">情景名称</span>
-          <input type="text" id="scenario-name" name="scenario-name" required data-i18n-placeholder="manage.scenarioNamePlaceholder" />
+          <input
+            type="text"
+            id="scenario-name"
+            name="scenario-name"
+            required
+            data-i18n-placeholder="manage.scenarioNamePlaceholder"
+          />
         </label>
 
         <div class="settings-section">
@@ -293,7 +344,9 @@
         </div>
       </form>
       <fieldset>
-        <button type="button" id="cancel-edit" data-i18n="app.cancel">取消</button>
+        <button type="button" id="cancel-edit" data-i18n="app.cancel">
+          取消
+        </button>
         <button type="submit" class="filled" data-i18n="app.save">保存</button>
       </fieldset>
     </dialog>
@@ -316,21 +369,29 @@
         </div>
       </div>
       <fieldset>
-        <button type="button" id="cancel-operation" data-i18n="app.cancel">取消</button>
+        <button type="button" id="cancel-operation" data-i18n="app.cancel">
+          取消
+        </button>
       </fieldset>
     </dialog>
 
     <!-- 操作编辑对话框 -->
     <dialog id="operation-edit-dialog">
-      <h2 id="operation-edit-title" data-i18n="manage.editOperation">编辑操作</h2>
+      <h2 id="operation-edit-title" data-i18n="manage.editOperation">
+        编辑操作
+      </h2>
       <form id="operation-form">
         <div id="operation-fields">
           <!-- 操作字段将根据类型动态生成 -->
         </div>
       </form>
       <fieldset>
-        <button type="button" id="cancel-operation-edit" data-i18n="app.cancel">取消</button>
-        <button type="submit" class="filled" data-i18n="app.confirm">确定</button>
+        <button type="button" id="cancel-operation-edit" data-i18n="app.cancel">
+          取消
+        </button>
+        <button type="submit" class="filled" data-i18n="app.confirm">
+          确定
+        </button>
       </fieldset>
     </dialog>
 
@@ -341,8 +402,17 @@
         <!-- 确认内容将在这里动态生成 -->
       </div>
       <fieldset>
-        <button type="button" id="confirm-cancel" data-i18n="app.cancel">取消</button>
-        <button type="button" id="confirm-ok" class="filled" data-i18n="app.confirm">确定</button>
+        <button type="button" id="confirm-cancel" data-i18n="app.cancel">
+          取消
+        </button>
+        <button
+          type="button"
+          id="confirm-ok"
+          class="filled"
+          data-i18n="app.confirm"
+        >
+          确定
+        </button>
       </fieldset>
     </dialog>
 
@@ -363,8 +433,12 @@
         </label>
       </form>
       <fieldset>
-        <button type="button" id="cancel-import" data-i18n="app.cancel">取消</button>
-        <button type="submit" class="filled" data-i18n="manage.import">导入</button>
+        <button type="button" id="cancel-import" data-i18n="app.cancel">
+          取消
+        </button>
+        <button type="submit" class="filled" data-i18n="manage.import">
+          导入
+        </button>
       </fieldset>
     </dialog>
 
@@ -385,26 +459,30 @@
         </label>
       </form>
       <fieldset>
-        <button type="button" id="cancel-export" data-i18n="app.cancel">取消</button>
-        <button type="submit" class="filled" data-i18n="manage.export">导出</button>
+        <button type="button" id="cancel-export" data-i18n="app.cancel">
+          取消
+        </button>
+        <button type="submit" class="filled" data-i18n="manage.export">
+          导出
+        </button>
       </fieldset>
     </dialog>
 
     <!-- 应用脚本 -->
     <script type="module" src="src/core.js" defer></script>
     <script type="module" src="src/app.js" defer></script>
-    
+
     <!-- Initialize app after DOM is ready -->
     <script>
-      document.addEventListener('DOMContentLoaded', function() {
+      document.addEventListener("DOMContentLoaded", function () {
         // Hide initial loading indicator after a short delay to ensure smooth transition
         setTimeout(() => {
-          const initialLoading = document.getElementById('initial-loading');
+          const initialLoading = document.getElementById("initial-loading");
           if (initialLoading) {
-            initialLoading.style.opacity = '0';
+            initialLoading.style.opacity = "0";
             setTimeout(() => {
               initialLoading.remove();
-              document.body.classList.add('app-loaded');
+              document.body.classList.add("app-loaded");
             }, 300);
           }
         }, 100);

@@ -208,7 +208,7 @@
       "importFileFailed": "Failed to import file",
       "importSuccess": "Scenario imported successfully",
       "scenarioAddSuccess": "Scenario added successfully",
-      "scenarioAddFailed": "Scenario add failed: {{error}}"
+      "scenarioAddFailed": "Scenario add failed"
     },
     "operation": {
       "deleted": "Operation deleted",

@@ -107,8 +107,8 @@ class App {
     }
 
     setupNavigation() {
+        // 设置底部导航
         const navItems = document.querySelectorAll('.nav-item');
-        
         navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -116,6 +116,22 @@ class App {
                 this.navigateTo(page);
             });
         });
+        
+        // 设置侧栏导航
+        const sidebarNavItems = document.querySelectorAll('.sidebar-nav-item');
+        sidebarNavItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const page = item.dataset.page;
+                this.navigateTo(page);
+            });
+        });
+        
+        // 设置顶栏按钮
+        this.setupHeaderButtons();
+        
+        // 设置侧栏按钮
+        this.setupSidebarButtons();
     }
     
     setupFAB() {
@@ -127,6 +143,58 @@ class App {
         });
     }
     
+    setupHeaderButtons() {
+        // 设置按钮
+        const settingsBtn = document.getElementById('settings-btn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => {
+                this.settingsManager.openSettings();
+            });
+        }
+        
+        // 导入按钮
+        const importBtn = document.getElementById('import-scenario-btn');
+        if (importBtn) {
+            importBtn.addEventListener('click', () => {
+                this.managePage.showDialogWithAnimation(this.managePage.importDialog);
+            });
+        }
+        
+        // 导出按钮
+        const exportBtn = document.getElementById('export-all-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.managePage.showDialogWithAnimation(this.managePage.exportDialog);
+            });
+        }
+    }
+    
+    setupSidebarButtons() {
+        // 侧栏设置按钮
+        const sidebarSettingsBtn = document.getElementById('sidebar-settings-btn');
+        if (sidebarSettingsBtn) {
+            sidebarSettingsBtn.addEventListener('click', () => {
+                this.settingsManager.openSettings();
+            });
+        }
+        
+        // 侧栏导入按钮
+        const sidebarImportBtn = document.getElementById('sidebar-import-btn');
+        if (sidebarImportBtn) {
+            sidebarImportBtn.addEventListener('click', () => {
+                this.managePage.showDialogWithAnimation(this.managePage.importDialog);
+            });
+        }
+        
+        // 侧栏导出按钮
+        const sidebarExportBtn = document.getElementById('sidebar-export-btn');
+        if (sidebarExportBtn) {
+            sidebarExportBtn.addEventListener('click', () => {
+                this.managePage.showDialogWithAnimation(this.managePage.exportDialog);
+            });
+        }
+    }
+    
     navigateTo(page) {
         if (Core.isDebugMode()) {
             Core.logDebug('APP', `Navigating to page: ${page}`);
@@ -135,6 +203,11 @@ class App {
         
         // 更新导航状态
         document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.toggle('active', item.dataset.page === page);
+        });
+        
+        // 更新侧栏导航状态
+        document.querySelectorAll('.sidebar-nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.page === page);
         });
         

@@ -207,8 +207,8 @@
       "createScriptDirFailed": "创建脚本目录失败",
       "importFileFailed": "导入文件失败",
       "importSuccess": "情景导入成功",
-      "scenarioAddSuccess": "情景添加成功: {{scenario.name}}",
-      "scenarioAddFailed": "情景添加失败: {{scenario.name}}"
+      "scenarioAddSuccess": "情景添加成功",
+      "scenarioAddFailed": "情景添加失败"
     },
     "operation": {
       "deleted": "操作已删除",
