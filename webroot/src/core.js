@@ -61,20 +61,24 @@ export const Core = {
       Math.random() * 1000
     )}`;
 
-    window[callbackName] = (output) => {
+    window[callbackName] = (errno, stdout, stderr) => {
       if (callback) {
-        callback(output);
+        // 处理ksu.exec返回的三个参数：errno, stdout, stderr
+        const output = stdout || stderr || '';
+        const isError = errno !== 0 || (stderr && stderr.trim() !== '');
+        callback(output, !isError, { errno, stdout, stderr });
       }
       delete window[callbackName];
     };
 
     if (typeof ksu !== "undefined" && ksu.exec) {
-      ksu.exec(command, callbackName);
+      // 传递选项参数给ksu.exec
+      ksu.exec(command, JSON.stringify({}), callbackName);
     } else {
       const errorMsg = "Error: ksu.exec is not defined.";
       console.error(errorMsg);
       if (callback) {
-        callback(errorMsg);
+        callback(errorMsg, false, { errno: -1, stdout: '', stderr: errorMsg });
       }
     }
   },
@@ -82,7 +86,7 @@ export const Core = {
   /**
    * 执行单个 shell 命令。
    * @param {string} command 要执行的 shell 命令。
-   * @param {function(string, boolean): void} [callback] 命令执行后的回调函数，接收命令输出和是否成功作为参数。
+   * @param {function(string, boolean, object): void} [callback] 命令执行后的回调函数，接收命令输出、是否成功和详细结果作为参数。
    */
   execCommand(command, callback) {
     // Debug模式下记录命令执行 (English only for debug)
@@ -91,21 +95,61 @@ export const Core = {
       this.showToast(`[DEBUG] Executing command: ${command}`, 'info');
     }
 
-    this._execCommandInternal(command, (output) => {
-      const isError = this._isCommandError(output);
+    this._execCommandInternal(command, (output, isSuccess, details) => {
+      // 使用新的错误检测逻辑，优先使用ksu返回的errno
+      const isError = !isSuccess || this._isCommandError(output);
       
       // Debug模式下记录命令输出 (English only for debug)
       if (this.isDebugMode()) {
         const status = isError ? 'ERROR' : 'SUCCESS';
         this.logDebug(`Command output [${status}]: ${output}`, 'OUTPUT');
+        if (details) {
+          this.logDebug(`Command details - errno: ${details.errno}, stdout length: ${details.stdout ? details.stdout.length : 0}, stderr length: ${details.stderr ? details.stderr.length : 0}`, 'OUTPUT');
+        }
         this.showToast(`[DEBUG] Command ${status}: ${output.substring(0, 100)}${output.length > 100 ? '...' : ''}`, isError ? 'error' : 'info');
       }
       
       if (callback) {
-        callback(output, !isError);
+        callback(output, !isError, details);
       }
     });
   },
+
+  /**
+   * 执行命令并返回Promise（与原始exec函数兼容）
+   * @param {string} command 要执行的命令
+   * @param {object} options 选项参数
+   * @returns {Promise<{errno: number, stdout: string, stderr: string}>}
+   */
+  exec(command, options = {}) {
+    return new Promise((resolve, reject) => {
+      // 生成唯一的回调函数名
+      const callbackFuncName = `callback_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+      // 定义成功回调函数
+      window[callbackFuncName] = (errno, stdout, stderr) => {
+        resolve({ errno, stdout, stderr });
+        cleanup(callbackFuncName);
+      };
+
+      function cleanup(successName) {
+        delete window[successName];
+      }
+
+      try {
+        if (typeof ksu !== "undefined" && ksu.exec) {
+          ksu.exec(command, JSON.stringify(options), callbackFuncName);
+        } else {
+          reject(new Error("ksu.exec is not defined"));
+          cleanup(callbackFuncName);
+        }
+      } catch (error) {
+        reject(error);
+        cleanup(callbackFuncName);
+      }
+    });
+  },
+
   /**
    * 显示错误消息
    * @param {string} error 错误信息
