@@ -9,7 +9,8 @@ class I18nManager {
         this.fallbackLanguage = 'zh-CN';
         this.supportedLanguages = {
             'zh-CN': '中文',
-            'en-US': 'English'
+            'en-US': 'English',
+            'ru-RU': 'Русский'
         };
         
         this.init();

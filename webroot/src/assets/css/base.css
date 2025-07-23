@@ -1002,13 +1002,6 @@ body.mmrl-webui-x {
     display: none;
   }
 
-  /* 调整页面布局 */
-  .page {
-    min-height: 100vh;
-    padding: var(--spacing-l);
-    padding-top: var(--spacing-l);
-  }
-
   /* 调整FAB位置 */
   .fab {
     bottom: var(--spacing-l);
@@ -1017,7 +1010,6 @@ body.mmrl-webui-x {
 
   /* 修复对话框位置 */
   dialog {
-    left: calc(50% + 60px);
     top: 50%;
     transform: translate(-50%, -50%) scale(0.9);
     margin: 0;

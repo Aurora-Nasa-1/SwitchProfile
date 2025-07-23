@@ -3,25 +3,29 @@
     "title": "SwitchProfile",
     "loading": {
       "initializing": "Initializing...",
-      "scenarios": "Loading scenarios...",
+      "scenarios": "Loading scenario data...",
       "complete": "Loading complete"
     },
-    "error": "Error",
-    "success": "Success",
-    "warning": "Warning",
-    "info": "Info",
-    "confirm": "Confirm",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "add": "Add",
-    "import": "Import",
-    "export": "Export",
-    "execute": "Execute",
-    "apply": "Apply",
-    "close": "Close",
-    "settings": "Settings"
+    "actions": {
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "delete": "Delete",
+      "edit": "Edit",
+      "add": "Add",
+      "import": "Import",
+      "export": "Export",
+      "execute": "Execute",
+      "apply": "Apply",
+      "close": "Close"
+    },
+    "status": {
+      "error": "Error",
+      "success": "Success",
+      "warning": "Warning",
+      "info": "Information"
+    }
   },
   "nav": {
     "home": "Home",
@@ -32,74 +36,41 @@
   "home": {
     "title": "Scenario List",
     "empty": {
-      "title": "No Scenarios",
-      "subtitle": "Click the button below to create your first scenario"
+      "title": "No scenarios yet",
+      "description": "Click the button in the bottom right corner to create your first scenario"
     },
-    "noOperations": "No operations",
-    "operationsCount": "{{count}} operations",
-    "apply": "Apply Scenario",
-    "applying": "Applying...",
-    "applied": "Applied successfully",
-    "failed": "Application failed",
     "scenario": {
-      "operations": " operations",
-      "noOperations": "No operations",
-      "unknownName": "Unknown Scenario",
-      "applyButton": "Apply Scenario",
-      "applying": "Applying scenario...",
-      "applySuccess": "Scenario applied successfully!",
-      "applyFailed": "Failed to apply scenario",
-      "notFound": "Scenario not found",
-      "noOperationsWarning": "This scenario has no operations",
-      "confirmTitle": "Apply Scenario",
-      "confirmContent": "This will execute the following:",
-      "autoRebootWarning": "⚠️ Device will reboot automatically after execution"
+      "operations": "operations",
+      "operationsCount": "{{count}} operations",
+      "unknownName": "Unknown scenario"
     }
   },
   "manage": {
     "title": "Scenario Management",
     "empty": {
-      "title": "Start Creating Scenarios",
-      "description": "Click the + button in the bottom right to create your first scenario"
+      "title": "Start creating scenarios",
+      "description": "Click the + button in the bottom right corner to create your first scenario"
     },
     "newScenario": "New Scenario",
-        "editScenario": "Edit Scenario",
-    "scenarioName": "Scenario Name",
-    "scenarioNamePlaceholder": "Please enter scenario name",
-    "settings": "Settings",
-    "compatibilityMode": "Compatibility Mode",
-    "autoReboot": "Auto Reboot",
-    "operationList": "Operation List",
-    "addOperation": "Add Operation",
-    "selectOperation": "Select Operation",
+    "editScenario": "Edit Scenario",
     "installModule": "Install Module",
     "deleteModule": "Delete Module",
     "flashBoot": "Flash Boot",
     "customScript": "Custom Script",
     "editOperation": "Edit Operation",
     "scenario": {
-      "new": "New Scenario",
-      "edit": "Edit Scenario",
       "name": "Scenario Name",
+      "namePlaceholder": "Please enter scenario name",
       "compatibilityMode": "Compatibility Mode",
       "autoReboot": "Auto Reboot",
       "standardMode": "Standard Mode",
       "manualReboot": "Manual Reboot",
-      "deleteTitle": "Delete Scenario",
-      "deleteConfirm": "Are you sure you want to delete this scenario? This action cannot be undone.",
-      "deleteSuccess": "Scenario deleted successfully",
-      "deleteFailed": "Failed to delete scenario",
-      "saveSuccess": "Scenario saved successfully",
-      "saveFailed": "Failed to save scenario",
-      "nameRequired": "Please enter scenario name",
-      "executeSuccess": "Scenario executed successfully"
+      "confirmContent": "This operation will execute the following:\n{{operations}}\n\n⚠️ After execution, the device will automatically reboot"
     },
     "operation": {
-      "add": "Add Operation",
-      "edit": "Edit Operation",
+      "list": "Operation List",
+      "select": "Select Operation",
       "none": "No operations yet, click the button below to add",
-      "deleteTitle": "Delete Operation",
-      "deleteConfirm": "Are you sure you want to delete this operation? This action cannot be undone.",
       "types": {
         "install_module": "Install Module",
         "delete_module": "Delete Module",
@@ -114,105 +85,62 @@
         "anykernel": "AnyKernel3 Format",
         "anykernelDesc": "Flash using AnyKernel3 format",
         "scriptContent": "Script Content"
-      },
-      "fieldsRequired": "Please fill in all required fields",
-      "saveSuccess": "Operation saved successfully",
-      "saveFailed": "Failed to save operation"
+      }
     },
-    "import": "Import",
-    "importScenario": "Import Scenario",
-    "export": "Export",
-    "exportScenario": "Export Scenario",
-    "exportAll": "Export All",
-    "exportPath": "Export Path",
-    "scenarioFilePath": "Scenario File Path",
-    "scenarioFilePathPlaceholder": "Enter the full path of .sh file",
-    "exportPathPlaceholder": "Enter export directory path",
-    "importDetails": {
+    "import": {
       "pathRequired": "Please enter import file path",
       "success": "Import successful",
-      "failed": "Import failed",
-      "fileNotFound": "File not found",
-      "invalidFile": "Invalid scenario file"
+      "failed": "Import failed"
     },
-    "exportDetails": {
-      "title": "Export All Scenarios",
+    "export": {
       "pathRequired": "Please enter export path",
       "success": "Successfully exported {{count}} scenarios",
       "partial": "Export completed",
-      "failed": "Export failed",
-      "single": "Export Scenario",
-      "singleSuccess": "Scenario exported successfully",
-      "singleFailed": "Failed to export scenario"
+      "failed": "Export failed"
     }
+  },
+  "import": {
+    "filePath": "File Path",
+    "filePathPlaceholder": "Enter scenario file path"
+  },
+  "export": {
+    "path": "Export Path",
+    "pathPlaceholder": "Enter export directory path"
   },
   "settings": {
     "title": "Settings",
     "language": "Language",
-    "languageDesc": "Select interface language",
     "noConfirm": "Skip Confirmation",
-    "noConfirmDesc": "Skip confirmation dialog when applying scenarios",
     "themeHue": "Theme Hue",
-    "hue": "Theme Hue",
     "hueDesc": "Adjust interface theme hue",
-    "nativeToast": "Use Native Toast",
-    "exportPath": "Default Export Path",
-    "exportPathDesc": "Set default path for scenario exports",
-    "exportPathPlaceholder": "Enter default export path",
     "useNativeToast": "Use Native Toast",
-    "useNativeToastDesc": "Use system native toast style",
     "debugMode": "Debug Mode",
-    "debugModeDesc": "Enable detailed debug logging",
-    "saveSuccess": "Settings saved successfully",
-    "saveFailed": "Failed to save settings",
-    "loadSuccess": "Settings loaded successfully",
-    "loadFailed": "Failed to load settings",
-    "useDefault": "Using default settings"
+    "exportPath": "Default Export Path",
+    "exportPathPlaceholder": "Enter default export path"
   },
   "errors": {
-    "ksuNotDefined": "KSU environment not defined, some features may not work properly",
-    "execFailed": "Command execution failed",
     "fileNotFound": "File not found",
-    "invalidPath": "Invalid path",
-    "permissionDenied": "Permission denied",
-    "networkError": "Network error",
     "unknownError": "Unknown error"
   },
-  "toast": {
+  "messages": {
     "validation": {
-      "selectModuleFile": "Please select module file",
-      "selectImageFile": "Please select image file",
-      "enterScriptContent": "Please enter script content",
-      "enterScenarioName": "Please enter scenario name"
+      "selectFile": "Please select file",
+      "enterContent": "Please enter content",
+      "enterName": "Please enter name",
+      "fieldsRequired": "Please fill in all required fields"
     },
-    "scenario": {
-       "notFound": "Scenario not found",
-       "noOperations": "This scenario has no operations",
-       "operationSaved": "Operation saved",
-       "exportSuccess": "Export successful",
-       "deleted": "Scenario deleted",
-       "deleteFailed": "Delete failed: {{error}}",
-       "saveFailed": "Save failed: {{error}}",
-      "executing": "Executing script...",
-      "executeSuccess": "Script executed successfully!",
-      "executeFailed": "Script execution failed: {{error}}",
-      "executeError": "Error occurred while executing script: {{error}}",
-      "applying": "Applying scenario...",
-      "applySuccess": "Scenario applied successfully!",
-      "applyFailed": "Scenario application failed: {{error}}",
-      "applyError": "Error occurred while applying scenario: {{error}}",
-      "createExportDirFailed": "Failed to create export directory",
-      "exportFileFailed": "Failed to export file",
-      "importFileNotFound": "Import file not found",
-      "createScriptDirFailed": "Failed to create script directory",
-      "importFileFailed": "Failed to import file",
-      "importSuccess": "Scenario imported successfully",
-      "scenarioAddSuccess": "Scenario added successfully",
-      "scenarioAddFailed": "Scenario add failed"
-    },
-    "operation": {
-      "deleted": "Operation deleted",
-      "deleteFailed": "Delete failed: {{error}}"
+    "common": {
+      "notFound": "Item not found",
+      "noOperations": "This scenario has no operations",
+      "saved": "Saved successfully",
+      "deleted": "Deleted successfully",
+      "success": "Operation successful",
+      "failed": "Operation failed: {{error}}",
+      "executing": "Executing...",
+      "applying": "Applying...",
+      "importing": "Importing...",
+      "exporting": "Exporting...",
+      "confirmDelete": "Are you sure you want to delete? This action cannot be undone."
     }
   }
 }

@@ -352,7 +352,7 @@ export class ScenarioManager {
                 if (Core.isDebugMode()) {
                     Core.logDebug(`Start saving script file: ${scriptPath}`, 'SAVE');
                     Core.logDebug(`Script content length: ${scriptContent.length} characters`, 'SAVE');
-                    Core.showToast(`[DEBUG] 保存脚本: ${scenario.name}`, 'info');
+                    Core.showToast(`[DEBUG] Saving script: ${scenario.name}`, 'info');
                 }
                 
                 // 确保脚本目录存在
@@ -361,9 +361,9 @@ export class ScenarioManager {
                         console.error('Failed to create scripts directory:', mkdirOutput);
                         if (Core.isDebugMode()) {
                             Core.logDebug(`Script directory creation failed: ${mkdirOutput}`, 'ERROR');
-                            Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
+                            Core.showToast(`[DEBUG] Failed to create directory: ${mkdirOutput}`, 'error');
                         }
-                        reject(new Error('脚本目录创建失败: ' + mkdirOutput));
+                        reject(new Error('Failed to create script directory: ' + mkdirOutput));
                         return;
                     }
                     
@@ -383,7 +383,7 @@ export class ScenarioManager {
                             console.error('Failed to write temp script file:', writeOutput);
                             if (Core.isDebugMode()) {
                                 Core.logDebug(`Temporary file write failed: ${writeOutput}`, 'ERROR');
-                                Core.showToast(`[DEBUG] 文件写入失败: ${writeOutput}`, 'error');
+                                Core.showToast(`[DEBUG] Failed to write file: ${writeOutput}`, 'error');
                             }
                             reject(new Error('临时脚本文件写入失败: ' + writeOutput));
                             return;
@@ -399,7 +399,7 @@ export class ScenarioManager {
                                 console.error('Failed to move script file:', mvOutput);
                                 if (Core.isDebugMode()) {
                                     Core.logDebug(`Script file move failed: ${mvOutput}`, 'ERROR');
-                                    Core.showToast(`[DEBUG] 文件移动失败: ${mvOutput}`, 'error');
+                                    Core.showToast(`[DEBUG] Failed to move file: ${mvOutput}`, 'error');
                                 }
                                 reject(new Error('脚本文件移动失败: ' + mvOutput));
                             } else {
@@ -409,14 +409,14 @@ export class ScenarioManager {
                                         console.log('Script saved successfully:', scriptPath);
                                         if (Core.isDebugMode()) {
                                             Core.logDebug(`Script saved and verified successfully: ${scriptPath}`, 'SAVE');
-                                            Core.showToast(`[DEBUG] 脚本保存成功: ${scenario.name}`, 'success');
+                                            Core.showToast(`[DEBUG] Script saved successfully: ${scenario.name}`, 'success');
                                         }
                                         resolve(scriptPath);
                                     } else {
                                         console.error('Script file verification failed:', scriptPath);
                                         if (Core.isDebugMode()) {
                                             Core.logDebug(`Script file verification failed: ${scriptPath}`, 'ERROR');
-                                            Core.showToast(`[DEBUG] 文件验证失败: ${scriptPath}`, 'error');
+                                            Core.showToast(`[DEBUG] File verification failed: ${scriptPath}`, 'error');
                                         }
                                         reject(new Error('脚本文件验证失败'));
                                     }
@@ -429,7 +429,7 @@ export class ScenarioManager {
                 console.error('Failed to save script to file:', error);
                 if (Core.isDebugMode()) {
                     Core.logDebug(`Script save error: ${error.message}`, 'ERROR');
-                    Core.showToast(`[DEBUG] 保存异常: ${error.message}`, 'error');
+                    Core.showToast(`[DEBUG] Save exception: ${error.message}`, 'error');
                 }
                 reject(new Error('脚本保存失败: ' + error.message));
             }
@@ -451,16 +451,16 @@ export class ScenarioManager {
             if (!scenario) {
                 if (Core.isDebugMode()) {
                     Core.logDebug(`Export failed: scenario not found (ID: ${scenarioId})`, 'EXPORT');
-                    Core.showToast(`[DEBUG] 导出失败: 情景不存在`, 'error');
+                    Core.showToast(`[DEBUG] Export failed: scenario not found`, 'error');
                 }
-                Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+                Core.showToast(Core.t('messages.common.notFound'), 'error');
                 reject(new Error('情景不存在'));
                 return;
             }
 
             if (Core.isDebugMode()) {
                 Core.logDebug(`Start exporting scenario: ${scenario.name} (ID: ${scenarioId}) to ${exportPath}`, 'EXPORT');
-                Core.showToast(`[DEBUG] 导出情景: ${scenario.name}`, 'info');
+                Core.showToast(`[DEBUG] Exporting scenario: ${scenario.name}`, 'info');
             }
 
             const sourceFile = `${this.scriptsPath}${scenarioId}.sh`;
@@ -475,9 +475,9 @@ export class ScenarioManager {
                 if (!isSuccess || (mkdirOutput && mkdirOutput.includes('ERROR'))) {
                     if (Core.isDebugMode()) {
                         Core.logDebug(`Export directory creation failed: ${mkdirOutput}`, 'ERROR');
-                        Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
+                        Core.showToast(`[DEBUG] Failed to create directory: ${mkdirOutput}`, 'error');
                     }
-                    Core.showToast(Core.t('toast.scenario.createExportDirFailed'), 'error');
+                    Core.showToast(Core.t('messages.common.failed', { error: 'Failed to create export directory' }), 'error');
                     reject(new Error('创建导出目录失败'));
                     return;
                 }
@@ -491,16 +491,16 @@ export class ScenarioManager {
                     if (!isSuccess || (cpOutput && cpOutput.includes('ERROR'))) {
                         if (Core.isDebugMode()) {
                             Core.logDebug(`File copy failed: ${cpOutput}`, 'ERROR');
-                            Core.showToast(`[DEBUG] 文件复制失败: ${cpOutput}`, 'error');
+                            Core.showToast(`[DEBUG] Failed to copy file: ${cpOutput}`, 'error');
                         }
-                        Core.showToast(Core.t('toast.scenario.exportFileFailed'), 'error');
+                        Core.showToast(Core.t('messages.common.failed', { error: 'Failed to export file' }), 'error');
                         reject(new Error('导出文件失败'));
                     } else {
                         if (Core.isDebugMode()) {
                             Core.logDebug(`Scenario exported successfully: ${targetFile}`, 'EXPORT');
-                            Core.showToast(`[DEBUG] 导出成功: ${scenario.name}`, 'success');
+                            Core.showToast(`[DEBUG] Export successful: ${scenario.name}`, 'success');
                         }
-                        Core.showToast(`情景导出成功: ${targetFile}`, 'success');
+                        Core.showToast(Core.t('messages.common.success'), 'success');
                         resolve(targetFile);
                     }
                 });
@@ -513,18 +513,18 @@ export class ScenarioManager {
         return new Promise((resolve, reject) => {
             if (Core.isDebugMode()) {
                 Core.logDebug(`Start importing scenario: ${importPath}`, 'IMPORT');
-                Core.showToast(`[DEBUG] 导入情景: ${importPath}`, 'info');
+                Core.showToast(`[DEBUG] Importing scenario: ${importPath}`, 'info');
             }
             
-            Core.showToast(`开始导入情景: ${importPath}`, 'info');
+            Core.showToast(Core.t('messages.common.importing'), 'info');
             // 检查文件是否存在
             Core.execCommand(`test -f "${importPath}" && echo "exists"`, (testOutput, isSuccess, details) => {
                 if (!isSuccess || !testOutput || !testOutput.includes('exists')) {
                     if (Core.isDebugMode()) {
                         Core.logDebug(`Import file not found: ${importPath}`, 'ERROR');
-                        Core.showToast(`[DEBUG] 文件不存在: ${importPath}`, 'error');
+                        Core.showToast(`[DEBUG] File not found: ${importPath}`, 'error');
                     }
-                    Core.showToast(Core.t('toast.scenario.importFileNotFound'), 'error');
+                    Core.showToast(Core.t('errors.fileNotFound'), 'error');
                     reject(new Error('导入文件不存在'));
                     return;
                 }
@@ -546,9 +546,9 @@ export class ScenarioManager {
                     if (!isSuccess || (mkdirOutput && mkdirOutput.includes('ERROR'))) {
                         if (Core.isDebugMode()) {
                             Core.logDebug(`Script directory creation failed: ${mkdirOutput}`, 'ERROR');
-                            Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
+                            Core.showToast(`[DEBUG] Failed to create directory: ${mkdirOutput}`, 'error');
                         }
-                        Core.showToast(Core.t('toast.scenario.createScriptDirFailed'), 'error');
+                        Core.showToast(Core.t('messages.common.failed', { error: 'Failed to create script directory' }), 'error');
                         reject(new Error('创建脚本目录失败'));
                         return;
                     }
@@ -562,9 +562,9 @@ export class ScenarioManager {
                         if (!isSuccess || (cpOutput && cpOutput.includes('ERROR'))) {
                             if (Core.isDebugMode()) {
                                 Core.logDebug(`File copy failed: ${cpOutput}`, 'ERROR');
-                                Core.showToast(`[DEBUG] 文件复制失败: ${cpOutput}`, 'error');
+                                Core.showToast(`[DEBUG] Failed to copy file: ${cpOutput}`, 'error');
                             }
-                            Core.showToast(Core.t('toast.scenario.importFileFailed'), 'error');
+                            Core.showToast(Core.t('messages.common.failed', { error: 'Failed to import file' }), 'error');
                             reject(new Error('导入文件失败'));
                         } else {
                             if (Core.isDebugMode()) {
@@ -575,9 +575,9 @@ export class ScenarioManager {
                             this.parseScriptFile(targetFile, () => {
                                 if (Core.isDebugMode()) {
                                     Core.logDebug(`Scenario imported successfully, new ID: ${newId}`, 'IMPORT');
-                                    Core.showToast(`[DEBUG] 导入成功，ID: ${newId}`, 'success');
+                                    Core.showToast(`[DEBUG] Import successful, ID: ${newId}`, 'success');
                                 }
-                                Core.showToast(Core.t('toast.scenario.importSuccess'), 'success');
+                                Core.showToast(Core.t('messages.common.success'), 'success');
                                 resolve(newId);
                             });
                         }
@@ -615,10 +615,10 @@ export class ScenarioManager {
             // 添加到内存中的情景列表
             this.scenarios.push(scenario);
             
-            Core.showToast(Core.t('toast.scenario.scenarioAddSuccess'), 'success');
+            Core.showToast(Core.t('messages.common.success'), 'success');
             return scenario;
         } catch (error) {
-            Core.showToast(Core.t('toast.scenario.scenarioAddFailed'), 'error');
+            Core.showToast(Core.t('messages.common.failed', { error: 'Failed to add scenario' }), 'error');
             throw error;
         }
     }
@@ -636,16 +636,16 @@ export class ScenarioManager {
                 // 更新内存中的情景
                 this.scenarios[index] = scenario;
                 
-                Core.showToast(`情景更新成功: ${scenario.name}`, 'success');
+                Core.showToast(Core.t('messages.common.success'), 'success');
                 return true;
             } catch (error) {
                 // 如果保存失败，回滚操作
                 this.scenarios[index] = originalScenario;
-                Core.showToast(`情景更新失败: ${error.message}`, 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: error.message }), 'error');
                 throw error;
             }
         }
-        Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+        Core.showToast(Core.t('messages.common.notFound'), 'error');
         throw new Error('情景不存在');
     }
     
@@ -658,7 +658,7 @@ export class ScenarioManager {
             if (Core.isDebugMode()) {
                 Core.logDebug(`Start deleting scenario: ${deletedScenario.name} (ID: ${id})`, 'DELETE');
                 Core.logDebug(`Script file path: ${scriptPath}`, 'DELETE');
-                Core.showToast(`[DEBUG] 删除情景: ${deletedScenario.name}`, 'info');
+                Core.showToast(`[DEBUG] Deleting scenario: ${deletedScenario.name}`, 'info');
             }
             
             return new Promise((resolve, reject) => {
@@ -668,9 +668,9 @@ export class ScenarioManager {
                         console.error('Failed to delete script file:', output);
                         if (Core.isDebugMode()) {
                             Core.logDebug(`Script file deletion failed: ${output}`, 'ERROR');
-                            Core.showToast(`[DEBUG] 文件删除失败: ${output}`, 'error');
+                            Core.showToast(`[DEBUG] Failed to delete file: ${output}`, 'error');
                         }
-                        Core.showToast(`脚本文件删除失败: ${output}`, 'error');
+                        Core.showToast(Core.t('messages.common.failed', { error: 'Failed to delete script file' }), 'error');
                         reject(new Error('脚本文件删除失败: ' + output));
                     } else {
                         // 从内存中移除情景
@@ -678,9 +678,9 @@ export class ScenarioManager {
                         console.log('Script deleted successfully:', scriptPath);
                         if (Core.isDebugMode()) {
                             Core.logDebug(`Scenario deleted successfully: ${deletedScenario.name}`, 'DELETE');
-                            Core.showToast(`[DEBUG] 删除成功: ${deletedScenario.name}`, 'success');
+                            Core.showToast(`[DEBUG] Delete successful: ${deletedScenario.name}`, 'success');
                         }
-                        Core.showToast(`情景删除成功: ${deletedScenario.name}`, 'success');
+                        Core.showToast(Core.t('messages.common.success'), 'success');
                         resolve(true);
                     }
                 });
@@ -688,16 +688,16 @@ export class ScenarioManager {
         }
         if (Core.isDebugMode()) {
             Core.logDebug(`Delete failed: scenario not found (ID: ${id})`, 'ERROR');
-            Core.showToast(`[DEBUG] 情景不存在: ${id}`, 'error');
+            Core.showToast(`[DEBUG] Scenario not found: ${id}`, 'error');
         }
-        Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+        Core.showToast(Core.t('messages.common.notFound'), 'error');
         throw new Error('情景不存在');
     }
     
     generateScript(scenario) {
         if (Core.isDebugMode()) {
             Core.logDebug(`Start generating script: ${scenario.name}`, 'GENERATE');
-            Core.showToast(`[DEBUG] 生成脚本: ${scenario.name}`, 'info');
+            Core.showToast(`[DEBUG] Generating script: ${scenario.name}`, 'info');
         }
         
         let script = '#!/system/bin/sh\n\n';
@@ -770,7 +770,7 @@ export class ScenarioManager {
         
         if (Core.isDebugMode()) {
             Core.logDebug(`Script generation completed, total length: ${script.length} characters`, 'GENERATE');
-            Core.showToast(`[DEBUG] 脚本生成完成: ${scenario.operations.length}个操作`, 'success');
+            Core.showToast(`[DEBUG] Script generation completed: ${scenario.operations.length} operations`, 'success');
         }
         
         return script;
@@ -860,19 +860,19 @@ export class ScenarioManager {
         if (!scenario) {
             if (Core.isDebugMode()) {
                 Core.logDebug(`Execution failed: scenario not found (ID: ${scenarioId})`, 'ERROR');
-                Core.showToast(`[DEBUG] 情景不存在: ${scenarioId}`, 'error');
+                Core.showToast(`[DEBUG] Scenario not found: ${scenarioId}`, 'error');
             }
-            Core.showToast(Core.t('toast.scenario.notFound'), 'error');
-            throw new Error('情景不存在');
+            Core.showToast(Core.t('messages.common.notFound'), 'error');
+            throw new Error('Scenario not found');
         }
         
         if (Core.isDebugMode()) {
             Core.logDebug(`Start executing scenario: ${scenario.name} (ID: ${scenarioId})`, 'EXECUTE');
             Core.logDebug(`Scenario contains ${scenario.operations.length} operations`, 'EXECUTE');
-            Core.showToast(`[DEBUG] 执行情景: ${scenario.name}`, 'info');
+            Core.showToast(`[DEBUG] Executing scenario: ${scenario.name}`, 'info');
         }
         
-        Core.showToast(`开始执行情景: ${scenario.name}`, 'info');
+        Core.showToast(Core.t('messages.common.executing'), 'info');
         const scriptPath = `${this.scriptsPath}${scenarioId}.sh`;
         
         if (Core.isDebugMode()) {
@@ -891,9 +891,9 @@ export class ScenarioManager {
                         if (details) {
                             Core.logDebug(`Execution details - errno: ${details.errno}, stderr: ${details.stderr}`, 'ERROR');
                         }
-                        Core.showToast(`[DEBUG] 执行失败: ${output.substring(0, 100)}${output.length > 100 ? '...' : ''}`, 'error');
+                        Core.showToast(`[DEBUG] Execution failed: ${output.substring(0, 100)}${output.length > 100 ? '...' : ''}`, 'error');
                     }
-                    Core.showToast(`情景执行失败: ${output}`, 'error');
+                    Core.showToast(Core.t('messages.common.failed', { error: output }), 'error');
                     reject(new Error('脚本执行失败: ' + output));
                 } else {
                     console.log('Scenario executed successfully:', output);
@@ -906,9 +906,9 @@ export class ScenarioManager {
                         if (output && output.length > 0) {
                             Core.logDebug(`Execution output content: ${output.substring(0, 200)}${output.length > 200 ? '...' : ''}`, 'EXECUTE');
                         }
-                        Core.showToast(`[DEBUG] 执行成功: ${scenario.name}`, 'success');
+                        Core.showToast(`[DEBUG] Execution successful: ${scenario.name}`, 'success');
                     }
-                    Core.showToast(`情景执行成功: ${scenario.name}`, 'success');
+                    Core.showToast(Core.t('messages.common.success'), 'success');
                     resolve(output);
                 }
             });
@@ -948,12 +948,12 @@ export class ScenarioManager {
     insertOperation(scenarioId, operation, position = -1) {
         const scenario = this.getScenario(scenarioId);
         if (!scenario) {
-            throw new Error('情景不存在');
+            throw new Error('Scenario not found');
         }
         
         // 验证操作数据
         if (!this.validateOperation(operation)) {
-            throw new Error('操作数据无效');
+            throw new Error('Invalid operation data');
         }
         
         // 确保位置有效
@@ -976,7 +976,7 @@ export class ScenarioManager {
         }
         
         if (operationIndex < 0 || operationIndex >= scenario.operations.length) {
-            throw new Error('操作索引无效');
+            throw new Error('Invalid operation index');
         }
         
         // 删除操作
@@ -1023,7 +1023,7 @@ export class ScenarioManager {
         
         // 验证新操作数据
         if (!this.validateOperation(newOperation)) {
-            throw new Error('操作数据无效');
+            throw new Error('Invalid operation data');
         }
         
         // 修改操作

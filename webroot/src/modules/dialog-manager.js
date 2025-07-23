@@ -100,18 +100,6 @@ class DialogManager {
             this.showDialogWithAnimation(this.confirmDialog);
         });
     }
-    
-
-    
-    /**
-     * 选择文件的通用方法 - 使用内置文件浏览器
-     * @param {string} accept - 接受的文件类型
-     * @returns {Promise<string|null>} - 选择的文件路径
-     */
-    async selectFile(accept = '*') {
-        // 文件选择功能已移除，用户需要手动输入路径
-        throw new Error('文件选择功能已移除，请手动输入文件路径');
-    }
 }
 
 // 创建全局实例

@@ -6,22 +6,26 @@
       "scenarios": "加载情景数据...",
       "complete": "加载完成"
     },
-    "error": "错误",
-    "success": "成功",
-    "warning": "警告",
-    "info": "信息",
-    "confirm": "确认",
-    "cancel": "取消",
-    "save": "保存",
-    "delete": "删除",
-    "edit": "编辑",
-    "add": "添加",
-    "import": "导入",
-    "export": "导出",
-    "execute": "执行",
-    "apply": "应用",
-    "close": "关闭",
-    "settings": "设置"
+    "actions": {
+      "confirm": "确认",
+      "cancel": "取消",
+      "save": "保存",
+      "saving": "保存中...",
+      "delete": "删除",
+      "edit": "编辑",
+      "add": "添加",
+      "import": "导入",
+      "export": "导出",
+      "execute": "执行",
+      "apply": "应用",
+      "close": "关闭"
+    },
+    "status": {
+      "error": "错误",
+      "success": "成功",
+      "warning": "警告",
+      "info": "信息"
+    }
   },
   "nav": {
     "home": "主页",
@@ -33,26 +37,12 @@
     "title": "情景列表",
     "empty": {
       "title": "暂无情景",
-      "description": "点击管理页面的 + 按钮创建第一个情景",
-      "subtitle": "点击右下角按钮创建第一个情景"
+      "description": "点击右下角按钮创建第一个情景"
     },
     "scenario": {
       "operations": "个操作",
-      "noOperations": "无操作",
       "operationsCount": "{{count}} 个操作",
-      "unknownName": "未知情景",
-      "applyButton": "应用情景",
-      "applying": "正在应用情景...",
-      "applySuccess": "情景应用成功！",
-      "applyFailed": "情景应用失败",
-      "notFound": "情景不存在",
-      "noOperationsWarning": "该情景没有任何操作",
-      "confirmTitle": "应用情景",
-      "confirmContent": "此操作将执行以下内容：",
-      "autoRebootWarning": "⚠️ 执行完成后设备将自动重启",
-      "apply": "应用情景",
-      "applied": "应用成功",
-      "failed": "应用失败"
+      "unknownName": "未知情景"
     }
   },
   "manage": {
@@ -62,53 +52,25 @@
       "description": "点击右下角的 + 按钮创建第一个情景"
     },
     "newScenario": "新建情景",
-        "editScenario": "编辑情景",
-    "scenarioName": "情景名称",
-    "scenarioNamePlaceholder": "请输入情景名称",
-    "settings": "设置",
-    "compatibilityMode": "兼容模式",
-    "autoReboot": "自动重启",
-    "operationList": "操作列表",
-    "addOperation": "添加操作",
-    "selectOperation": "选择操作",
+    "editScenario": "编辑情景",
     "installModule": "安装模块",
     "deleteModule": "删除模块",
     "flashBoot": "刷入Boot",
     "customScript": "自定义脚本",
     "editOperation": "编辑操作",
-    "importScenario": "导入情景",
-    "exportAll": "导出全部",
-    "scenarioFilePath": "情景文件路径",
-    "scenarioFilePathPlaceholder": "请输入.sh文件的完整路径",
-    "exportScenario": "导出情景",
-    "exportPath": "导出路径",
-    "exportPathPlaceholder": "请输入导出目录路径",
-    "import": "导入",
-    "export": "导出",
     "scenario": {
-      "new": "新建情景",
-      "edit": "编辑情景",
       "name": "情景名称",
+      "namePlaceholder": "请输入情景名称",
       "compatibilityMode": "兼容模式",
       "autoReboot": "自动重启",
       "standardMode": "标准模式",
       "manualReboot": "手动重启",
-      "deleteTitle": "删除情景",
-      "deleteConfirm": "确定要删除这个情景吗？此操作无法撤销。",
-      "deleteSuccess": "情景删除成功",
-      "deleteFailed": "情景删除失败",
-      "saveSuccess": "情景保存成功",
-      "saveFailed": "情景保存失败",
-      "nameRequired": "请输入情景名称",
-      "executeSuccess": "情景执行成功",
-      "executeFailed": "情景执行失败"
+      "confirmContent": "此操作将执行以下内容：\n{{operations}}\n\n 执行完成后设备将自动重启"
     },
     "operation": {
-      "add": "添加操作",
-      "edit": "编辑操作",
+            "list": "操作列表",
+      "select": "选择操作",
       "none": "暂无操作，点击下方按钮添加",
-      "deleteTitle": "删除操作",
-      "deleteConfirm": "确定要删除这个操作吗？此操作无法撤销。",
       "types": {
         "install_module": "安装模块",
         "delete_module": "删除模块",
@@ -123,96 +85,61 @@
         "anykernel": "AnyKernel3格式",
         "anykernelDesc": "使用AnyKernel3格式刷入",
         "scriptContent": "脚本内容"
-      },
-      "fieldsRequired": "请填写所有必填字段",
-      "saveSuccess": "操作保存成功",
-      "saveFailed": "操作保存失败"
+      }
     },
-    "importDetails": {
+    "import": {
       "pathRequired": "请输入导入文件路径",
       "success": "导入成功",
-      "failed": "导入失败",
-      "fileNotFound": "文件不存在",
-      "invalidFile": "无效的情景文件"
+      "failed": "导入失败"
     },
-    "exportDetails": {
-      "title": "导出全部情景",
+    "export": {
       "pathRequired": "请输入导出路径",
       "success": "成功导出 {{count}} 个情景",
       "partial": "导出完成",
-      "failed": "导出失败",
-      "single": "导出情景",
-      "singleSuccess": "情景导出成功",
-      "singleFailed": "情景导出失败"
+      "failed": "导出失败"
     }
+  },
+  "import": {
+    "filePath": "文件路径",
+    "filePathPlaceholder": "请输入情景文件路径"
+  },
+  "export": {
+    "path": "导出路径",
+    "pathPlaceholder": "请输入导出路径"
   },
   "settings": {
     "title": "设置",
     "language": "语言",
-    "languageDesc": "选择界面语言",
     "noConfirm": "跳过确认",
-    "noConfirmDesc": "应用情景时跳过确认对话框",
     "themeHue": "主题色调",
-    "hue": "主题色调",
-    "hueDesc": "调整界面主题色调",
-    "nativeToast": "使用原生Toast通知",
-    "exportPath": "默认导出路径",
-    "exportPathDesc": "设置情景导出的默认路径",
-    "exportPathPlaceholder": "请输入默认导出路径",
     "useNativeToast": "使用原生通知",
-    "useNativeToastDesc": "使用系统原生通知样式",
     "debugMode": "调试模式",
-    "debugModeDesc": "启用详细的调试日志输出",
-    "saveSuccess": "设置保存成功",
-    "saveFailed": "设置保存失败",
-    "loadSuccess": "设置加载成功",
-    "loadFailed": "设置加载失败",
-    "useDefault": "使用默认设置"
+    "exportPath": "默认导出路径",
+    "exportPathPlaceholder": "请输入默认导出路径"
   },
   "errors": {
-    "ksuNotDefined": "KSU环境未定义，某些功能可能无法正常工作",
-    "execFailed": "命令执行失败",
     "fileNotFound": "文件未找到",
-    "invalidPath": "无效的路径",
-    "permissionDenied": "权限被拒绝",
-    "networkError": "网络错误",
     "unknownError": "未知错误"
   },
-  "toast": {
+  "messages": {
     "validation": {
-      "selectModuleFile": "请选择模块文件",
-      "selectImageFile": "请选择镜像文件",
-      "enterScriptContent": "请输入脚本内容",
-      "enterScenarioName": "请输入情景名称"
+      "selectFile": "请选择文件",
+      "enterContent": "请输入内容",
+      "enterName": "请输入名称",
+      "fieldsRequired": "请填写所有必填字段"
     },
-    "scenario": {
-       "notFound": "情景不存在",
-       "noOperations": "该情景没有任何操作",
-       "operationSaved": "操作已保存",
-       "exportSuccess": "导出成功",
-       "deleted": "情景已删除",
-       "deleteFailed": "删除失败: {{error}}",
-       "saveFailed": "保存失败: {{error}}",
-      "executing": "正在执行脚本...",
-      "executeSuccess": "脚本执行成功！",
-      "executeFailed": "脚本执行失败: {{error}}",
-      "executeError": "执行脚本时发生错误: {{error}}",
-      "applying": "正在应用情景...",
-      "applySuccess": "情景应用成功！",
-      "applyFailed": "情景应用失败: {{error}}",
-      "applyError": "应用情景时发生错误: {{error}}",
-      "createExportDirFailed": "创建导出目录失败",
-      "exportFileFailed": "导出文件失败",
-      "importFileNotFound": "导入文件不存在",
-      "createScriptDirFailed": "创建脚本目录失败",
-      "importFileFailed": "导入文件失败",
-      "importSuccess": "情景导入成功",
-      "scenarioAddSuccess": "情景添加成功",
-      "scenarioAddFailed": "情景添加失败"
-    },
-    "operation": {
-      "deleted": "操作已删除",
-      "deleteFailed": "删除失败: {{error}}"
+    "common": {
+      "notFound": "项目不存在",
+      "noOperations": "该情景没有任何操作",
+      "saved": "保存成功",
+      "deleted": "删除成功",
+      "success": "操作成功",
+      "failed": "操作失败: {{error}}",
+      "executing": "正在执行...",
+      "applying": "正在应用...",
+      "importing": "正在导入...",
+      "exporting": "正在导出...",
+      "confirmDelete": "确定要删除吗？此操作无法撤销。"
     }
   }
 }

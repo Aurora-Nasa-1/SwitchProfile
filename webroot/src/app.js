@@ -269,7 +269,7 @@ class App {
                 Core.logDebug('APP', `Failed to load scenarios: ${error.message}`);
                 Core.showToast(`[DEBUG] Scenario loading failed: ${error.message}`, 'error');
             }
-            Core.showError(error.message, Core.t('app.loading'));
+            Core.showError(error.message, Core.t('app.loading.initializing'));
         }
     }
     

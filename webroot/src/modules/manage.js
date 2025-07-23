@@ -170,7 +170,8 @@ export class ManagePage {
         return `
             <div class="scenario-card" data-id="${scenario.id}">
                 <h3>${this.escapeHtml(scenario.name)}</h3>
-                <p>${scenario.operations.length} 个操作 • ${scenario.compatibilityMode ? '兼容模式' : '标准模式'} • ${scenario.autoReboot ? '自动重启' : '手动重启'}</p>
+                <p>${scenario.operations.length} ${Core.t('home.scenario.operations')} • ${scenario.compatibilityMode ? Core.t('manage.scenario.compatibilityMode') : Core.t('manage.scenario.standardMode')} • ${scenario.autoReboot ? Core.t('manage.scenario.autoReboot') : Core.t('manage.scenario.manualReboot')}</p>
+
                 <div class="scenario-operations">
                     ${scenario.operations.map((op, index) => `
                         <div class="operation-item" data-index="${index}">
@@ -199,10 +200,10 @@ export class ManagePage {
     
     getOperationTypeName(type) {
         const names = {
-            install_module: '安装模块',
-            delete_module: '删除模块',
-            flash_boot: '刷入Boot',
-            custom_script: '自定义脚本'
+            install_module: `${Core.t('manage.operation.types.install_module')},`,
+            delete_module: `${Core.t('manage.operation.types.delete_module')},`,
+            flash_boot: `${Core.t('manage.operation.types.flash_boot')},`,
+            custom_script: `${Core.t('manage.operation.types.custom_script')}`
         };
         return names[type] || type;
     }
@@ -210,15 +211,15 @@ export class ManagePage {
     getOperationContent(operation) {
         switch (operation.type) {
             case 'install_module':
-                return operation.path || '未设置路径';
+                return operation.path || 'Path not set';
             case 'delete_module':
-                return operation.path || '未设置路径';
+                return operation.path || 'Path not set';
             case 'flash_boot':
-                return `${operation.path || '未设置路径'} ${operation.anykernel ? '(AnyKernel3)' : ''}`;
+                return `${operation.path || 'Path not set'} ${operation.anykernel ? '(AnyKernel3)' : ''}`;
             case 'custom_script':
-                return operation.script ? operation.script.substring(0, 50) + (operation.script.length > 50 ? '...' : '') : '未设置脚本';
+                return operation.script ? operation.script.substring(0, 50) + (operation.script.length > 50 ? '...' : '') : 'Script not set';
             default:
-                return '未知操作';
+                return 'Unknown operation';
         }
     }
     
@@ -331,10 +332,10 @@ export class ManagePage {
                 <div class="operation-type">${this.getOperationTypeName(op.type)}</div>
                 <div class="operation-content">${this.getOperationContent(op)}</div>
                 <div class="operation-actions">
-                    <button type="button" class="edit-dialog-operation" data-index="${index}" title="${Core.t('app.edit')}">
+                    <button type="button" class="edit-dialog-operation" data-index="${index}" title="${Core.t('app.actions.edit')}">
                         <span class="material-symbols-rounded">edit</span>
                     </button>
-                    <button type="button" class="delete-dialog-operation" data-index="${index}" title="${Core.t('app.delete')}">
+                    <button type="button" class="delete-dialog-operation" data-index="${index}" title="${Core.t('app.actions.delete')}">
                         <span class="material-symbols-rounded">delete</span>
                     </button>
                 </div>
@@ -374,10 +375,10 @@ export class ManagePage {
         }
         
         const titles = {
-            install_module: Core.t('manage.installModule'),
-            delete_module: Core.t('manage.deleteModule'),
-            flash_boot: Core.t('manage.flashBoot'),
-            custom_script: Core.t('manage.customScript')
+            install_module: Core.t('manage.operation.types.install_module'),
+            delete_module: Core.t('manage.operation.types.delete_module'),
+            flash_boot: Core.t('manage.operation.types.flash_boot'),
+            custom_script: Core.t('manage.operation.types.custom_script')
         };
         
         document.getElementById('operation-edit-title').textContent = titles[type] || Core.t('manage.editOperation');
@@ -472,7 +473,7 @@ export class ManagePage {
             const totalCount = results.length;
             
             if (successCount === totalCount) {
-                Core.showToast(Core.t('manage.export.success').replace('{{count}}', successCount), 'success');
+                Core.showToast(Core.t('manage.export.success', { count: successCount }), 'success');
             } else {
                 Core.showToast(`${Core.t('manage.export.partial')}: ${successCount}/${totalCount}`, 'warning');
             }
@@ -506,7 +507,7 @@ export class ManagePage {
                 if (Core.isDebugMode()) {
                     Core.logDebug('MANAGE', `Validation failed: ${field.name} is empty`);
                 }
-                Core.showToast(Core.t('manage.operation.fieldsRequired'), 'warning');
+                Core.showToast(Core.t('messages.validation.fieldsRequired'), 'warning');
                 field.focus();
                 return;
             }
@@ -528,7 +529,7 @@ export class ManagePage {
                     if (Core.isDebugMode()) {
                         Core.logDebug('MANAGE', 'Install module operation: path is empty');
                     }
-                    Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
+                    Core.showToast(Core.t('messages.errors.fieldsRequired'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
@@ -541,7 +542,7 @@ export class ManagePage {
                     if (Core.isDebugMode()) {
                         Core.logDebug('MANAGE', 'Remove module operation: path is empty');
                     }
-                    Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
+                    Core.showToast(Core.t('messages.validation.selectFile'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
@@ -555,7 +556,7 @@ export class ManagePage {
                     if (Core.isDebugMode()) {
                         Core.logDebug('MANAGE', 'Flash boot operation: path is empty');
                     }
-                    Core.showToast(Core.t('toast.validation.selectImageFile'), 'warning');
+                    Core.showToast(Core.t('messages.validation.selectFile'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
@@ -568,7 +569,7 @@ export class ManagePage {
                     if (Core.isDebugMode()) {
                         Core.logDebug('MANAGE', 'Custom script operation: script content is empty');
                     }
-                    Core.showToast(Core.t('toast.validation.enterScriptContent'), 'warning');
+                    Core.showToast(Core.t('messages.errors.fieldsRequired'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
@@ -623,7 +624,7 @@ export class ManagePage {
         if (Core.isDebugMode()) {
             Core.showToast('[DEBUG] Operation saved successfully', 'success');
         }
-        Core.showToast(Core.t('toast.scenario.operationSaved'), 'success');
+        Core.showToast(Core.t('messages.common.saved'), 'success');
     }
     
     async saveScenario() {
@@ -640,7 +641,7 @@ export class ManagePage {
             if (Core.isDebugMode()) {
                 Core.logDebug('MANAGE', 'Save failed: scenario name is empty');
             }
-            Core.showToast(Core.t('toast.validation.enterScenarioName'), 'warning');
+            Core.showToast(Core.t('messages.validation.enterName'), 'warning');
             return;
         }
         
@@ -656,14 +657,14 @@ export class ManagePage {
         
         if (Core.isDebugMode()) {
             Core.logDebug('MANAGE', `Scenario data: ID=${scenario.id}, name=${scenario.name}, compatibility=${scenario.compatibilityMode}, autoReboot=${scenario.autoReboot}, operations=${scenario.operations.length}`);
-            Core.showToast(`[DEBUG] 情景包含 ${scenario.operations.length} 个操作`, 'info');
+            Core.showToast(`[DEBUG] Scenario have ${scenario.operations.length} operations`, 'info');
         }
         
         // 显示保存中的提示
         const saveButton = document.querySelector('#edit-dialog fieldset button.filled');
         const originalText = saveButton.textContent;
         saveButton.disabled = true;
-        saveButton.textContent = '保存中...';
+        saveButton.textContent = Core.t('app.actions.saving');
         
         try {
             if (this.currentScenario) {
@@ -690,9 +691,9 @@ export class ManagePage {
             console.error('Save scenario error:', error);
             if (Core.isDebugMode()) {
                 Core.logDebug('MANAGE', `Save scenario failed: ${error.message || 'Unknown error'}`);
-                Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: error.message || 'Unknown error' }), 'error');
             }
-            Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
+            Core.showToast(Core.t('messages.common.failed', { error: error.message || 'Unknown error' }), 'error');
         } finally {
             // 恢复按钮状态
             saveButton.disabled = false;
@@ -707,26 +708,26 @@ export class ManagePage {
         try {
             const exportPath = this.settingsManager.getSetting('exportPath');
             const result = await this.scenarioManager.exportScenario(scenarioId, exportPath);
-            Core.showToast(Core.t('toast.scenario.exportSuccess'), 'success');
+            Core.showToast(Core.t('messages.common.success'), 'success');
         } catch (error) {
-            Core.showToast(`导出失败: ${error.message}`, 'error');
+            Core.showToast(Core.t('messages.common.failed', { error: error.message }), 'error');
         }
     }
     
     async deleteScenario(scenarioId) {
         const confirmed = await window.DialogManager.showConfirm(
-            Core.t('manage.scenario.deleteTitle'),
-            Core.t('manage.scenario.deleteConfirm')
+            Core.t('app.actions.delete'),
+            Core.t('messages.common.deleteConfirm')
         );
         
         if (confirmed) {
             try {
                 await this.scenarioManager.deleteScenario(scenarioId);
-                Core.showToast(Core.t('toast.scenario.deleted'), 'success');
+                Core.showToast(Core.t('messages.common.success'), 'success');
                 this.refresh();
             } catch (error) {
                 console.error('Delete scenario error:', error);
-                Core.showToast(Core.t('toast.scenario.deleteFailed', { error: error.message || '未知错误' }), 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: error.message || 'Unknown error' }), 'error');
             }
         }
     }
@@ -743,7 +744,7 @@ export class ManagePage {
                 if (Core.isDebugMode()) {
                     Core.logDebug('MANAGE', `Scenario not found: ${scenarioId}`);
                 }
-                Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+                Core.showToast(Core.t('messages.errors.fileNotFound'), 'error');
             return;
             }
             
@@ -755,7 +756,7 @@ export class ManagePage {
                 if (Core.isDebugMode()) {
                     Core.logDebug('MANAGE', 'Scenario has no operations');
                 }
-                Core.showToast(Core.t('toast.scenario.noOperations'), 'warning');
+                Core.showToast(Core.t('messages.common.noOperations'), 'warning');
             return;
             }
             
@@ -776,7 +777,7 @@ export class ManagePage {
                 Core.logDebug('MANAGE', 'User confirmed scenario execution, start executing script');
             }
             
-            Core.showToast(Core.t('toast.scenario.executing'), 'info');
+            Core.showToast(Core.t('messages.common.executing'), 'info');
             
             try {
                 const output = await this.scenarioManager.executeScenario(scenarioId);
@@ -790,7 +791,7 @@ export class ManagePage {
                     Core.showToast('[DEBUG] Script executed successfully', 'success');
                 }
                 
-                Core.showToast(Core.t('toast.scenario.executeSuccess'), 'success');
+                Core.showToast(Core.t('messages.common.success'), 'success');
                 
                 // 显示执行结果
                 if (output && output.trim()) {
@@ -803,7 +804,7 @@ export class ManagePage {
                     Core.logDebug('MANAGE', `Script execution failed: ${executeError.message}`);
                     Core.showToast(`[DEBUG] Script execution failed: ${executeError.message}`, 'error');
                 }
-                Core.showToast(Core.t('toast.scenario.executeFailed', { error: executeError.message }), 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: executeError.message }), 'error');
             }
             
         } catch (error) {
@@ -812,7 +813,7 @@ export class ManagePage {
                 Core.logDebug('MANAGE', `Error occurred while executing scenario: ${error.message}`);
                 Core.showToast(`[DEBUG] Execution error: ${error.message}`, 'error');
             }
-            Core.showToast(Core.t('toast.scenario.executeError', { error: error.message }), 'error');
+            Core.showToast(Core.t('messages.common.failed', { error: error.message }), 'error');
         }
     }
     
@@ -828,8 +829,8 @@ export class ManagePage {
     
     async deleteOperation(scenarioId, operationIndex) {
         const confirmed = await window.DialogManager.showConfirm(
-            Core.t('manage.operation.deleteTitle'),
-            Core.t('manage.operation.deleteConfirm')
+            Core.t('app.actions.delete'),
+            Core.t('messages.common.confirmDelete')
         );
         
         if (confirmed) {
@@ -838,12 +839,12 @@ export class ManagePage {
                 if (scenario) {
                     scenario.operations.splice(operationIndex, 1);
                     await this.scenarioManager.updateScenario(scenario);
-                    Core.showToast(Core.t('toast.operation.deleted'), 'success');
+                    Core.showToast(Core.t('messages.common.deleted'), 'success');
                     this.refresh();
                 }
             } catch (error) {
                 console.error('Delete operation error:', error);
-                Core.showToast(Core.t('toast.operation.deleteFailed', { error: error.message || '未知错误' }), 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: error.message || '未知错误' }), 'error');
             }
         }
     }

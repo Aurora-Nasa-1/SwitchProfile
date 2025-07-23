@@ -1,0 +1,145 @@
+{
+  "app": {
+    "title": "SwitchProfile",
+    "loading": {
+      "initializing": "Инициализация...",
+      "scenarios": "Загрузка данных сценариев...",
+      "complete": "Загрузка завершена"
+    },
+    "actions": {
+      "confirm": "Подтвердить",
+      "cancel": "Отмена",
+      "save": "Сохранить",
+      "saving": "Сохранение...",
+      "delete": "Удалить",
+      "edit": "Редактировать",
+      "add": "Добавить",
+      "import": "Импорт",
+      "export": "Экспорт",
+      "execute": "Выполнить",
+      "apply": "Применить",
+      "close": "Закрыть"
+    },
+    "status": {
+      "error": "Ошибка",
+      "success": "Успех",
+      "warning": "Предупреждение",
+      "info": "Информация"
+    }
+  },
+  "nav": {
+    "home": "Главная",
+    "manage": "Управление",
+    "scenarios": "Сценарии",
+    "settings": "Настройки"
+  },
+  "home": {
+    "title": "Список сценариев",
+    "empty": {
+      "title": "Пока нет сценариев",
+      "description": "Нажмите кнопку в правом нижнем углу, чтобы создать первый сценарий"
+    },
+    "scenario": {
+      "operations": "операций",
+      "operationsCount": "{{count}} операций",
+      "unknownName": "Неизвестный сценарий"
+    }
+  },
+  "manage": {
+    "title": "Управление сценариями",
+    "empty": {
+      "title": "Начните создавать сценарии",
+      "description": "Нажмите кнопку + в правом нижнем углу, чтобы создать первый сценарий"
+    },
+    "newScenario": "Новый сценарий",
+    "editScenario": "Редактировать сценарий",
+    "installModule": "Установить модуль",
+    "deleteModule": "Удалить модуль",
+    "flashBoot": "Прошить Boot",
+    "customScript": "Пользовательский скрипт",
+    "editOperation": "Редактировать операцию",
+    "scenario": {
+      "name": "Название сценария",
+      "namePlaceholder": "Введите название сценария",
+      "compatibilityMode": "Режим совместимости",
+      "autoReboot": "Автоматическая перезагрузка",
+      "standardMode": "Стандартный режим",
+      "manualReboot": "Ручная перезагрузка",
+      "confirmContent": "Эта операция выполнит следующее:\n{{operations}}\n\n⚠️ После выполнения устройство автоматически перезагрузится"
+    },
+    "operation": {
+      "list": "Список операций",
+      "select": "Выберите операцию",
+      "none": "Пока нет операций, нажмите кнопку ниже, чтобы добавить",
+      "types": {
+        "install_module": "Установить модуль",
+        "delete_module": "Удалить модуль",
+        "flash_boot": "Прошить образ Boot",
+        "custom_script": "Пользовательский скрипт"
+      },
+      "fields": {
+        "modulePath": "Путь к модулю",
+        "modulePathPlaceholder": "Введите путь к файлу модуля (например: /sdcard/module.zip)",
+        "imagePath": "Путь к образу",
+        "imagePathPlaceholder": "Введите путь к файлу образа (например: /sdcard/boot.img)",
+        "anykernel": "Формат AnyKernel3",
+        "anykernelDesc": "Прошить в формате AnyKernel3",
+        "scriptContent": "Содержимое скрипта"
+      }
+    },
+    "import": {
+      "pathRequired": "Введите путь к файлу для импорта",
+      "success": "Импорт успешен",
+      "failed": "Импорт не удался"
+    },
+    "export": {
+      "pathRequired": "Введите путь для экспорта",
+      "success": "Успешно экспортировано {{count}} сценариев",
+      "partial": "Экспорт завершен",
+      "failed": "Экспорт не удался"
+    }
+  },
+  "import": {
+    "filePath": "Путь к файлу",
+    "filePathPlaceholder": "Введите путь к файлу сценария"
+  },
+  "export": {
+    "path": "Путь экспорта",
+    "pathPlaceholder": "Введите путь к каталогу экспорта"
+  },
+  "settings": {
+    "title": "Настройки",
+    "language": "Язык",
+    "noConfirm": "Пропустить подтверждение",
+    "themeHue": "Оттенок темы",
+    "useNativeToast": "Использовать нативные уведомления",
+    "debugMode": "Режим отладки",
+    "exportPath": "Путь экспорта по умолчанию",
+    "exportPathPlaceholder": "Введите путь экспорта по умолчанию"
+  },
+  "errors": {
+    "fileNotFound": "Файл не найден",
+    "unknownError": "Неизвестная ошибка"
+  },
+  "messages": {
+    "validation": {
+      "selectFile": "Выберите файл",
+      "enterContent": "Введите содержимое",
+      "enterName": "Введите название",
+      "fieldsRequired": "Заполните все обязательные поля"
+    },
+    "common": {
+      "notFound": "Элемент не найден",
+      "noOperations": "В этом сценарии нет операций",
+      "saved": "Успешно сохранено",
+      "deleted": "Успешно удалено",
+      "success": "Операция успешна",
+      "failed": "Операция не удалась: {{error}}",
+      "executing": "Выполнение...",
+      "applying": "Применение...",
+      "importing": "Импорт...",
+      "exporting": "Экспорт...",
+      "confirmDelete": "Вы уверены, что хотите удалить? Это действие нельзя отменить."
+    }
+  }
+}

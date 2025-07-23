@@ -141,15 +141,15 @@
         <div class="sidebar-actions">
           <button class="sidebar-action-btn" id="sidebar-import-btn">
             <span class="material-symbols-rounded">upload</span>
-            <span data-i18n="manage.importScenario">导入情景</span>
+            <span data-i18n="app.actions.import">导入</span>
           </button>
           <button class="sidebar-action-btn" id="sidebar-export-btn">
             <span class="material-symbols-rounded">download</span>
-            <span data-i18n="manage.exportAll">导出全部</span>
+            <span data-i18n="app.actions.export">导出</span>
           </button>
           <button class="sidebar-action-btn" id="sidebar-settings-btn">
             <span class="material-symbols-rounded">settings</span>
-            <span data-i18n="app.settings">设置</span>
+            <span data-i18n="settings.title">设置</span>
           </button>
         </div>
       </nav>
@@ -161,21 +161,21 @@
           <button
             id="import-scenario-btn"
             class="header-btn"
-            data-i18n-title="manage.importScenario"
+            data-i18n-title="app.actions.import"
           >
             <span class="material-symbols-rounded">upload</span>
           </button>
           <button
             id="export-all-btn"
             class="header-btn"
-            data-i18n-title="manage.exportAll"
+            data-i18n-title="app.actions.export"
           >
             <span class="material-symbols-rounded">download</span>
           </button>
           <button
             id="settings-btn"
             class="header-btn"
-            data-i18n-title="app.settings"
+            data-i18n-title="settings.title"
           >
             <span class="material-symbols-rounded">settings</span>
           </button>
@@ -184,7 +184,7 @@
 
       <!-- 设置对话框 -->
       <dialog id="settings-dialog">
-        <h2 data-i18n="app.settings">设置</h2>
+        <h2 data-i18n="settings.title">设置</h2>
         <div class="settings-content">
           <div class="setting-item">
             <fieldset class="switches">
@@ -197,7 +197,7 @@
                 />
               </label>
               <label>
-                <span data-i18n="settings.nativeToast">使用原生Toast通知</span>
+                <span data-i18n="settings.useNativeToast">使用原生Toast通知</span>
                 <input
                   type="checkbox"
                   id="native-toast-setting"
@@ -236,6 +236,7 @@
               <select id="language-setting" name="language-setting">
                 <option value="zh-CN">中文</option>
                 <option value="en-US">English</option>
+                <option value="ru-RU">Русский</option>
               </select>
             </label>
           </div>
@@ -252,7 +253,7 @@
           </div>
         </div>
         <fieldset>
-          <button type="button" id="close-settings" data-i18n="app.close">
+          <button type="button" id="close-settings" data-i18n="app.actions.close">
             关闭
           </button>
         </fieldset>
@@ -297,21 +298,21 @@
       <h2 id="dialog-title" data-i18n="manage.newScenario">新建情景</h2>
       <form id="scenario-form">
         <label>
-          <span data-i18n="manage.scenarioName">情景名称</span>
+          <span data-i18n="manage.scenario.name">情景名称</span>
           <input
             type="text"
             id="scenario-name"
             name="scenario-name"
             required
-            data-i18n-placeholder="manage.scenarioNamePlaceholder"
+            data-i18n-placeholder="manage.scenario.namePlaceholder"
           />
         </label>
 
         <div class="settings-section">
-          <h4 data-i18n="manage.settings">设置</h4>
+          <h4 data-i18n="settings.title">设置</h4>
           <fieldset class="switches">
             <label>
-              <span data-i18n="manage.compatibilityMode">兼容模式</span>
+              <span data-i18n="manage.scenario.compatibilityMode">兼容模式</span>
               <input
                 type="checkbox"
                 id="compatibility-mode"
@@ -319,52 +320,52 @@
               />
             </label>
             <label>
-              <span data-i18n="manage.autoReboot">自动重启</span>
+              <span data-i18n="manage.scenario.autoReboot">自动重启</span>
               <input type="checkbox" id="auto-reboot" name="auto-reboot" />
             </label>
           </fieldset>
         </div>
 
         <div class="settings-section">
-          <h4 data-i18n="manage.operationList">操作列表</h4>
+          <h4 data-i18n="manage.operation.list">操作列表</h4>
           <div id="operations-list">
             <!-- 操作项将在这里动态生成 -->
           </div>
           <fieldset>
             <button type="button" id="add-operation" class="tonal">
               <span class="material-symbols-rounded">add</span>
-              <span data-i18n="manage.addOperation">添加操作</span>
+              <span data-i18n="app.actions.add">添加</span>
             </button>
           </fieldset>
         </div>
       </form>
       <fieldset>
-        <button type="button" id="cancel-edit" data-i18n="app.cancel">
+        <button type="button" id="cancel-edit" data-i18n="app.actions.cancel">
           取消
         </button>
-        <button type="submit" class="filled" data-i18n="app.save">保存</button>
+        <button type="submit" class="filled" data-i18n="app.actions.save">保存</button>
       </fieldset>
     </dialog>
 
     <!-- 操作类型选择对话框 -->
     <dialog id="operation-dialog">
-      <h2 data-i18n="manage.selectOperation">选择操作</h2>
+      <h2 data-i18n="manage.operation.select">选择操作</h2>
       <div class="operation-types">
         <div class="operation-type-card" data-type="install_module">
-          <h3 data-i18n="manage.installModule">安装模块</h3>
+          <h3 data-i18n="manage.operation.types.install_module">安装模块</h3>
         </div>
         <div class="operation-type-card" data-type="delete_module">
-          <h3 data-i18n="manage.deleteModule">删除模块</h3>
+          <h3 data-i18n="manage.operation.types.delete_module">删除模块</h3>
         </div>
         <div class="operation-type-card" data-type="flash_boot">
-          <h3 data-i18n="manage.flashBoot">刷入Boot</h3>
+          <h3 data-i18n="manage.operation.types.flash_boot">刷入Boot</h3>
         </div>
         <div class="operation-type-card" data-type="custom_script">
-          <h3 data-i18n="manage.customScript">自定义脚本</h3>
+          <h3 data-i18n="manage.operation.types.custom_script">自定义脚本</h3>
         </div>
       </div>
       <fieldset>
-        <button type="button" id="cancel-operation" data-i18n="app.cancel">
+        <button type="button" id="cancel-operation" data-i18n="app.actions.cancel">
           取消
         </button>
       </fieldset>
@@ -372,7 +373,7 @@
 
     <!-- 操作编辑对话框 -->
     <dialog id="operation-edit-dialog">
-      <h2 id="operation-edit-title" data-i18n="manage.editOperation">
+      <h2 id="operation-edit-title" data-i18n="app.actions.edit">
         编辑操作
       </h2>
       <form id="operation-form">
@@ -381,10 +382,10 @@
         </div>
       </form>
       <fieldset>
-        <button type="button" id="cancel-operation-edit" data-i18n="app.cancel">
+        <button type="button" id="cancel-operation-edit" data-i18n="app.actions.cancel">
           取消
         </button>
-        <button type="submit" class="filled" data-i18n="app.confirm">
+        <button type="submit" class="filled" data-i18n="app.actions.confirm">
           确定
         </button>
       </fieldset>
@@ -392,19 +393,19 @@
 
     <!-- 确认对话框 -->
     <dialog id="confirm-dialog">
-      <h2 id="confirm-title" data-i18n="app.confirmOperation">确认操作</h2>
+      <h2 id="confirm-title" data-i18n="app.actions.confirm">确认操作</h2>
       <div id="confirm-content">
         <!-- 确认内容将在这里动态生成 -->
       </div>
       <fieldset>
-        <button type="button" id="confirm-cancel" data-i18n="app.cancel">
+        <button type="button" id="confirm-cancel" data-i18n="app.actions.cancel">
           取消
         </button>
         <button
           type="button"
           id="confirm-ok"
           class="filled"
-          data-i18n="app.confirm"
+          data-i18n="app.actions.confirm"
         >
           确定
         </button>
@@ -413,25 +414,25 @@
 
     <!-- 导入情景对话框 -->
     <dialog id="import-dialog">
-      <h2 data-i18n="manage.importScenario">导入情景</h2>
+      <h2 data-i18n="app.actions.import">导入</h2>
       <form id="import-form">
         <label>
-          <span data-i18n="manage.scenarioFilePath">情景文件路径</span>
+          <span data-i18n="import.filePath">文件路径</span>
           <input
             type="text"
             id="import-path"
             name="import-path"
             placeholder="/path/to/scenario.sh"
-            data-i18n-placeholder="manage.scenarioFilePathPlaceholder"
+            data-i18n-placeholder="import.filePathPlaceholder"
             required
           />
         </label>
       </form>
       <fieldset>
-        <button type="button" id="cancel-import" data-i18n="app.cancel">
+        <button type="button" id="cancel-import" data-i18n="app.actions.cancel">
           取消
         </button>
-        <button type="submit" class="filled" data-i18n="manage.import">
+        <button type="submit" class="filled" data-i18n="app.actions.import">
           导入
         </button>
       </fieldset>
@@ -439,25 +440,25 @@
 
     <!-- 导出路径对话框 -->
     <dialog id="export-dialog">
-      <h2 data-i18n="manage.exportScenario">导出情景</h2>
+      <h2 data-i18n="app.actions.export">导出</h2>
       <form id="export-form">
         <label>
-          <span data-i18n="manage.exportPath">导出路径</span>
+          <span data-i18n="export.path">导出路径</span>
           <input
             type="text"
             id="export-path"
             name="export-path"
             placeholder="/data/adb/switchprofile/export/"
-            data-i18n-placeholder="manage.exportPathPlaceholder"
+            data-i18n-placeholder="export.pathPlaceholder"
             required
           />
         </label>
       </form>
       <fieldset>
-        <button type="button" id="cancel-export" data-i18n="app.cancel">
+        <button type="button" id="cancel-export" data-i18n="app.actions.cancel">
           取消
         </button>
-        <button type="submit" class="filled" data-i18n="manage.export">
+        <button type="submit" class="filled" data-i18n="app.actions.export">
           导出
         </button>
       </fieldset>

@@ -47,7 +47,7 @@ export class HomePage {
     
     createScenarioCard(scenario) {
         const operationsCount = scenario.operations.length;
-        const operationsText = operationsCount > 0 ? Core.t('home.operationsCount', { count: operationsCount }) : Core.t('home.noOperations');
+        const operationsText = operationsCount > 0 ? Core.t('messages.common.operationsCount', { count: operationsCount }) : Core.t('manage.operation.none');
         
         return `
             <div class="scenario-card" data-id="${scenario.id}">
@@ -60,12 +60,12 @@ export class HomePage {
                             ${this.getOperationSummary(op)}
                         </div>
                     `).join('')}
-                    ${scenario.operations.length > 3 ? `<div style="font-size: 0.85rem; color: var(--on-surface-variant);">...还有 ${scenario.operations.length - 3} 个操作</div>` : ''}
+                    ${scenario.operations.length > 3 ? `<div style="font-size: 0.85rem; color: var(--on-surface-variant);">... ${scenario.operations.length - 3} more operations</div>` : ''}
                 </div>
                 <fieldset>
                     <button type="button" class="apply-scenario filled" data-id="${scenario.id}">
                         <span class="material-symbols-rounded">play_arrow</span>
-                        应用情景
+                        ${Core.t('app.actions.apply')}
                     </button>
                 </fieldset>
             </div>
@@ -74,10 +74,10 @@ export class HomePage {
     
     getOperationTypeName(type) {
         const names = {
-            install_module: '安装模块',
-            delete_module: '删除模块',
-            flash_boot: '刷入Boot',
-            custom_script: '自定义脚本'
+            install_module: `${Core.t('manage.operation.types.install_module')},`,
+            delete_module: `${Core.t('manage.operation.types.delete_module')},`,
+            flash_boot: `${Core.t('manage.operation.types.flash_boot')},`,
+            custom_script: `${Core.t('manage.operation.types.custom_script')}`
         };
         return names[type] || type;
     }
@@ -138,7 +138,7 @@ export class HomePage {
                 if (Core.isDebugMode()) {
                     Core.logDebug('HOME', `Scenario not found: ${scenarioId}`);
                 }
-                Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+                Core.showToast(Core.t('messages.errors.fileNotFound'), 'error');
             return;
             }
             
@@ -150,7 +150,7 @@ export class HomePage {
                 if (Core.isDebugMode()) {
                     Core.logDebug('HOME', 'Scenario has no operations');
                 }
-                Core.showToast(Core.t('toast.scenario.noOperations'), 'warning');
+                Core.showToast(Core.t('manage.operation.none'), 'warning');
             return;
             }
             
@@ -161,10 +161,10 @@ export class HomePage {
                     Core.logDebug('HOME', 'Show confirmation dialog');
                 }
                 // 显示确认对话框
-                const confirmContent = `此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`;
+                const confirmContent = Core.t('manage.scenario.confirmContent', { operations: scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n') });
                 
                 confirmed = await window.DialogManager.showConfirm(
-                    `应用情景 "${scenario.name}"`,
+                    `${Core.t('messages.common.executing')} "${scenario.name}"`,
                     confirmContent
                 );
             } else {
@@ -184,7 +184,7 @@ export class HomePage {
                 Core.logDebug('HOME', 'User confirmed scenario application, start execution');
             }
             
-            Core.showToast(Core.t('toast.scenario.applying'), 'info');
+            Core.showToast(Core.t('messages.common.executing'), 'info');
             
             // 直接执行脚本文件
             try {
@@ -199,7 +199,7 @@ export class HomePage {
                     Core.showToast('[DEBUG] Scenario applied successfully', 'success');
                 }
                 
-                Core.showToast(Core.t('toast.scenario.applySuccess'), 'success');
+                Core.showToast(Core.t('messages.common.success'), 'success');
                 
                 // 显示执行结果
                 if (output && output.trim()) {
@@ -212,7 +212,7 @@ export class HomePage {
                     Core.logDebug('HOME', `Scenario application failed: ${executeError.message}`);
                     Core.showToast(`[DEBUG] Apply failed: ${executeError.message}`, 'error');
                 }
-                Core.showToast(Core.t('toast.scenario.applyFailed', { error: executeError.message }), 'error');
+                Core.showToast(Core.t('messages.common.failed', { error: executeError.message }), 'error');
             }
             
         } catch (error) {
@@ -221,7 +221,7 @@ export class HomePage {
                 Core.logDebug('HOME', `Error occurred while applying scenario: ${error.message}`);
                 Core.showToast(`[DEBUG] Apply error: ${error.message}`, 'error');
             }
-            Core.showToast(Core.t('toast.scenario.applyError', { error: error.message }), 'error');
+            Core.showToast(Core.t('messages.common.failed', { error: error.message }), 'error');
         }
     }
     
