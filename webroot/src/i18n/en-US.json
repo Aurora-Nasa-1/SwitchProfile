@@ -77,15 +77,6 @@
     "flashBoot": "Flash Boot",
     "customScript": "Custom Script",
     "editOperation": "Edit Operation",
-    "importScenario": "Import Scenario",
-    "exportAll": "Export All",
-    "scenarioFilePath": "Scenario File Path",
-    "scenarioFilePathPlaceholder": "Enter the full path of .sp file",
-    "exportScenario": "Export Scenario",
-    "exportPath": "Export Path",
-    "exportPathPlaceholder": "Enter export directory path",
-    "import": "Import",
-    "export": "Export",
     "scenario": {
       "new": "New Scenario",
       "edit": "Edit Scenario",
@@ -129,20 +120,24 @@
       "saveSuccess": "Operation saved successfully",
       "saveFailed": "Failed to save operation"
     },
-    "import": {
-      "title": "Import Scenario",
-      "path": "Scenario File Path",
-      "pathPlaceholder": "Enter the full path of .sp file",
+    "import": "Import",
+    "importScenario": "Import Scenario",
+    "export": "Export",
+    "exportScenario": "Export Scenario",
+    "exportAll": "Export All",
+    "exportPath": "Export Path",
+    "scenarioFilePath": "Scenario File Path",
+    "scenarioFilePathPlaceholder": "Enter the full path of .sh file",
+    "exportPathPlaceholder": "Enter export directory path",
+    "importDetails": {
       "pathRequired": "Please enter import file path",
       "success": "Import successful",
       "failed": "Import failed",
       "fileNotFound": "File not found",
       "invalidFile": "Invalid scenario file"
     },
-    "export": {
+    "exportDetails": {
       "title": "Export All Scenarios",
-      "path": "Export Path",
-      "pathPlaceholder": "Enter export directory path",
       "pathRequired": "Please enter export path",
       "success": "Successfully exported {{count}} scenarios",
       "partial": "Export completed",

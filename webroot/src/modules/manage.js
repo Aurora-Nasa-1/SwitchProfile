@@ -146,8 +146,8 @@ export class ManagePage {
             this.container.innerHTML = `
                 <div style="text-align: center; padding: 2rem; color: var(--on-surface-variant);">
                     <span class="material-symbols-rounded" style="font-size: 48px; display: block; margin-bottom: 1rem;">add_circle</span>
-                    <h3>开始创建情景</h3>
-                    <p>点击右下角的 + 按钮创建第一个情景</p>
+                    <h3>${Core.t('manage.empty.title')}</h3>
+                    <p>${Core.t('manage.empty.description')}</p>
                 </div>
             `;
             if (Core.isDebugMode()) {

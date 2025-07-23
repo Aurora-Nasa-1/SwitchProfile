@@ -79,7 +79,7 @@
     "importScenario": "导入情景",
     "exportAll": "导出全部",
     "scenarioFilePath": "情景文件路径",
-    "scenarioFilePathPlaceholder": "请输入.sp文件的完整路径",
+    "scenarioFilePathPlaceholder": "请输入.sh文件的完整路径",
     "exportScenario": "导出情景",
     "exportPath": "导出路径",
     "exportPathPlaceholder": "请输入导出目录路径",
@@ -128,20 +128,15 @@
       "saveSuccess": "操作保存成功",
       "saveFailed": "操作保存失败"
     },
-    "import": {
-      "title": "导入情景",
-      "path": "情景文件路径",
-      "pathPlaceholder": "请输入.sp文件的完整路径",
+    "importDetails": {
       "pathRequired": "请输入导入文件路径",
       "success": "导入成功",
       "failed": "导入失败",
       "fileNotFound": "文件不存在",
       "invalidFile": "无效的情景文件"
     },
-    "export": {
+    "exportDetails": {
       "title": "导出全部情景",
-      "path": "导出路径",
-      "pathPlaceholder": "请输入导出目录路径",
       "pathRequired": "请输入导出路径",
       "success": "成功导出 {{count}} 个情景",
       "partial": "导出完成",
