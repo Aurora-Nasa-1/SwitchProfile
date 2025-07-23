@@ -120,7 +120,7 @@ header h1 {
 /* 情景卡片 */
 .scenario-card {
   margin-bottom: var(--spacing-xs);
-  padding: var(--spacing-s) var(--spacing-l)  var(--spacing-l)  var(--spacing-l); 
+    padding: var(--spacing-s) var(--spacing-xs)  var(--spacing-s)  var(--spacing-l); 
   background-color: var(--surface-container-low);
   border-radius: var(--border-radius-l);
   border: none;
