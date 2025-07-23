@@ -706,11 +706,6 @@ body.mmrl-webui-x {
   background-color: color-mix(in srgb, var(--color) 12%, transparent);
 }
 
-/* 确认对话框样式 */
-#confirm-dialog {
-  max-width: 400px;
-}
-
 /* 设置按钮样式 */
 .settings-btn {
   width: 2.5rem;
@@ -816,7 +811,7 @@ body.mmrl-webui-x {
 }
 
 #confirm-content {
-  margin: var(--spacing-m) 0;
+  margin: var(--spacing-m) var(--spacing-s);
   line-height: 1.5;
   white-space: pre-line;
   color: var(--on-surface-variant);
