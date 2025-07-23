@@ -2,7 +2,7 @@
 # logger
 log() {
     local time=$(date +%H:%M:%S)
-    echo "$time $1" >> /data/local/tmp/switchprofile.log
+    echo "$time $1" >> /data/adb/switchprofile/switchprofile.log
 }
 log_info() { log "[INFO] $1"; }
 log_error() { log "[ERROR] $1"; }
@@ -47,21 +47,21 @@ flash_boot() {
             log_error "Not found AnyKernel3 zip $img_path"
             return 1
         fi
-        rm -rf /tmp/anykernel/
-        unzip -o "$img_path" -d /tmp/anykernel
-        chmod -R 755 /tmp/anykernel/
-        if [[ ! -f /tmp/anykernel/anykernel.sh ]]; then
+        rm -rf /data/adb/switchprofile/anykernel/
+        sleep 3
+        unzip "$img_path" -d /data/adb/switchprofile/anykernel/
+        chmod -R 755 /data/adb/switchprofile/anykernel/
+        if [[ ! -f /data/adb/switchprofile/anykernel/anykernel.sh ]]; then
             log_error "Not found anykernel.sh in AnyKernel3 zip"
             return 1
         fi
-        cd /tmp/anykernel
-        /tmp/anykernel/tools/busybox sh anykernel.sh
+        cd /data/adb/switchprofile/anykernel/
+        /data/adb/switchprofile/anykernel/tools/busybox sh anykernel.sh
         if [[ $? -ne 0 ]]; then
             log_error "Failed to execute anykernel.sh"
             return 1
         fi
-        rm -rf /tmp/anykernel/
-        return
+        rm -rf /data/adb/switchprofile/anykernel/
     fi
     if [[ ! -d "/dev/block/by-name" ]]; then
         SITE="/dev/block/bootdevice/by-name"

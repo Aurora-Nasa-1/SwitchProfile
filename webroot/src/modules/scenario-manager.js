@@ -804,10 +804,6 @@ export class ScenarioManager {
         return `${typePrefix}_${String(index + 1).padStart(3, '0')}_${timestamp}`;
     }
     
-
-    
-
-    
     generateOperationScript(operation, operationNumber) {
         switch (operation.type) {
             case 'install_module':
