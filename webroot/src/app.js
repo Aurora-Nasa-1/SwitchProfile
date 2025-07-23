@@ -23,7 +23,7 @@ class App {
         
         if (Core.isDebugMode()) {
             Core.logDebug('APP', 'Application constructor completed');
-            Core.showToast(Core.t('toast.debug.applicationStarting'), 'info');
+            Core.showToast('[DEBUG] Application starting...', 'info');
         }
         
         this.init();
@@ -68,7 +68,7 @@ class App {
             }).catch(error => {
                 console.error('Failed to load scenarios:', error);
                 if (Core.isDebugMode()) {
-                    Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+                    Core.showToast(`[DEBUG] Scenario loading failed: ${error.message}`, 'error');
                 }
             });
             
@@ -80,7 +80,7 @@ class App {
             console.error('Application initialization failed:', error);
             if (Core.isDebugMode()) {
                 Core.logDebug('APP', `Initialization failed: ${error.message}`);
-                Core.showToast(Core.t('toast.debug.applicationStarting'), 'error');
+                Core.showToast('[DEBUG] Application initialization failed', 'error');
             }
             // 即使初始化失败也要隐藏加载指示器并显示应用
             hideLoadingIndicator();
@@ -194,7 +194,7 @@ class App {
             console.error('Failed to load scenarios:', error);
             if (Core.isDebugMode()) {
                 Core.logDebug('APP', `Failed to load scenarios: ${error.message}`);
-                Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+                Core.showToast(`[DEBUG] Scenario loading failed: ${error.message}`, 'error');
             }
             Core.showError(error.message, Core.t('app.loading'));
         }
@@ -223,7 +223,7 @@ class App {
             hideLoadingIndicator();
             
             if (Core.isDebugMode()) {
-                Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+                Core.showToast(`[DEBUG] Scenario loading failed: ${error.message}`, 'error');
             }
         }
     }
@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Application initialization failed:', error);
         hideLoadingIndicator();
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.applicationStartingFailed', { error: error.message }), 'error');
+            Core.showToast(`[DEBUG] Application startup failed: ${error.message}`, 'error');
         }
     }
 });

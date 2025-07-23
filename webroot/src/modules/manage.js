@@ -20,7 +20,7 @@ export class ManagePage {
     
     showDialogWithAnimation(dialog) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`显示对话框: ${dialog.id}`, 'MANAGE');
+            Core.logDebug(`Show dialog: ${dialog.id}`, 'MANAGE');
         }
         
         dialog.showModal();
@@ -28,14 +28,14 @@ export class ManagePage {
         setTimeout(() => {
             dialog.classList.add('showing');
             if (Core.isDebugMode()) {
-                Core.logDebug(`对话框显示动画完成: ${dialog.id}`, 'MANAGE');
+                Core.logDebug(`Dialog show animation completed: ${dialog.id}`, 'MANAGE');
             }
         }, 10);
     }
     
     closeDialogWithAnimation(dialog) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`关闭对话框: ${dialog.id}`, 'MANAGE');
+            Core.logDebug(`Close dialog: ${dialog.id}`, 'MANAGE');
         }
         
         dialog.classList.remove('showing');
@@ -46,7 +46,7 @@ export class ManagePage {
             dialog.close();
             dialog.classList.remove('closing');
             if (Core.isDebugMode()) {
-                Core.logDebug(`对话框关闭动画完成: ${dialog.id}`, 'MANAGE');
+                Core.logDebug(`Dialog close animation completed: ${dialog.id}`, 'MANAGE');
             }
         }, 200); // 与CSS动画时间一致
     }
@@ -130,7 +130,7 @@ export class ManagePage {
     
     refresh() {
         if (Core.isDebugMode()) {
-            Core.logDebug('刷新管理页面内容', 'MANAGE');
+            Core.logDebug('Refresh manage page content', 'MANAGE');
         }
         this.render();
     }
@@ -139,7 +139,7 @@ export class ManagePage {
         const scenarios = this.scenarioManager.getScenarios();
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始渲染管理页面，情景数量: ${scenarios.length}`, 'MANAGE');
+            Core.logDebug(`Start rendering manage page, scenario count: ${scenarios.length}`, 'MANAGE');
         }
         
         if (scenarios.length === 0) {
@@ -151,7 +151,7 @@ export class ManagePage {
                 </div>
             `;
             if (Core.isDebugMode()) {
-                Core.logDebug('显示管理页面空状态', 'MANAGE');
+                Core.logDebug('Show manage page empty state', 'MANAGE');
             }
             return;
         }
@@ -159,7 +159,7 @@ export class ManagePage {
         this.container.innerHTML = scenarios.map(scenario => this.createManageCard(scenario)).join('');
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`管理页面卡片渲染完成，共 ${scenarios.length} 个情景`, 'MANAGE');
+            Core.logDebug(`Manage page cards rendered, total ${scenarios.length} scenarios`, 'MANAGE');
         }
         
         // 绑定事件
@@ -224,7 +224,7 @@ export class ManagePage {
     
     bindEvents() {
         if (Core.isDebugMode()) {
-            Core.logDebug('开始绑定管理页面事件监听器', 'MANAGE');
+            Core.logDebug('Start binding manage page event listeners', 'MANAGE');
         }
         
         // 移除旧的事件监听器
@@ -234,7 +234,7 @@ export class ManagePage {
         this.container.addEventListener('click', this.boundHandleClick);
         
         if (Core.isDebugMode()) {
-            Core.logDebug('管理页面事件监听器绑定完成', 'MANAGE');
+            Core.logDebug('Manage page event listeners bound', 'MANAGE');
         }
     }
     
@@ -249,34 +249,34 @@ export class ManagePage {
         
         if (target.classList.contains('edit-scenario')) {
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击编辑情景: ${scenarioId}`, 'MANAGE');
+                Core.logDebug(`User clicked edit scenario: ${scenarioId}`, 'MANAGE');
             }
             this.showEditDialog(scenarioId);
         } else if (target.classList.contains('delete-scenario')) {
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击删除情景: ${scenarioId}`, 'MANAGE');
+                Core.logDebug(`User clicked delete scenario: ${scenarioId}`, 'MANAGE');
             }
             this.deleteScenario(scenarioId);
         } else if (target.classList.contains('execute-scenario')) {
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击执行情景: ${scenarioId}`, 'MANAGE');
+                Core.logDebug(`User clicked execute scenario: ${scenarioId}`, 'MANAGE');
             }
             this.executeScenario(scenarioId);
         } else if (target.classList.contains('export-scenario')) {
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击导出情景: ${scenarioId}`, 'MANAGE');
+                Core.logDebug(`User clicked export scenario: ${scenarioId}`, 'MANAGE');
             }
             this.exportScenario(scenarioId);
         } else if (target.classList.contains('edit-operation')) {
             const operationIndex = parseInt(target.dataset.index);
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击编辑操作: 情景${scenarioId}, 操作${operationIndex}`, 'MANAGE');
+                Core.logDebug(`User clicked edit operation: scenario ${scenarioId}, operation ${operationIndex}`, 'MANAGE');
             }
             this.editOperation(scenarioId, operationIndex);
         } else if (target.classList.contains('delete-operation')) {
             const operationIndex = parseInt(target.dataset.index);
             if (Core.isDebugMode()) {
-                Core.logDebug(`用户点击删除操作: 情景${scenarioId}, 操作${operationIndex}`, 'MANAGE');
+                Core.logDebug(`User clicked delete operation: scenario ${scenarioId}, operation ${operationIndex}`, 'MANAGE');
             }
             this.deleteOperation(scenarioId, operationIndex);
         }
@@ -284,7 +284,7 @@ export class ManagePage {
     
     showEditDialog(scenarioId = null) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`显示编辑对话框: ${scenarioId ? '编辑情景 ' + scenarioId : '新建情景'}`, 'MANAGE');
+            Core.logDebug(`Show edit dialog: ${scenarioId ? 'Edit scenario ' + scenarioId : 'New scenario'}`, 'MANAGE');
         }
         
         this.currentScenario = scenarioId ? this.scenarioManager.getScenario(scenarioId) : null;
@@ -303,7 +303,7 @@ export class ManagePage {
             this.renderOperationsList(this.currentScenario.operations);
             
             if (Core.isDebugMode()) {
-                Core.logDebug(`编辑情景表单填充完成: ${this.currentScenario.name}, 操作数: ${this.currentScenario.operations.length}`, 'MANAGE');
+                Core.logDebug(`Edit scenario form filled: ${this.currentScenario.name}, operations: ${this.currentScenario.operations.length}`, 'MANAGE');
             }
         } else {
             document.getElementById('scenario-form').reset();
@@ -311,7 +311,7 @@ export class ManagePage {
             this.renderOperationsList([]);
             
             if (Core.isDebugMode()) {
-                Core.logDebug('新建情景表单重置完成', 'MANAGE');
+                Core.logDebug('New scenario form reset completed', 'MANAGE');
             }
         }
         
@@ -370,7 +370,7 @@ export class ManagePage {
     
     showOperationEditDialog(type, operation = null) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`显示操作编辑对话框: ${type}, 编辑模式: ${operation ? '是' : '否'}`, 'MANAGE');
+            Core.logDebug(`Show operation edit dialog: ${type}, edit mode: ${operation ? 'yes' : 'no'}`, 'MANAGE');
         }
         
         const titles = {
@@ -389,7 +389,7 @@ export class ManagePage {
         this.setupFileInputs();
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`操作编辑对话框字段设置完成: ${type}`, 'MANAGE');
+            Core.logDebug(`Operation edit dialog fields set: ${type}`, 'MANAGE');
         }
         
         this.showDialogWithAnimation(this.operationEditDialog);
@@ -492,8 +492,8 @@ export class ManagePage {
     
     saveOperation() {
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.startSaveOperation'), 'info');
-            Core.logDebug('MANAGE', '开始保存操作');
+            Core.showToast('[DEBUG] Starting to save operation', 'info');
+            Core.logDebug('MANAGE', 'Start saving operation');
         }
         
         const form = document.getElementById('operation-form');
@@ -504,7 +504,7 @@ export class ManagePage {
         for (const field of requiredFields) {
             if (!field.value.trim()) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `验证失败: ${field.name} 为空`);
+                    Core.logDebug('MANAGE', `Validation failed: ${field.name} is empty`);
                 }
                 Core.showToast(Core.t('manage.operation.fieldsRequired'), 'warning');
                 field.focus();
@@ -517,7 +517,7 @@ export class ManagePage {
         };
         
         if (Core.isDebugMode()) {
-            Core.logDebug('MANAGE', `操作类型: ${operation.type}`);
+            Core.logDebug('MANAGE', `Operation type: ${operation.type}`);
         }
         
         // 根据类型添加特定字段
@@ -526,26 +526,26 @@ export class ManagePage {
                 operation.path = formData.get('path');
                 if (!operation.path) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug('MANAGE', '安装模块操作: 路径为空');
+                        Core.logDebug('MANAGE', 'Install module operation: path is empty');
                     }
                     Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `安装模块操作: ${operation.path}`);
+                    Core.logDebug('MANAGE', `Install module operation: ${operation.path}`);
                 }
                 break;
             case 'delete_module':
                 operation.path = formData.get('path');
                 if (!operation.path) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug('MANAGE', '删除模块操作: 路径为空');
+                        Core.logDebug('MANAGE', 'Remove module operation: path is empty');
                     }
                     Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `删除模块操作: ${operation.path}`);
+                    Core.logDebug('MANAGE', `Remove module operation: ${operation.path}`);
                 }
                 break;
             case 'flash_boot':
@@ -553,26 +553,26 @@ export class ManagePage {
                 operation.anykernel = formData.has('anykernel');
                 if (!operation.path) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug('MANAGE', '刷写Boot操作: 路径为空');
+                        Core.logDebug('MANAGE', 'Flash boot operation: path is empty');
                     }
                     Core.showToast(Core.t('toast.validation.selectImageFile'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `刷写Boot操作: ${operation.path}, AnyKernel: ${operation.anykernel}`);
+                    Core.logDebug('MANAGE', `Flash boot operation: ${operation.path}, AnyKernel: ${operation.anykernel}`);
                 }
                 break;
             case 'custom_script':
                 operation.script = formData.get('script');
                 if (!operation.script) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug('MANAGE', '自定义脚本操作: 脚本内容为空');
+                        Core.logDebug('MANAGE', 'Custom script operation: script content is empty');
                     }
                     Core.showToast(Core.t('toast.validation.enterScriptContent'), 'warning');
             return;
                 }
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `自定义脚本操作: ${operation.script.length} 字符`);
+                    Core.logDebug('MANAGE', `Custom script operation: ${operation.script.length} characters`);
                 }
                 break;
         }
@@ -593,13 +593,13 @@ export class ManagePage {
             // 编辑现有操作
             operations[this.currentOperationIndex] = operation;
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', `编辑操作索引: ${this.currentOperationIndex}`);
+                Core.logDebug('MANAGE', `Edit operation index: ${this.currentOperationIndex}`);
             }
         } else {
             // 添加新操作
             operations.push(operation);
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', `添加新操作，总数: ${operations.length}`);
+                Core.logDebug('MANAGE', `Add new operation, total: ${operations.length}`);
             }
         }
         
@@ -610,26 +610,26 @@ export class ManagePage {
         if (this.currentScenario) {
             this.currentScenario.operations = operations;
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '保存到现有情景');
+                Core.logDebug('MANAGE', 'Save to existing scenario');
             }
         } else {
             this.tempOperations = operations;
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '保存到临时操作列表');
+                Core.logDebug('MANAGE', 'Save to temporary operation list');
             }
         }
         
         this.closeDialogWithAnimation(this.operationEditDialog);
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.operationSaveSuccess'), 'success');
+            Core.showToast('[DEBUG] Operation saved successfully', 'success');
         }
         Core.showToast(Core.t('toast.scenario.operationSaved'), 'success');
     }
     
     async saveScenario() {
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.startSaveScenario'), 'info');
-            Core.logDebug('MANAGE', '开始保存情景操作');
+            Core.showToast('[DEBUG] Starting to save scenario', 'info');
+            Core.logDebug('MANAGE', 'Start saving scenario operation');
         }
         
         const form = document.getElementById('scenario-form');
@@ -638,7 +638,7 @@ export class ManagePage {
         const name = formData.get('scenario-name');
         if (!name || !name.trim()) {
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '保存失败: 情景名称为空');
+                Core.logDebug('MANAGE', 'Save failed: scenario name is empty');
             }
             Core.showToast(Core.t('toast.validation.enterScenarioName'), 'warning');
             return;
@@ -655,7 +655,7 @@ export class ManagePage {
         };
         
         if (Core.isDebugMode()) {
-            Core.logDebug('MANAGE', `情景数据: ID=${scenario.id}, 名称=${scenario.name}, 兼容模式=${scenario.compatibilityMode}, 自动重启=${scenario.autoReboot}, 操作数量=${scenario.operations.length}`);
+            Core.logDebug('MANAGE', `Scenario data: ID=${scenario.id}, name=${scenario.name}, compatibility=${scenario.compatibilityMode}, autoReboot=${scenario.autoReboot}, operations=${scenario.operations.length}`);
             Core.showToast(`[DEBUG] 情景包含 ${scenario.operations.length} 个操作`, 'info');
         }
         
@@ -668,19 +668,19 @@ export class ManagePage {
         try {
             if (this.currentScenario) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', '更新现有情景: ' + scenario.id);
+                    Core.logDebug('MANAGE', 'Update existing scenario: ' + scenario.id);
                 }
                 await this.scenarioManager.updateScenario(scenario);
             } else {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', '添加新情景: ' + scenario.id);
+                    Core.logDebug('MANAGE', 'Add new scenario: ' + scenario.id);
                 }
                 await this.scenarioManager.addScenario(scenario);
             }
             
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '情景保存成功，关闭对话框并刷新列表');
-                Core.showToast(Core.t('toast.debug.scenarioSaveSuccess'), 'success');
+                Core.logDebug('MANAGE', 'Scenario saved successfully, close dialog and refresh list');
+                Core.showToast('[DEBUG] Scenario saved successfully', 'success');
             }
             
             this.closeDialogWithAnimation(this.editDialog);
@@ -689,7 +689,7 @@ export class ManagePage {
         } catch (error) {
             console.error('Save scenario error:', error);
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', `保存情景失败: ${error.message || '未知错误'}`);
+                Core.logDebug('MANAGE', `Save scenario failed: ${error.message || 'Unknown error'}`);
                 Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
             }
             Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
@@ -698,7 +698,7 @@ export class ManagePage {
             saveButton.disabled = false;
             saveButton.textContent = originalText;
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '恢复保存按钮状态');
+                Core.logDebug('MANAGE', 'Restore save button state');
             }
         }
     }
@@ -733,27 +733,27 @@ export class ManagePage {
     
     async executeScenario(scenarioId) {
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.startExecuteScenario'), 'info');
-            Core.logDebug('MANAGE', `开始执行情景: ${scenarioId}`);
+            Core.showToast('[DEBUG] Starting to execute scenario', 'info');
+            Core.logDebug('MANAGE', `Start executing scenario: ${scenarioId}`);
         }
         
         try {
             const scenario = this.scenarioManager.getScenario(scenarioId);
             if (!scenario) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `情景不存在: ${scenarioId}`);
+                    Core.logDebug('MANAGE', `Scenario not found: ${scenarioId}`);
                 }
                 Core.showToast(Core.t('toast.scenario.notFound'), 'error');
             return;
             }
             
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', `找到情景: ${scenario.name}, 操作数量: ${scenario.operations.length}`);
+                Core.logDebug('MANAGE', `Found scenario: ${scenario.name}, operations: ${scenario.operations.length}`);
             }
             
             if (scenario.operations.length === 0) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', '情景没有任何操作');
+                    Core.logDebug('MANAGE', 'Scenario has no operations');
                 }
                 Core.showToast(Core.t('toast.scenario.noOperations'), 'warning');
             return;
@@ -767,13 +767,13 @@ export class ManagePage {
             
             if (!confirmed) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', '用户取消执行情景');
+                    Core.logDebug('MANAGE', 'User cancelled scenario execution');
                 }
                 return;
             }
             
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', '用户确认执行情景，开始执行脚本');
+                Core.logDebug('MANAGE', 'User confirmed scenario execution, start executing script');
             }
             
             Core.showToast(Core.t('toast.scenario.executing'), 'info');
@@ -783,11 +783,11 @@ export class ManagePage {
                 console.log('Script execution output:', output);
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `脚本执行完成，输出长度: ${output ? output.length : 0}`);
+                    Core.logDebug('MANAGE', `Script execution completed, output length: ${output ? output.length : 0}`);
                     if (output && output.trim()) {
-                        Core.logDebug('MANAGE', `脚本输出: ${output.substring(0, 500)}${output.length > 500 ? '...' : ''}`);
+                        Core.logDebug('MANAGE', `Script output: ${output.substring(0, 500)}${output.length > 500 ? '...' : ''}`);
                     }
-                    Core.showToast(Core.t('toast.debug.scriptExecuteSuccess'), 'success');
+                    Core.showToast('[DEBUG] Script executed successfully', 'success');
                 }
                 
                 Core.showToast(Core.t('toast.scenario.executeSuccess'), 'success');
@@ -800,8 +800,8 @@ export class ManagePage {
             } catch (executeError) {
                 console.error('Script execution failed:', executeError);
                 if (Core.isDebugMode()) {
-                    Core.logDebug('MANAGE', `脚本执行失败: ${executeError.message}`);
-                    Core.showToast(Core.t('toast.debug.scriptExecuteFailed', { error: executeError.message }), 'error');
+                    Core.logDebug('MANAGE', `Script execution failed: ${executeError.message}`);
+                    Core.showToast(`[DEBUG] Script execution failed: ${executeError.message}`, 'error');
                 }
                 Core.showToast(Core.t('toast.scenario.executeFailed', { error: executeError.message }), 'error');
             }
@@ -809,8 +809,8 @@ export class ManagePage {
         } catch (error) {
             console.error('Execute scenario error:', error);
             if (Core.isDebugMode()) {
-                Core.logDebug('MANAGE', `执行情景时发生错误: ${error.message}`);
-                Core.showToast(Core.t('toast.debug.executeError', { error: error.message }), 'error');
+                Core.logDebug('MANAGE', `Error occurred while executing scenario: ${error.message}`);
+                Core.showToast(`[DEBUG] Execution error: ${error.message}`, 'error');
             }
             Core.showToast(Core.t('toast.scenario.executeError', { error: error.message }), 'error');
         }

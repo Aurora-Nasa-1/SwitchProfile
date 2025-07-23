@@ -25,12 +25,12 @@ export class SettingsManager {
                 
                 if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
                     window.Core.logDebug(`Settings loaded successfully: ${JSON.stringify(loadedSettings)}`, 'SETTINGS');
-                    window.Core.showToast(window.Core.t('toast.debug.settingsLoaded'), 'info');
+                    window.Core.showToast('[DEBUG] Settings loaded from localStorage', 'info');
                 }
             } else {
                 if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
                     window.Core.logDebug('No saved settings found, using defaults', 'SETTINGS');
-                    window.Core.showToast(window.Core.t('toast.debug.usingDefaultSettings'), 'info');
+                    window.Core.showToast('[DEBUG] Using default settings', 'info');
                 }
             }
             
@@ -57,7 +57,7 @@ export class SettingsManager {
             
             if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
                 window.Core.logDebug(`Settings saved successfully: ${JSON.stringify(this.settings)}`, 'SETTINGS');
-                window.Core.showToast(window.Core.t('toast.debug.settingsSaved'), 'success');
+                window.Core.showToast('[DEBUG] Settings saved to localStorage', 'success');
             }
         } catch (error) {
             console.warn('Failed to save settings:', error);

@@ -28,13 +28,13 @@ export class ScenarioManager {
                     }
                     
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`开始扫描脚本目录: ${this.scriptsPath}`, 'LOAD');
+                        Core.logDebug(`Start scanning script directory: ${this.scriptsPath}`, 'LOAD');
                     }
                     
                     // 使用ls命令替代find，在安卓环境下更可靠
                     Core.execCommand(`ls "${this.scriptsPath}"*.sh 2>/dev/null || echo "NO_FILES"`, (output) => {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`目录扫描结果: ${output}`, 'LOAD');
+                            Core.logDebug(`Directory scan result: ${output}`, 'LOAD');
                         }
                         
                         if (output && output.trim() !== 'NO_FILES' && !output.includes('No such file') && !output.includes('ERROR')) {
@@ -44,7 +44,7 @@ export class ScenarioManager {
                                 .filter(file => file && file.endsWith('.sh') && !file.includes('No such file'));
                             
                             if (Core.isDebugMode()) {
-                                Core.logDebug(`找到 ${scriptFiles.length} 个脚本文件: ${JSON.stringify(scriptFiles)}`, 'LOAD');
+                                Core.logDebug(`Found ${scriptFiles.length} script files: ${JSON.stringify(scriptFiles)}`, 'LOAD');
                             }
                             
                             this.scenarios = [];
@@ -54,7 +54,7 @@ export class ScenarioManager {
                             
                             if (totalFiles === 0) {
                                 if (Core.isDebugMode()) {
-                                    Core.logDebug('未找到任何脚本文件', 'LOAD');
+                                    Core.logDebug('No script files found', 'LOAD');
                                 }
                                 resolve();
                                 return;
@@ -68,14 +68,14 @@ export class ScenarioManager {
                                             loadedCount++;
                                             if (loadedCount === totalFiles) {
                                                 if (Core.isDebugMode()) {
-                                                    Core.logDebug(`脚本加载完成，共加载 ${this.scenarios.length} 个情景`, 'LOAD');
+                                                    Core.logDebug(`Script loading completed, loaded ${this.scenarios.length} scenarios`, 'LOAD');
                                                 }
                                                 resolve();
                                             }
                                         });
                                     } else {
                                         if (Core.isDebugMode()) {
-                                            Core.logDebug(`文件不存在，跳过: ${scriptPath}`, 'LOAD');
+                                            Core.logDebug(`File does not exist, skip: ${scriptPath}`, 'LOAD');
                                         }
                                         loadedCount++;
                                         if (loadedCount === totalFiles) {
@@ -86,7 +86,7 @@ export class ScenarioManager {
                             });
                         } else {
                             if (Core.isDebugMode()) {
-                                Core.logDebug('目录为空或扫描失败', 'LOAD');
+                                Core.logDebug('Directory is empty or scan failed', 'LOAD');
                             }
                             resolve();
                         }
@@ -95,7 +95,7 @@ export class ScenarioManager {
             } catch (error) {
                 console.warn('Failed to load scenarios from script files:', error);
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`脚本加载异常: ${error.message}`, 'ERROR');
+                    Core.logDebug(`Script loading error: ${error.message}`, 'ERROR');
                 }
                 reject(error);
             }
@@ -104,7 +104,7 @@ export class ScenarioManager {
     
     parseScriptFile(scriptPath, callback) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始解析脚本文件: ${scriptPath}`, 'PARSE');
+            Core.logDebug(`Start parsing script file: ${scriptPath}`, 'PARSE');
         }
         
         // 使用更兼容的命令读取脚本文件，确保在安卓环境下正常工作
@@ -115,7 +115,7 @@ export class ScenarioManager {
                     const scriptId = this.extractScriptId(scriptPath);
                     
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`脚本内容行数: ${lines.length}, 脚本ID: ${scriptId}`, 'PARSE');
+                        Core.logDebug(`Script content lines: ${lines.length}, script ID: ${scriptId}`, 'PARSE');
                     }
                     
                     const scenario = {
@@ -145,22 +145,22 @@ export class ScenarioManager {
                         this.scenarios.push(scenario);
                         
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`成功解析脚本: ${scenario.name} (${scenario.id}), 操作数: ${scenario.operations.length}`, 'PARSE');
+                            Core.logDebug(`Successfully parsed script: ${scenario.name} (${scenario.id}), operations: ${scenario.operations.length}`, 'PARSE');
                         }
                     } else {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`跳过无效脚本: ${scriptPath} - 空文件或仅包含注释`, 'PARSE');
+                            Core.logDebug(`Skip invalid script: ${scriptPath} - empty file or comments only`, 'PARSE');
                         }
                     }
                 } else {
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`无法读取脚本文件内容: ${scriptPath}`, 'ERROR');
+                        Core.logDebug(`Cannot read script file content: ${scriptPath}`, 'ERROR');
                     }
                 }
             } catch (error) {
                 console.warn('Failed to parse script file:', scriptPath, error);
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`脚本解析异常: ${error.message}`, 'ERROR');
+                    Core.logDebug(`Script parsing error: ${error.message}`, 'ERROR');
                 }
             }
             callback();
@@ -192,7 +192,7 @@ export class ScenarioManager {
                     value = value.split('#')[0].trim();
                     if (value) {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`提取元数据 ${prefix}: ${value} (来自: ${line.trim()})`, 'PARSE');
+                            Core.logDebug(`Extract metadata ${prefix}: ${value} (from: ${line.trim()})`, 'PARSE');
                         }
                         return value;
                     }
@@ -263,7 +263,7 @@ export class ScenarioManager {
         });
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`操作提取完成，共提取到 ${operations.length} 个操作`, 'EXTRACT');
+            Core.logDebug(`Operation extraction completed, extracted ${operations.length} operations`, 'EXTRACT');
         }
         
         return operations;
@@ -276,8 +276,8 @@ export class ScenarioManager {
                 const scriptContent = this.generateScript(scenario);
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`开始保存脚本文件: ${scriptPath}`, 'SAVE');
-                    Core.logDebug(`脚本内容长度: ${scriptContent.length} 字符`, 'SAVE');
+                    Core.logDebug(`Start saving script file: ${scriptPath}`, 'SAVE');
+                    Core.logDebug(`Script content length: ${scriptContent.length} characters`, 'SAVE');
                     Core.showToast(`[DEBUG] 保存脚本: ${scenario.name}`, 'info');
                 }
                 
@@ -286,7 +286,7 @@ export class ScenarioManager {
                     if (mkdirOutput && mkdirOutput.includes('ERROR')) {
                         console.error('Failed to create scripts directory:', mkdirOutput);
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`脚本目录创建失败: ${mkdirOutput}`, 'ERROR');
+                            Core.logDebug(`Script directory creation failed: ${mkdirOutput}`, 'ERROR');
                             Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
                         }
                         reject(new Error('脚本目录创建失败: ' + mkdirOutput));
@@ -294,21 +294,21 @@ export class ScenarioManager {
                     }
                     
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`脚本目录创建成功: ${this.scriptsPath}`, 'SAVE');
+                        Core.logDebug(`Script directory created successfully: ${this.scriptsPath}`, 'SAVE');
                     }
                     
                     // 写入脚本文件
                     const tempFile = `${scriptPath}.tmp`;
                     
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`开始写入临时文件: ${tempFile}`, 'SAVE');
+                        Core.logDebug(`Start writing temporary file: ${tempFile}`, 'SAVE');
                     }
                     
                     Core.execCommand(`cat > "${tempFile}" << 'EOF'\n${scriptContent}\nEOF`, (writeOutput) => {
                         if (writeOutput && writeOutput.includes('ERROR')) {
                             console.error('Failed to write temp script file:', writeOutput);
                             if (Core.isDebugMode()) {
-                                Core.logDebug(`临时文件写入失败: ${writeOutput}`, 'ERROR');
+                                Core.logDebug(`Temporary file write failed: ${writeOutput}`, 'ERROR');
                                 Core.showToast(`[DEBUG] 文件写入失败: ${writeOutput}`, 'error');
                             }
                             reject(new Error('临时脚本文件写入失败: ' + writeOutput));
@@ -316,7 +316,7 @@ export class ScenarioManager {
                         }
                         
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`临时文件写入成功: ${tempFile}`, 'SAVE');
+                            Core.logDebug(`Temporary file written successfully: ${tempFile}`, 'SAVE');
                         }
                         
                         // 移动临时文件到目标位置并设置执行权限
@@ -324,14 +324,14 @@ export class ScenarioManager {
                             if (mvOutput && mvOutput.includes('ERROR')) {
                                 console.error('Failed to move script file:', mvOutput);
                                 if (Core.isDebugMode()) {
-                                    Core.logDebug(`脚本文件移动失败: ${mvOutput}`, 'ERROR');
+                                    Core.logDebug(`Script file move failed: ${mvOutput}`, 'ERROR');
                                     Core.showToast(`[DEBUG] 文件移动失败: ${mvOutput}`, 'error');
                                 }
                                 reject(new Error('脚本文件移动失败: ' + mvOutput));
                             } else {
                                 console.log('Script saved successfully:', scriptPath);
                                 if (Core.isDebugMode()) {
-                                    Core.logDebug(`脚本保存成功: ${scriptPath}`, 'SAVE');
+                                    Core.logDebug(`Script saved successfully: ${scriptPath}`, 'SAVE');
                                     Core.showToast(`[DEBUG] 脚本保存成功: ${scenario.name}`, 'success');
                                 }
                                 resolve(scriptPath);
@@ -342,7 +342,7 @@ export class ScenarioManager {
             } catch (error) {
                 console.error('Failed to save script to file:', error);
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`脚本保存异常: ${error.message}`, 'ERROR');
+                    Core.logDebug(`Script save error: ${error.message}`, 'ERROR');
                     Core.showToast(`[DEBUG] 保存异常: ${error.message}`, 'error');
                 }
                 reject(new Error('脚本保存失败: ' + error.message));
@@ -364,7 +364,7 @@ export class ScenarioManager {
             const scenario = this.getScenario(scenarioId);
             if (!scenario) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`导出失败: 情景不存在 (ID: ${scenarioId})`, 'EXPORT');
+                    Core.logDebug(`Export failed: scenario not found (ID: ${scenarioId})`, 'EXPORT');
                     Core.showToast(`[DEBUG] 导出失败: 情景不存在`, 'error');
                 }
                 Core.showToast(Core.t('toast.scenario.notFound'), 'error');
@@ -373,7 +373,7 @@ export class ScenarioManager {
             }
 
             if (Core.isDebugMode()) {
-                Core.logDebug(`开始导出情景: ${scenario.name} (ID: ${scenarioId}) 到 ${exportPath}`, 'EXPORT');
+                Core.logDebug(`Start exporting scenario: ${scenario.name} (ID: ${scenarioId}) to ${exportPath}`, 'EXPORT');
                 Core.showToast(`[DEBUG] 导出情景: ${scenario.name}`, 'info');
             }
 
@@ -381,14 +381,14 @@ export class ScenarioManager {
             const targetFile = `${exportPath}/${scenario.name}_${scenarioId}.sh`;
             
             if (Core.isDebugMode()) {
-                Core.logDebug(`源文件: ${sourceFile}, 目标文件: ${targetFile}`, 'EXPORT');
+                Core.logDebug(`Source file: ${sourceFile}, target file: ${targetFile}`, 'EXPORT');
             }
             
             // 确保目标目录存在
             Core.execCommand(`mkdir -p "${exportPath}"`, (mkdirOutput) => {
                 if (mkdirOutput && mkdirOutput.includes('ERROR')) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`创建导出目录失败: ${mkdirOutput}`, 'ERROR');
+                        Core.logDebug(`Export directory creation failed: ${mkdirOutput}`, 'ERROR');
                         Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
                     }
                     Core.showToast(Core.t('toast.scenario.createExportDirFailed'), 'error');
@@ -397,21 +397,21 @@ export class ScenarioManager {
                 }
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`导出目录创建成功: ${exportPath}`, 'EXPORT');
+                    Core.logDebug(`Export directory created successfully: ${exportPath}`, 'EXPORT');
                 }
                 
                 // 复制文件
                 Core.execCommand(`cp "${sourceFile}" "${targetFile}"`, (cpOutput) => {
                     if (cpOutput && cpOutput.includes('ERROR')) {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`文件复制失败: ${cpOutput}`, 'ERROR');
+                            Core.logDebug(`File copy failed: ${cpOutput}`, 'ERROR');
                             Core.showToast(`[DEBUG] 文件复制失败: ${cpOutput}`, 'error');
                         }
                         Core.showToast(Core.t('toast.scenario.exportFileFailed'), 'error');
                         reject(new Error('导出文件失败'));
                     } else {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`情景导出成功: ${targetFile}`, 'EXPORT');
+                            Core.logDebug(`Scenario exported successfully: ${targetFile}`, 'EXPORT');
                             Core.showToast(`[DEBUG] 导出成功: ${scenario.name}`, 'success');
                         }
                         Core.showToast(`情景导出成功: ${targetFile}`, 'success');
@@ -426,7 +426,7 @@ export class ScenarioManager {
     async importScenario(importPath) {
         return new Promise((resolve, reject) => {
             if (Core.isDebugMode()) {
-                Core.logDebug(`开始导入情景: ${importPath}`, 'IMPORT');
+                Core.logDebug(`Start importing scenario: ${importPath}`, 'IMPORT');
                 Core.showToast(`[DEBUG] 导入情景: ${importPath}`, 'info');
             }
             
@@ -435,7 +435,7 @@ export class ScenarioManager {
             Core.execCommand(`test -f "${importPath}" && echo "exists"`, (testOutput) => {
                 if (!testOutput || !testOutput.includes('exists')) {
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`导入文件不存在: ${importPath}`, 'ERROR');
+                        Core.logDebug(`Import file not found: ${importPath}`, 'ERROR');
                         Core.showToast(`[DEBUG] 文件不存在: ${importPath}`, 'error');
                     }
                     Core.showToast(Core.t('toast.scenario.importFileNotFound'), 'error');
@@ -444,7 +444,7 @@ export class ScenarioManager {
                 }
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`导入文件存在，开始处理: ${importPath}`, 'IMPORT');
+                    Core.logDebug(`Import file exists, start processing: ${importPath}`, 'IMPORT');
                 }
                 
                 // 生成新的情景ID
@@ -452,14 +452,14 @@ export class ScenarioManager {
                 const targetFile = `${this.scriptsPath}${newId}.sh`;
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug(`生成新ID: ${newId}, 目标文件: ${targetFile}`, 'IMPORT');
+                    Core.logDebug(`Generated new ID: ${newId}, target file: ${targetFile}`, 'IMPORT');
                 }
                 
                 // 确保脚本目录存在
                 Core.execCommand(`mkdir -p "${this.scriptsPath}"`, (mkdirOutput) => {
                     if (mkdirOutput && mkdirOutput.includes('ERROR')) {
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`创建脚本目录失败: ${mkdirOutput}`, 'ERROR');
+                            Core.logDebug(`Script directory creation failed: ${mkdirOutput}`, 'ERROR');
                             Core.showToast(`[DEBUG] 目录创建失败: ${mkdirOutput}`, 'error');
                         }
                         Core.showToast(Core.t('toast.scenario.createScriptDirFailed'), 'error');
@@ -468,27 +468,27 @@ export class ScenarioManager {
                     }
                     
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`脚本目录创建成功: ${this.scriptsPath}`, 'IMPORT');
+                        Core.logDebug(`Script directory created successfully: ${this.scriptsPath}`, 'IMPORT');
                     }
                     
                     // 复制文件到脚本目录
                     Core.execCommand(`cp "${importPath}" "${targetFile}"`, (cpOutput) => {
                         if (cpOutput && cpOutput.includes('ERROR')) {
                             if (Core.isDebugMode()) {
-                                Core.logDebug(`文件复制失败: ${cpOutput}`, 'ERROR');
+                                Core.logDebug(`File copy failed: ${cpOutput}`, 'ERROR');
                                 Core.showToast(`[DEBUG] 文件复制失败: ${cpOutput}`, 'error');
                             }
                             Core.showToast(Core.t('toast.scenario.importFileFailed'), 'error');
                             reject(new Error('导入文件失败'));
                         } else {
                             if (Core.isDebugMode()) {
-                                Core.logDebug(`文件复制成功，开始解析脚本: ${targetFile}`, 'IMPORT');
+                                Core.logDebug(`File copied successfully, start parsing script: ${targetFile}`, 'IMPORT');
                             }
                             
                             // 解析导入的脚本文件
                             this.parseScriptFile(targetFile, () => {
                                 if (Core.isDebugMode()) {
-                                    Core.logDebug(`情景导入成功，新ID: ${newId}`, 'IMPORT');
+                                    Core.logDebug(`Scenario imported successfully, new ID: ${newId}`, 'IMPORT');
                                     Core.showToast(`[DEBUG] 导入成功，ID: ${newId}`, 'success');
                                 }
                                 Core.showToast(Core.t('toast.scenario.importSuccess'), 'success');
@@ -529,10 +529,10 @@ export class ScenarioManager {
             // 添加到内存中的情景列表
             this.scenarios.push(scenario);
             
-            Core.showToast(`情景添加成功: ${scenario.name}`, 'success');
+            Core.showToast(Core.t('toast.scenario.scenarioAddSuccess'), 'success');
             return scenario;
         } catch (error) {
-            Core.showToast(`情景添加失败: ${error.message}`, 'error');
+            Core.showToast(Core.t('toast.scenario.scenarioAddFailed'), 'error');
             throw error;
         }
     }
@@ -570,8 +570,8 @@ export class ScenarioManager {
             const scriptPath = `${this.scriptsPath}${id}.sh`;
             
             if (Core.isDebugMode()) {
-                Core.logDebug(`开始删除情景: ${deletedScenario.name} (ID: ${id})`, 'DELETE');
-                Core.logDebug(`脚本文件路径: ${scriptPath}`, 'DELETE');
+                Core.logDebug(`Start deleting scenario: ${deletedScenario.name} (ID: ${id})`, 'DELETE');
+                Core.logDebug(`Script file path: ${scriptPath}`, 'DELETE');
                 Core.showToast(`[DEBUG] 删除情景: ${deletedScenario.name}`, 'info');
             }
             
@@ -581,7 +581,7 @@ export class ScenarioManager {
                     if (output && output.includes('ERROR')) {
                         console.error('Failed to delete script file:', output);
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`脚本文件删除失败: ${output}`, 'ERROR');
+                            Core.logDebug(`Script file deletion failed: ${output}`, 'ERROR');
                             Core.showToast(`[DEBUG] 文件删除失败: ${output}`, 'error');
                         }
                         Core.showToast(`脚本文件删除失败: ${output}`, 'error');
@@ -591,7 +591,7 @@ export class ScenarioManager {
                         this.scenarios.splice(index, 1);
                         console.log('Script deleted successfully:', scriptPath);
                         if (Core.isDebugMode()) {
-                            Core.logDebug(`情景删除成功: ${deletedScenario.name}`, 'DELETE');
+                            Core.logDebug(`Scenario deleted successfully: ${deletedScenario.name}`, 'DELETE');
                             Core.showToast(`[DEBUG] 删除成功: ${deletedScenario.name}`, 'success');
                         }
                         Core.showToast(`情景删除成功: ${deletedScenario.name}`, 'success');
@@ -601,7 +601,7 @@ export class ScenarioManager {
             });
         }
         if (Core.isDebugMode()) {
-            Core.logDebug(`删除失败: 情景不存在 (ID: ${id})`, 'ERROR');
+            Core.logDebug(`Delete failed: scenario not found (ID: ${id})`, 'ERROR');
             Core.showToast(`[DEBUG] 情景不存在: ${id}`, 'error');
         }
         Core.showToast(Core.t('toast.scenario.notFound'), 'error');
@@ -610,7 +610,7 @@ export class ScenarioManager {
     
     generateScript(scenario) {
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始生成脚本: ${scenario.name}`, 'GENERATE');
+            Core.logDebug(`Start generating script: ${scenario.name}`, 'GENERATE');
             Core.showToast(`[DEBUG] 生成脚本: ${scenario.name}`, 'info');
         }
         
@@ -623,7 +623,7 @@ export class ScenarioManager {
         script += `Installer_Log="true"\n\n`;
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`脚本头部生成完成，兼容模式: ${scenario.compatibilityMode}`, 'GENERATE');
+            Core.logDebug(`Script header generated, compatibility mode: ${scenario.compatibilityMode}`, 'GENERATE');
         }
         
         // 进度报告函数
@@ -635,7 +635,7 @@ export class ScenarioManager {
         script += `report_progress "0" "${scenario.operations.length}" "开始执行情景"\n\n`;
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始生成 ${scenario.operations.length} 个操作的脚本`, 'GENERATE');
+            Core.logDebug(`Start generating script for ${scenario.operations.length} operations`, 'GENERATE');
         }
         
         // 生成操作脚本
@@ -643,7 +643,7 @@ export class ScenarioManager {
             const operationNumber = index + 1;
             
             if (Core.isDebugMode()) {
-                Core.logDebug(`生成操作 ${operationNumber}: ${JSON.stringify(operation)}`, 'GENERATE');
+                Core.logDebug(`Generate operation ${operationNumber}: ${JSON.stringify(operation)}`, 'GENERATE');
             }
             
             script += `# Operation ${operationNumber}\n`;
@@ -655,7 +655,7 @@ export class ScenarioManager {
             script += operationScript;
             
             if (Core.isDebugMode()) {
-                Core.logDebug(`操作 ${operationNumber} 脚本生成: ${operationScript.trim()}`, 'GENERATE');
+                Core.logDebug(`Operation ${operationNumber} script generated: ${operationScript.trim()}`, 'GENERATE');
             }
             
             script += `report_progress "${operationNumber}" "${scenario.operations.length}" "操作 ${operationNumber} 完成"\n\n`;
@@ -672,14 +672,14 @@ export class ScenarioManager {
             script += 'reboot\n';
             
             if (Core.isDebugMode()) {
-                Core.logDebug('添加自动重启脚本', 'GENERATE');
+                Core.logDebug('Add auto reboot script', 'GENERATE');
             }
         }
         
         script += '\nexit 0\n';
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`脚本生成完成，总长度: ${script.length} 字符`, 'GENERATE');
+            Core.logDebug(`Script generation completed, total length: ${script.length} characters`, 'GENERATE');
             Core.showToast(`[DEBUG] 脚本生成完成: ${scenario.operations.length}个操作`, 'success');
         }
         
@@ -769,7 +769,7 @@ export class ScenarioManager {
         const scenario = this.getScenario(scenarioId);
         if (!scenario) {
             if (Core.isDebugMode()) {
-                Core.logDebug(`执行失败: 情景不存在 (ID: ${scenarioId})`, 'ERROR');
+                Core.logDebug(`Execution failed: scenario not found (ID: ${scenarioId})`, 'ERROR');
                 Core.showToast(`[DEBUG] 情景不存在: ${scenarioId}`, 'error');
             }
             Core.showToast(Core.t('toast.scenario.notFound'), 'error');
@@ -777,8 +777,8 @@ export class ScenarioManager {
         }
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始执行情景: ${scenario.name} (ID: ${scenarioId})`, 'EXECUTE');
-            Core.logDebug(`情景包含 ${scenario.operations.length} 个操作`, 'EXECUTE');
+            Core.logDebug(`Start executing scenario: ${scenario.name} (ID: ${scenarioId})`, 'EXECUTE');
+            Core.logDebug(`Scenario contains ${scenario.operations.length} operations`, 'EXECUTE');
             Core.showToast(`[DEBUG] 执行情景: ${scenario.name}`, 'info');
         }
         
@@ -786,7 +786,7 @@ export class ScenarioManager {
         const scriptPath = `${this.scriptsPath}${scenarioId}.sh`;
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`脚本路径: ${scriptPath}`, 'EXECUTE');
+            Core.logDebug(`Script path: ${scriptPath}`, 'EXECUTE');
         }
         
         return new Promise((resolve, reject) => {
@@ -794,7 +794,7 @@ export class ScenarioManager {
                 if (output && output.includes('ERROR')) {
                     console.error('Failed to execute scenario script:', output);
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`情景执行失败: ${output}`, 'ERROR');
+                        Core.logDebug(`Scenario execution failed: ${output}`, 'ERROR');
                         Core.showToast(`[DEBUG] 执行失败: ${output.substring(0, 100)}${output.length > 100 ? '...' : ''}`, 'error');
                     }
                     Core.showToast(`情景执行失败: ${output}`, 'error');
@@ -802,10 +802,10 @@ export class ScenarioManager {
                 } else {
                     console.log('Scenario executed successfully:', output);
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`情景执行成功: ${scenario.name}`, 'EXECUTE');
-                        Core.logDebug(`执行输出长度: ${output ? output.length : 0} 字符`, 'EXECUTE');
+                        Core.logDebug(`Scenario executed successfully: ${scenario.name}`, 'EXECUTE');
+                        Core.logDebug(`Execution output length: ${output ? output.length : 0} characters`, 'EXECUTE');
                         if (output && output.length > 0) {
-                            Core.logDebug(`执行输出内容: ${output.substring(0, 200)}${output.length > 200 ? '...' : ''}`, 'EXECUTE');
+                            Core.logDebug(`Execution output content: ${output.substring(0, 200)}${output.length > 200 ? '...' : ''}`, 'EXECUTE');
                         }
                         Core.showToast(`[DEBUG] 执行成功: ${scenario.name}`, 'success');
                     }

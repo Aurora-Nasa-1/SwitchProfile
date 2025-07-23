@@ -10,7 +10,7 @@ export class HomePage {
     
     refresh() {
         if (Core.isDebugMode()) {
-            Core.logDebug('刷新主页内容', 'HOME');
+            Core.logDebug('Refresh home page content', 'HOME');
         }
         this.render();
     }
@@ -19,7 +19,7 @@ export class HomePage {
         const scenarios = this.scenarioManager.getScenarios();
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`开始渲染主页，情景数量: ${scenarios.length}`, 'HOME');
+            Core.logDebug(`Start rendering home page, scenario count: ${scenarios.length}`, 'HOME');
         }
         
         if (scenarios.length === 0) {
@@ -30,7 +30,7 @@ export class HomePage {
                 </div>
             `;
             if (Core.isDebugMode()) {
-                Core.logDebug('显示空状态页面', 'HOME');
+                Core.logDebug('Show empty state page', 'HOME');
             }
             return;
         }
@@ -38,7 +38,7 @@ export class HomePage {
         this.container.innerHTML = scenarios.map(scenario => this.createScenarioCard(scenario)).join('');
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`情景卡片渲染完成，共 ${scenarios.length} 个情景`, 'HOME');
+            Core.logDebug(`Scenario cards rendered, total ${scenarios.length} scenarios`, 'HOME');
         }
         
         // 绑定事件
@@ -99,7 +99,7 @@ export class HomePage {
     
     bindEvents() {
         if (Core.isDebugMode()) {
-            Core.logDebug('开始绑定主页事件监听器', 'HOME');
+            Core.logDebug('Start binding home page event listeners', 'HOME');
         }
         
         // 移除旧的事件监听器
@@ -109,7 +109,7 @@ export class HomePage {
         this.container.addEventListener('click', this.boundApplyScenario);
         
         if (Core.isDebugMode()) {
-            Core.logDebug('主页事件监听器绑定完成', 'HOME');
+            Core.logDebug('Home page event listeners bound', 'HOME');
         }
     }
     
@@ -120,7 +120,7 @@ export class HomePage {
         const scenarioId = button.closest('[data-id]').dataset.id;
         
         if (Core.isDebugMode()) {
-            Core.logDebug(`用户点击应用情景按钮: ${scenarioId}`, 'HOME');
+            Core.logDebug(`User clicked apply scenario button: ${scenarioId}`, 'HOME');
         }
         
         this.applyScenario(scenarioId);
@@ -128,27 +128,27 @@ export class HomePage {
     
     async applyScenario(scenarioId) {
         if (Core.isDebugMode()) {
-            Core.showToast(Core.t('toast.debug.startApplyScenario'), 'info');
-            Core.logDebug('HOME', `开始应用情景: ${scenarioId}`);
+            Core.showToast('[DEBUG] Starting to apply scenario', 'info');
+            Core.logDebug('HOME', `Start applying scenario: ${scenarioId}`);
         }
         
         try {
             const scenario = this.scenarioManager.getScenario(scenarioId);
             if (!scenario) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', `情景不存在: ${scenarioId}`);
+                    Core.logDebug('HOME', `Scenario not found: ${scenarioId}`);
                 }
                 Core.showToast(Core.t('toast.scenario.notFound'), 'error');
             return;
             }
             
             if (Core.isDebugMode()) {
-                Core.logDebug('HOME', `找到情景: ${scenario.name}, 操作数量: ${scenario.operations.length}`);
+                Core.logDebug('HOME', `Found scenario: ${scenario.name}, operations: ${scenario.operations.length}`);
             }
             
             if (scenario.operations.length === 0) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', '情景没有任何操作');
+                    Core.logDebug('HOME', 'Scenario has no operations');
                 }
                 Core.showToast(Core.t('toast.scenario.noOperations'), 'warning');
             return;
@@ -158,7 +158,7 @@ export class HomePage {
             let confirmed = true;
             if (this.settingsManager && !this.settingsManager.shouldSkipConfirm()) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', '显示确认对话框');
+                    Core.logDebug('HOME', 'Show confirmation dialog');
                 }
                 // 显示确认对话框
                 const confirmContent = `此操作将执行以下内容：\n${scenario.operations.map(op => `• ${this.getOperationTypeName(op.type)}: ${this.getOperationSummary(op)}`).join('\n')}${scenario.autoReboot ? '\n\n⚠️ 执行完成后设备将自动重启' : ''}`;
@@ -169,19 +169,19 @@ export class HomePage {
                 );
             } else {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', '跳过确认对话框');
+                    Core.logDebug('HOME', 'Skip confirmation dialog');
                 }
             }
             
             if (!confirmed) {
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', '用户取消应用情景');
+                    Core.logDebug('HOME', 'User cancelled scenario application');
                 }
                 return;
             }
             
             if (Core.isDebugMode()) {
-                Core.logDebug('HOME', '用户确认应用情景，开始执行');
+                Core.logDebug('HOME', 'User confirmed scenario application, start execution');
             }
             
             Core.showToast(Core.t('toast.scenario.applying'), 'info');
@@ -192,11 +192,11 @@ export class HomePage {
                 console.log('Script execution output:', output);
                 
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', `情景应用完成，输出长度: ${output ? output.length : 0}`);
+                    Core.logDebug('HOME', `Scenario application completed, output length: ${output ? output.length : 0}`);
                     if (output && output.trim()) {
-                        Core.logDebug('HOME', `执行输出: ${output.substring(0, 500)}${output.length > 500 ? '...' : ''}`);
+                        Core.logDebug('HOME', `Execution output: ${output.substring(0, 500)}${output.length > 500 ? '...' : ''}`);
                     }
-                    Core.showToast(Core.t('toast.debug.scenarioApplySuccess'), 'success');
+                    Core.showToast('[DEBUG] Scenario applied successfully', 'success');
                 }
                 
                 Core.showToast(Core.t('toast.scenario.applySuccess'), 'success');
@@ -209,8 +209,8 @@ export class HomePage {
             } catch (executeError) {
                 console.error('Script execution failed:', executeError);
                 if (Core.isDebugMode()) {
-                    Core.logDebug('HOME', `情景应用失败: ${executeError.message}`);
-                    Core.showToast(Core.t('toast.debug.applyFailed', { error: executeError.message }), 'error');
+                    Core.logDebug('HOME', `Scenario application failed: ${executeError.message}`);
+                    Core.showToast(`[DEBUG] Apply failed: ${executeError.message}`, 'error');
                 }
                 Core.showToast(Core.t('toast.scenario.applyFailed', { error: executeError.message }), 'error');
             }
@@ -218,8 +218,8 @@ export class HomePage {
         } catch (error) {
             console.error('Apply scenario error:', error);
             if (Core.isDebugMode()) {
-                Core.logDebug('HOME', `应用情景时发生错误: ${error.message}`);
-                Core.showToast(Core.t('toast.debug.applyError', { error: error.message }), 'error');
+                Core.logDebug('HOME', `Error occurred while applying scenario: ${error.message}`);
+                Core.showToast(`[DEBUG] Apply error: ${error.message}`, 'error');
             }
             Core.showToast(Core.t('toast.scenario.applyError', { error: error.message }), 'error');
         }

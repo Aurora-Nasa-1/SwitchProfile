@@ -179,40 +179,6 @@
     "unknownError": "未知错误"
   },
   "toast": {
-    "debug": {
-      "applicationStarting": "[DEBUG] 应用程序启动中",
-      "scenarioLoadingFailed": "[DEBUG] 情景加载失败: {{error}}",
-      "settingsLoaded": "[DEBUG] 设置已加载",
-      "usingDefaultSettings": "[DEBUG] 使用默认设置",
-      "settingsSaved": "[DEBUG] 设置已保存",
-      "showConfirmDialog": "[DEBUG] 显示确认对话框",
-      "startSaveOperation": "[DEBUG] 开始保存操作",
-      "operationSaveSuccess": "[DEBUG] 操作保存成功",
-      "startSaveScenario": "[DEBUG] 开始保存情景",
-      "scenarioSaveSuccess": "[DEBUG] 情景保存成功",
-      "saveFailed": "[DEBUG] 保存失败: {{error}}",
-      "startExecuteScenario": "[DEBUG] 开始执行情景",
-      "scriptExecuteSuccess": "[DEBUG] 脚本执行成功",
-      "scriptExecuteFailed": "[DEBUG] 脚本执行失败: {{error}}",
-      "executeError": "[DEBUG] 执行错误: {{error}}",
-      "startApplyScenario": "[DEBUG] 开始应用情景",
-      "scenarioApplySuccess": "[DEBUG] 情景应用成功",
-      "applyFailed": "[DEBUG] 应用失败: {{error}}",
-      "applyError": "[DEBUG] 应用错误: {{error}}",
-      "refreshHomePage": "[DEBUG] 刷新主页内容",
-      "renderHomePage": "[DEBUG] 开始渲染主页，情景数量: {{count}}",
-      "showEmptyState": "[DEBUG] 显示空状态页面",
-      "renderComplete": "[DEBUG] 情景卡片渲染完成，共 {{count}} 个情景",
-      "bindEvents": "[DEBUG] 开始绑定主页事件监听器",
-      "eventsComplete": "[DEBUG] 主页事件监听器绑定完成",
-      "userClickApply": "[DEBUG] 用户点击应用情景按钮: {{id}}",
-      "foundScenario": "[DEBUG] 找到情景: {{name}}, 操作数量: {{count}}",
-      "skipConfirm": "[DEBUG] 跳过确认对话框",
-      "userCancel": "[DEBUG] 用户取消应用情景",
-      "userConfirm": "[DEBUG] 用户确认应用情景，开始执行",
-      "outputLength": "[DEBUG] 情景应用完成，输出长度: {{length}}",
-      "executionOutput": "[DEBUG] 执行输出: {{output}}"
-    },
     "validation": {
       "selectModuleFile": "请选择模块文件",
       "selectImageFile": "请选择镜像文件",
@@ -240,7 +206,9 @@
       "importFileNotFound": "导入文件不存在",
       "createScriptDirFailed": "创建脚本目录失败",
       "importFileFailed": "导入文件失败",
-      "importSuccess": "情景导入成功"
+      "importSuccess": "情景导入成功",
+      "scenarioAddSuccess": "情景添加成功: {{scenario.name}}",
+      "scenarioAddFailed": "情景添加失败: {{scenario.name}}"
     },
     "operation": {
       "deleted": "操作已删除",

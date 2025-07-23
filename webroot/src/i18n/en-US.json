@@ -92,8 +92,7 @@
       "saveSuccess": "Scenario saved successfully",
       "saveFailed": "Failed to save scenario",
       "nameRequired": "Please enter scenario name",
-      "executeSuccess": "Scenario executed successfully",
-      "executeFailed": "Failed to execute scenario"
+      "executeSuccess": "Scenario executed successfully"
     },
     "operation": {
       "add": "Add Operation",
@@ -180,27 +179,6 @@
     "unknownError": "Unknown error"
   },
   "toast": {
-    "debug": {
-      "applicationStarting": "[DEBUG] Application starting",
-      "scenarioLoadingFailed": "[DEBUG] Scenario loading failed: {{error}}",
-      "settingsLoaded": "[DEBUG] Settings loaded",
-      "usingDefaultSettings": "[DEBUG] Using default settings",
-      "settingsSaved": "[DEBUG] Settings saved",
-      "showConfirmDialog": "[DEBUG] Show confirmation dialog",
-      "startSaveOperation": "[DEBUG] Start saving operation",
-      "operationSaveSuccess": "[DEBUG] Operation saved successfully",
-      "startSaveScenario": "[DEBUG] Start saving scenario",
-      "scenarioSaveSuccess": "[DEBUG] Scenario saved successfully",
-      "saveFailed": "[DEBUG] Save failed: {{error}}",
-      "startExecuteScenario": "[DEBUG] Start executing scenario",
-      "scriptExecuteSuccess": "[DEBUG] Script executed successfully",
-      "scriptExecuteFailed": "[DEBUG] Script execution failed: {{error}}",
-      "executeError": "[DEBUG] Execution error: {{error}}",
-      "startApplyScenario": "[DEBUG] Start applying scenario",
-      "scenarioApplySuccess": "[DEBUG] Scenario applied successfully",
-      "applyFailed": "[DEBUG] Apply failed: {{error}}",
-      "applyError": "[DEBUG] Apply error: {{error}}"
-    },
     "validation": {
       "selectModuleFile": "Please select module file",
       "selectImageFile": "Please select image file",
@@ -228,7 +206,9 @@
       "importFileNotFound": "Import file not found",
       "createScriptDirFailed": "Failed to create script directory",
       "importFileFailed": "Failed to import file",
-      "importSuccess": "Scenario imported successfully"
+      "importSuccess": "Scenario imported successfully",
+      "scenarioAddSuccess": "Scenario added successfully",
+      "scenarioAddFailed": "Scenario add failed: {{error}}"
     },
     "operation": {
       "deleted": "Operation deleted",
