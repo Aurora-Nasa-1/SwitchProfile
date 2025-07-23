@@ -33,4 +33,4 @@ Main() {
     setting
 }
 Main "$@"
-zip -r SwitchProfile.zip ./* 
+zip -r SwitchProfile.zip ./* -x build.sh changelog.md update.json
