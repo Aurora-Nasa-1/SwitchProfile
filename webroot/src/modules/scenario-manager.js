@@ -27,35 +27,76 @@ export class ScenarioManager {
                         console.warn('Failed to create scripts directory:', mkdirOutput);
                     }
                     
-                    // 列出所有.sh文件
-                    Core.execCommand(`find "${this.scriptsPath}" -name "*.sh" -type f`, (output) => {
-                        if (output && !output.includes('No such file') && !output.includes('ERROR')) {
-                            const scriptFiles = output.trim().split('\n').filter(file => file.trim());
+                    if (Core.isDebugMode()) {
+                        Core.logDebug(`开始扫描脚本目录: ${this.scriptsPath}`, 'LOAD');
+                    }
+                    
+                    // 使用ls命令替代find，在安卓环境下更可靠
+                    Core.execCommand(`ls "${this.scriptsPath}"*.sh 2>/dev/null || echo "NO_FILES"`, (output) => {
+                        if (Core.isDebugMode()) {
+                            Core.logDebug(`目录扫描结果: ${output}`, 'LOAD');
+                        }
+                        
+                        if (output && output.trim() !== 'NO_FILES' && !output.includes('No such file') && !output.includes('ERROR')) {
+                            // 处理文件列表，过滤空行和无效路径
+                            const scriptFiles = output.trim().split('\n')
+                                .map(file => file.trim())
+                                .filter(file => file && file.endsWith('.sh') && !file.includes('No such file'));
+                            
+                            if (Core.isDebugMode()) {
+                                Core.logDebug(`找到 ${scriptFiles.length} 个脚本文件: ${JSON.stringify(scriptFiles)}`, 'LOAD');
+                            }
+                            
                             this.scenarios = [];
                             
                             let loadedCount = 0;
                             const totalFiles = scriptFiles.length;
                             
                             if (totalFiles === 0) {
+                                if (Core.isDebugMode()) {
+                                    Core.logDebug('未找到任何脚本文件', 'LOAD');
+                                }
                                 resolve();
                                 return;
                             }
                             
                             scriptFiles.forEach(scriptPath => {
-                                this.parseScriptFile(scriptPath, () => {
-                                    loadedCount++;
-                                    if (loadedCount === totalFiles) {
-                                        resolve();
+                                // 验证文件是否真实存在
+                                Core.execCommand(`test -f "${scriptPath}" && echo "EXISTS" || echo "NOT_EXISTS"`, (testOutput) => {
+                                    if (testOutput && testOutput.trim() === 'EXISTS') {
+                                        this.parseScriptFile(scriptPath, () => {
+                                            loadedCount++;
+                                            if (loadedCount === totalFiles) {
+                                                if (Core.isDebugMode()) {
+                                                    Core.logDebug(`脚本加载完成，共加载 ${this.scenarios.length} 个情景`, 'LOAD');
+                                                }
+                                                resolve();
+                                            }
+                                        });
+                                    } else {
+                                        if (Core.isDebugMode()) {
+                                            Core.logDebug(`文件不存在，跳过: ${scriptPath}`, 'LOAD');
+                                        }
+                                        loadedCount++;
+                                        if (loadedCount === totalFiles) {
+                                            resolve();
+                                        }
                                     }
                                 });
                             });
                         } else {
+                            if (Core.isDebugMode()) {
+                                Core.logDebug('目录为空或扫描失败', 'LOAD');
+                            }
                             resolve();
                         }
                     });
                 });
             } catch (error) {
                 console.warn('Failed to load scenarios from script files:', error);
+                if (Core.isDebugMode()) {
+                    Core.logDebug(`脚本加载异常: ${error.message}`, 'ERROR');
+                }
                 reject(error);
             }
         });
@@ -66,28 +107,54 @@ export class ScenarioManager {
             Core.logDebug(`开始解析脚本文件: ${scriptPath}`, 'PARSE');
         }
         
-        Core.execCommand(`head -20 "${scriptPath}"`, (output) => {
+        // 使用更兼容的命令读取脚本文件，确保在安卓环境下正常工作
+        Core.execCommand(`head -n 20 "${scriptPath}" 2>/dev/null || cat "${scriptPath}" | head -n 20`, (output) => {
             try {
-                if (output && !output.includes('ERROR')) {
-                    const lines = output.split('\n');
+                if (output && !output.includes('ERROR') && output.trim()) {
+                    const lines = output.split('\n').filter(line => line !== undefined);
+                    const scriptId = this.extractScriptId(scriptPath);
+                    
+                    if (Core.isDebugMode()) {
+                        Core.logDebug(`脚本内容行数: ${lines.length}, 脚本ID: ${scriptId}`, 'PARSE');
+                    }
                     
                     const scenario = {
-                        id: this.extractScriptId(scriptPath),
-                        name: this.extractMetadata(lines, 'Generated scenario script:') || Core.t('scenario.unknownName'),
+                        id: scriptId,
+                        name: this.extractMetadata(lines, 'name') || 
+                              this.extractMetadata(lines, 'Name:') || 
+                              this.extractMetadata(lines, 'Generated scenario script:') || 
+                              scriptId,
+                        description: this.extractMetadata(lines, 'description') || 
+                                   this.extractMetadata(lines, 'Description:') || '',
+                        author: this.extractMetadata(lines, 'author') || 
+                               this.extractMetadata(lines, 'Author:') || '',
+                        version: this.extractMetadata(lines, 'version') || 
+                                this.extractMetadata(lines, 'Version:') || '1.0',
                         compatibilityMode: this.extractMetadata(lines, 'Installer_Compatibility=') === 'true',
                         autoReboot: this.checkAutoReboot(lines),
                         operations: this.extractOperations(lines),
                         scriptPath: scriptPath
                     };
                     
-                    if (Core.isDebugMode()) {
-                        Core.logDebug(`解析完成: ${scenario.name} (${scenario.operations.length}个操作)`, 'PARSE');
-                    }
+                    // 验证情景是否有效（至少要有名称或操作，或者是有效的shell脚本）
+                    const isValidScript = scenario.operations.length > 0 || 
+                                         (scenario.name && scenario.name !== scriptId) ||
+                                         lines.some(line => line.trim() && !line.startsWith('#') && line.length > 0);
                     
-                    this.scenarios.push(scenario);
+                    if (isValidScript) {
+                        this.scenarios.push(scenario);
+                        
+                        if (Core.isDebugMode()) {
+                            Core.logDebug(`成功解析脚本: ${scenario.name} (${scenario.id}), 操作数: ${scenario.operations.length}`, 'PARSE');
+                        }
+                    } else {
+                        if (Core.isDebugMode()) {
+                            Core.logDebug(`跳过无效脚本: ${scriptPath} - 空文件或仅包含注释`, 'PARSE');
+                        }
+                    }
                 } else {
                     if (Core.isDebugMode()) {
-                        Core.logDebug(`脚本文件读取失败: ${scriptPath}`, 'ERROR');
+                        Core.logDebug(`无法读取脚本文件内容: ${scriptPath}`, 'ERROR');
                     }
                 }
             } catch (error) {
@@ -106,10 +173,33 @@ export class ScenarioManager {
     }
     
     extractMetadata(lines, prefix) {
-        const line = lines.find(l => l.includes(prefix));
-        if (line) {
-            return line.split(prefix)[1]?.trim().replace(/"/g, '');
+        // 尝试多种注释格式
+        const patterns = [
+            new RegExp(`#\s*${prefix}\s*[:=]?\s*(.+)`, 'i'),  // # name: value 或 # name = value
+            new RegExp(`#\s*${prefix}\s+(.+)`, 'i'),           // # name value
+            new RegExp(`${prefix}\s*[:=]?\s*(.+)`, 'i'),       // name: value 或 name = value
+            new RegExp(`${prefix}(.+)`, 'i')                    // namevalue (原始格式)
+        ];
+        
+        for (const line of lines) {
+            if (!line.trim()) continue;
+            
+            for (const pattern of patterns) {
+                const match = line.match(pattern);
+                if (match && match[1]) {
+                    let value = match[1].trim().replace(/["']/g, '');
+                    // 移除尾部注释
+                    value = value.split('#')[0].trim();
+                    if (value) {
+                        if (Core.isDebugMode()) {
+                            Core.logDebug(`提取元数据 ${prefix}: ${value} (来自: ${line.trim()})`, 'PARSE');
+                        }
+                        return value;
+                    }
+                }
+            }
         }
+        
         return null;
     }
     
