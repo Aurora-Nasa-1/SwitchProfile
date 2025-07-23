@@ -3,27 +3,68 @@ export class SettingsManager {
         this.settings = {
             noConfirm: false,
             hue: 300,
-            exportPath: '/sdcard/Download/'
+            exportPath: '/sdcard/Download/',
+            useNativeToast: this.isKSUEnvironment(), // 默认在KSU环境中开启原生toast
+            debugMode: false, // Debug模式设置
+            language: 'zh-CN' // 默认语言
         };
         this.loadSettings();
+    }
+    
+    // 检测是否在KSU环境中
+    isKSUEnvironment() {
+        return typeof ksu !== "undefined" && ksu.toast;
     }
 
     loadSettings() {
         try {
             const saved = localStorage.getItem('switchprofile-settings');
             if (saved) {
-                this.settings = { ...this.settings, ...JSON.parse(saved) };
+                const loadedSettings = JSON.parse(saved);
+                this.settings = { ...this.settings, ...loadedSettings };
+                
+                if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                    window.Core.logDebug(`Settings loaded successfully: ${JSON.stringify(loadedSettings)}`, 'SETTINGS');
+                    window.Core.showToast(window.Core.t('toast.debug.settingsLoaded'), 'info');
+                }
+            } else {
+                if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                    window.Core.logDebug('No saved settings found, using defaults', 'SETTINGS');
+                    window.Core.showToast(window.Core.t('toast.debug.usingDefaultSettings'), 'info');
+                }
+            }
+            
+            // 同步语言设置到i18n manager
+            const i18nLanguage = localStorage.getItem('app_language');
+            if (i18nLanguage && i18nLanguage !== this.settings.language) {
+                this.settings.language = i18nLanguage;
+                this.saveSettings();
+            } else if (!i18nLanguage && this.settings.language) {
+                localStorage.setItem('app_language', this.settings.language);
             }
         } catch (error) {
             console.warn('Failed to load settings:', error);
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug(`Settings loading failed: ${error.message}`, 'ERROR');
+                window.Core.showToast(`[DEBUG] Settings loading failed: ${error.message}`, 'error');
+            }
         }
     }
 
     saveSettings() {
         try {
             localStorage.setItem('switchprofile-settings', JSON.stringify(this.settings));
+            
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug(`Settings saved successfully: ${JSON.stringify(this.settings)}`, 'SETTINGS');
+                window.Core.showToast(window.Core.t('toast.debug.settingsSaved'), 'success');
+            }
         } catch (error) {
             console.warn('Failed to save settings:', error);
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug(`Settings saving failed: ${error.message}`, 'ERROR');
+                window.Core.showToast(`[DEBUG] Settings saving failed: ${error.message}`, 'error');
+            }
         }
     }
 
@@ -32,7 +73,20 @@ export class SettingsManager {
     }
 
     setSetting(key, value) {
+        const oldValue = this.settings[key];
         this.settings[key] = value;
+        
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug(`Setting updated: ${key} = ${JSON.stringify(value)} (old: ${JSON.stringify(oldValue)})`, 'SETTINGS');
+            window.Core.showToast(`[DEBUG] Setting updated: ${key}`, 'info');
+        }
+        
+        // 如果是语言设置变更，立即应用并同步到i18n manager
+        if (key === 'language' && window.I18n) {
+            window.I18n.setLanguage(value, true); // 传递true避免循环调用
+            localStorage.setItem('app_language', value);
+        }
+        
         this.saveSettings();
         this.applySettings();
     }
@@ -40,6 +94,10 @@ export class SettingsManager {
     applySettings() {
         // 应用hue设置到CSS变量
         document.documentElement.style.setProperty('--hue', this.settings.hue);
+        
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug(`Settings applied: hue=${this.settings.hue}`, 'SETTINGS');
+        }
     }
 
     initializeUI() {
@@ -47,13 +105,28 @@ export class SettingsManager {
         this.applySettings();
         
         // 设置UI元素的初始值
+        const languageSelect = document.getElementById('language-setting');
         const noConfirmCheckbox = document.getElementById('no-confirm-setting');
+        const useNativeToastCheckbox = document.getElementById('native-toast-setting');
+        const debugModeCheckbox = document.getElementById('debug-mode-setting');
         const hueSlider = document.getElementById('hue-slider');
         const hueValue = document.getElementById('hue-value');
         const exportPathInput = document.getElementById('export-path-setting');
         
+        if (languageSelect) {
+            languageSelect.value = this.settings.language;
+        }
+        
         if (noConfirmCheckbox) {
             noConfirmCheckbox.checked = this.settings.noConfirm;
+        }
+        
+        if (useNativeToastCheckbox) {
+            useNativeToastCheckbox.checked = this.settings.useNativeToast;
+        }
+        
+        if (debugModeCheckbox) {
+            debugModeCheckbox.checked = this.settings.debugMode;
         }
         
         if (hueSlider) {
@@ -75,7 +148,10 @@ export class SettingsManager {
         const settingsBtn = document.getElementById('settings-btn');
         const settingsDialog = document.getElementById('settings-dialog');
         const closeBtn = document.getElementById('close-settings');
+        const languageSelect = document.getElementById('language-setting');
         const noConfirmCheckbox = document.getElementById('no-confirm-setting');
+        const useNativeToastCheckbox = document.getElementById('native-toast-setting');
+        const debugModeCheckbox = document.getElementById('debug-mode-setting');
         const hueSlider = document.getElementById('hue-slider');
         const hueValue = document.getElementById('hue-value');
         const exportPathInput = document.getElementById('export-path-setting');
@@ -103,10 +179,31 @@ export class SettingsManager {
             });
         }
 
+        // 语言设置变更
+        if (languageSelect) {
+            languageSelect.addEventListener('change', (e) => {
+                this.setSetting('language', e.target.value);
+            });
+        }
+        
         // 无需确认设置变更
         if (noConfirmCheckbox) {
             noConfirmCheckbox.addEventListener('change', (e) => {
                 this.setSetting('noConfirm', e.target.checked);
+            });
+        }
+        
+        // 原生toast设置变更
+        if (useNativeToastCheckbox) {
+            useNativeToastCheckbox.addEventListener('change', (e) => {
+                this.setSetting('useNativeToast', e.target.checked);
+            });
+        }
+        
+        // Debug模式设置变更
+        if (debugModeCheckbox) {
+            debugModeCheckbox.addEventListener('change', (e) => {
+                this.setSetting('debugMode', e.target.checked);
             });
         }
 

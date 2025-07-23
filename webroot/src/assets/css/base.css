@@ -117,7 +117,6 @@ header h1 {
 .fab .material-symbols-rounded {
   font-size: 24px;
 }
-
 /* 情景卡片 */
 .scenario-card {
   margin-bottom: var(--spacing-xs);
@@ -291,7 +290,7 @@ dialog.closing::backdrop {
 }
 
 dialog h2 {
-  margin: var(--spacing-xs);
+  margin: var(--spacing-m) var(--spacing-s) var(--spacing-s) var(--spacing-s);
   font-size: 1.6rem;
   font-weight: 400;
   letter-spacing: 0;
@@ -299,7 +298,7 @@ dialog h2 {
 }
 
 dialog form {
-  margin: 0 var(--border-radius-l) 0 var(--border-radius-l);
+  margin: var(--spacing-xs) var(--spacing-l) 0 var(--spacing-l);
   display: flex;
   flex-direction: column;
 }
@@ -398,7 +397,7 @@ dialog label span {
 fieldset {
   border: none;
   padding: 0;
-  margin: var(--spacing-l) 0 0 0;
+  margin: var(--spacing-s);
   display: flex;
   gap: var(--spacing-m);
   justify-content: flex-end;
@@ -742,7 +741,7 @@ body.mmrl-webui-x {
 }
 
 .settings-content {
-  margin: var(--spacing-m) 0;
+  margin: var(--spacing-m) var(--spacing-l);
 }
 
 .setting-item {
@@ -864,17 +863,4 @@ body.mmrl-webui-x {
 
 .manage-actions button .material-symbols-rounded {
   font-size: 18px;
-}
-
-@media (min-width: 768px) {
-  .page {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: var(--spacing-l);
-  }
 }

@@ -19,14 +19,25 @@ export class ManagePage {
     }
     
     showDialogWithAnimation(dialog) {
+        if (Core.isDebugMode()) {
+            Core.logDebug(`显示对话框: ${dialog.id}`, 'MANAGE');
+        }
+        
         dialog.showModal();
         // 触发进入动画
         setTimeout(() => {
             dialog.classList.add('showing');
+            if (Core.isDebugMode()) {
+                Core.logDebug(`对话框显示动画完成: ${dialog.id}`, 'MANAGE');
+            }
         }, 10);
     }
     
     closeDialogWithAnimation(dialog) {
+        if (Core.isDebugMode()) {
+            Core.logDebug(`关闭对话框: ${dialog.id}`, 'MANAGE');
+        }
+        
         dialog.classList.remove('showing');
         dialog.classList.add('closing');
         
@@ -34,6 +45,9 @@ export class ManagePage {
         setTimeout(() => {
             dialog.close();
             dialog.classList.remove('closing');
+            if (Core.isDebugMode()) {
+                Core.logDebug(`对话框关闭动画完成: ${dialog.id}`, 'MANAGE');
+            }
         }, 200); // 与CSS动画时间一致
     }
     
@@ -43,7 +57,8 @@ export class ManagePage {
             this.closeDialogWithAnimation(this.editDialog);
         });
         
-        document.getElementById('scenario-form').addEventListener('submit', (e) => {
+        // 将提交事件绑定到保存按钮上，而不是依赖表单提交
+        document.querySelector('#edit-dialog fieldset button.filled').addEventListener('click', (e) => {
             e.preventDefault();
             this.saveScenario();
         });
@@ -66,7 +81,8 @@ export class ManagePage {
             this.closeDialogWithAnimation(this.operationEditDialog);
         });
         
-        document.getElementById('operation-form').addEventListener('submit', (e) => {
+        // 将提交事件绑定到操作编辑对话框的确定按钮上
+        document.querySelector('#operation-edit-dialog fieldset button.filled').addEventListener('click', (e) => {
             e.preventDefault();
             this.saveOperation();
         });
@@ -94,7 +110,8 @@ export class ManagePage {
             this.closeDialogWithAnimation(this.importDialog);
         });
         
-        document.getElementById('import-form').addEventListener('submit', (e) => {
+        // 将提交事件绑定到导入对话框的导入按钮上
+        document.querySelector('#import-dialog fieldset button.filled').addEventListener('click', (e) => {
             e.preventDefault();
             this.handleImport();
         });
@@ -104,18 +121,26 @@ export class ManagePage {
             this.closeDialogWithAnimation(this.exportDialog);
         });
         
-        document.getElementById('export-form').addEventListener('submit', (e) => {
+        // 将提交事件绑定到导出对话框的导出按钮上
+        document.querySelector('#export-dialog fieldset button.filled').addEventListener('click', (e) => {
             e.preventDefault();
             this.handleExportAll();
         });
     }
     
     refresh() {
+        if (Core.isDebugMode()) {
+            Core.logDebug('刷新管理页面内容', 'MANAGE');
+        }
         this.render();
     }
     
     render() {
         const scenarios = this.scenarioManager.getScenarios();
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug(`开始渲染管理页面，情景数量: ${scenarios.length}`, 'MANAGE');
+        }
         
         if (scenarios.length === 0) {
             this.container.innerHTML = `
@@ -125,10 +150,17 @@ export class ManagePage {
                     <p>点击右下角的 + 按钮创建第一个情景</p>
                 </div>
             `;
+            if (Core.isDebugMode()) {
+                Core.logDebug('显示管理页面空状态', 'MANAGE');
+            }
             return;
         }
         
         this.container.innerHTML = scenarios.map(scenario => this.createManageCard(scenario)).join('');
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug(`管理页面卡片渲染完成，共 ${scenarios.length} 个情景`, 'MANAGE');
+        }
         
         // 绑定事件
         this.bindEvents();
@@ -191,11 +223,19 @@ export class ManagePage {
     }
     
     bindEvents() {
+        if (Core.isDebugMode()) {
+            Core.logDebug('开始绑定管理页面事件监听器', 'MANAGE');
+        }
+        
         // 移除旧的事件监听器
         this.container.removeEventListener('click', this.boundHandleClick);
         
         // 使用事件委托来处理动态生成的按钮
         this.container.addEventListener('click', this.boundHandleClick);
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug('管理页面事件监听器绑定完成', 'MANAGE');
+        }
     }
     
     handleClick(e) {
@@ -208,28 +248,50 @@ export class ManagePage {
         const scenarioId = scenarioCard.dataset.id;
         
         if (target.classList.contains('edit-scenario')) {
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击编辑情景: ${scenarioId}`, 'MANAGE');
+            }
             this.showEditDialog(scenarioId);
         } else if (target.classList.contains('delete-scenario')) {
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击删除情景: ${scenarioId}`, 'MANAGE');
+            }
             this.deleteScenario(scenarioId);
         } else if (target.classList.contains('execute-scenario')) {
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击执行情景: ${scenarioId}`, 'MANAGE');
+            }
             this.executeScenario(scenarioId);
         } else if (target.classList.contains('export-scenario')) {
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击导出情景: ${scenarioId}`, 'MANAGE');
+            }
             this.exportScenario(scenarioId);
         } else if (target.classList.contains('edit-operation')) {
             const operationIndex = parseInt(target.dataset.index);
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击编辑操作: 情景${scenarioId}, 操作${operationIndex}`, 'MANAGE');
+            }
             this.editOperation(scenarioId, operationIndex);
         } else if (target.classList.contains('delete-operation')) {
             const operationIndex = parseInt(target.dataset.index);
+            if (Core.isDebugMode()) {
+                Core.logDebug(`用户点击删除操作: 情景${scenarioId}, 操作${operationIndex}`, 'MANAGE');
+            }
             this.deleteOperation(scenarioId, operationIndex);
         }
     }
     
     showEditDialog(scenarioId = null) {
+        if (Core.isDebugMode()) {
+            Core.logDebug(`显示编辑对话框: ${scenarioId ? '编辑情景 ' + scenarioId : '新建情景'}`, 'MANAGE');
+        }
+        
         this.currentScenario = scenarioId ? this.scenarioManager.getScenario(scenarioId) : null;
         this.currentOperationIndex = -1; // 重置操作索引
         
         // 设置对话框标题
-        document.getElementById('dialog-title').textContent = scenarioId ? '编辑情景' : '新建情景';
+        document.getElementById('dialog-title').textContent = scenarioId ? Core.t('manage.editScenario') : Core.t('manage.newScenario');
         
         // 填充表单
         if (this.currentScenario) {
@@ -239,10 +301,18 @@ export class ManagePage {
             // 为编辑情景创建操作列表的副本，避免直接修改原始数据
             this.currentScenario.operations = [...this.currentScenario.operations];
             this.renderOperationsList(this.currentScenario.operations);
+            
+            if (Core.isDebugMode()) {
+                Core.logDebug(`编辑情景表单填充完成: ${this.currentScenario.name}, 操作数: ${this.currentScenario.operations.length}`, 'MANAGE');
+            }
         } else {
             document.getElementById('scenario-form').reset();
             this.tempOperations = []; // 重置临时操作列表
             this.renderOperationsList([]);
+            
+            if (Core.isDebugMode()) {
+                Core.logDebug('新建情景表单重置完成', 'MANAGE');
+            }
         }
         
         this.showDialogWithAnimation(this.editDialog);
@@ -252,7 +322,7 @@ export class ManagePage {
         const container = document.getElementById('operations-list');
         
         if (operations.length === 0) {
-            container.innerHTML = '<p style="color: var(--on-surface-variant); text-align: center; padding: 1rem;">暂无操作，点击下方按钮添加</p>';
+            container.innerHTML = `<p style="color: var(--on-surface-variant); text-align: center; padding: 1rem;">${Core.t('manage.operation.none')}</p>`;
             return;
         }
         
@@ -261,10 +331,10 @@ export class ManagePage {
                 <div class="operation-type">${this.getOperationTypeName(op.type)}</div>
                 <div class="operation-content">${this.getOperationContent(op)}</div>
                 <div class="operation-actions">
-                    <button type="button" class="edit-dialog-operation" data-index="${index}" title="编辑">
+                    <button type="button" class="edit-dialog-operation" data-index="${index}" title="${Core.t('app.edit')}">
                         <span class="material-symbols-rounded">edit</span>
                     </button>
-                    <button type="button" class="delete-dialog-operation" data-index="${index}" title="删除">
+                    <button type="button" class="delete-dialog-operation" data-index="${index}" title="${Core.t('app.delete')}">
                         <span class="material-symbols-rounded">delete</span>
                     </button>
                 </div>
@@ -299,20 +369,28 @@ export class ManagePage {
     }
     
     showOperationEditDialog(type, operation = null) {
+        if (Core.isDebugMode()) {
+            Core.logDebug(`显示操作编辑对话框: ${type}, 编辑模式: ${operation ? '是' : '否'}`, 'MANAGE');
+        }
+        
         const titles = {
-            install_module: '安装模块',
-            delete_module: '删除模块',
-            flash_boot: '刷入Boot镜像',
-            custom_script: '自定义脚本'
+            install_module: Core.t('manage.installModule'),
+            delete_module: Core.t('manage.deleteModule'),
+            flash_boot: Core.t('manage.flashBoot'),
+            custom_script: Core.t('manage.customScript')
         };
         
-        document.getElementById('operation-edit-title').textContent = titles[type] || '编辑操作';
+        document.getElementById('operation-edit-title').textContent = titles[type] || Core.t('manage.editOperation');
         
         const fieldsContainer = document.getElementById('operation-fields');
         fieldsContainer.innerHTML = this.getOperationFields(type, operation);
         
         // 绑定文件选择事件
         this.setupFileInputs();
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug(`操作编辑对话框字段设置完成: ${type}`, 'MANAGE');
+        }
         
         this.showDialogWithAnimation(this.operationEditDialog);
     }
@@ -323,29 +401,29 @@ export class ManagePage {
                 return `
                     <input type="hidden" name="type" value="install_module">
                     <label>
-                        <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入模块文件路径 (如: /sdcard/module.zip)">
+                        <span>${Core.t('manage.operation.fields.modulePath')}</span>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="${Core.t('manage.operation.fields.modulePathPlaceholder')}">
                     </label>
                 `;
             case 'delete_module':
                 return `
                     <input type="hidden" name="type" value="delete_module">
                     <label>
-                        <span>模块路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入模块文件路径 (如: /sdcard/module.zip)">
+                        <span>${Core.t('manage.operation.fields.modulePath')}</span>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="${Core.t('manage.operation.fields.modulePathPlaceholder')}">
                     </label>
                 `;
             case 'flash_boot':
                 return `
                     <input type="hidden" name="type" value="flash_boot">
                     <label>
-                        <span>镜像路径</span>
-                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="请输入镜像文件路径 (如: /sdcard/boot.img)">
+                        <span>${Core.t('manage.operation.fields.imagePath')}</span>
+                        <input type="text" name="path" value="${operation?.path || ''}" required placeholder="${Core.t('manage.operation.fields.imagePathPlaceholder')}">
                     </label>
                     <fieldset class="switches">
                         <label>
-                            <span>AnyKernel3格式</span>
-                            <p>使用AnyKernel3格式刷入</p>
+                            <span>${Core.t('manage.operation.fields.anykernel')}</span>
+                            <p>${Core.t('manage.operation.fields.anykernelDesc')}</p>
                             <input type="checkbox" name="anykernel" ${operation?.anykernel ? 'checked' : ''}>
                         </label>
                     </fieldset>
@@ -354,37 +432,37 @@ export class ManagePage {
                 return `
                     <input type="hidden" name="type" value="custom_script">
                     <label>
-                        <span>脚本内容</span>
+                        <span>${Core.t('manage.operation.fields.scriptContent')}</span>
                         <textarea name="script" rows="6" required>${operation?.script || ''}</textarea>
                     </label>
                 `;
             default:
-                return '<p>未知操作类型</p>';
+                return `<p>${Core.t('errors.unknownError')}</p>`;
         }
     }
     
     async handleImport() {
         const importPath = document.getElementById('import-path').value.trim();
         if (!importPath) {
-            Core.showToast('请输入导入文件路径', 'error');
+            Core.showToast(Core.t('manage.import.pathRequired'), 'error');
             return;
         }
         
         try {
             const newId = await this.scenarioManager.importScenario(importPath);
-            Core.showToast('导入成功', 'success');
+            Core.showToast(Core.t('manage.import.success'), 'success');
             this.closeDialogWithAnimation(this.importDialog);
             this.refresh();
             document.getElementById('import-path').value = '';
         } catch (error) {
-            Core.showToast(`导入失败: ${error.message}`, 'error');
+            Core.showToast(`${Core.t('manage.import.failed')}: ${error.message}`, 'error');
         }
     }
     
     async handleExportAll() {
         const exportPath = document.getElementById('export-path').value.trim();
         if (!exportPath) {
-            Core.showToast('请输入导出路径', 'error');
+            Core.showToast(Core.t('manage.export.pathRequired'), 'error');
             return;
         }
         
@@ -394,16 +472,16 @@ export class ManagePage {
             const totalCount = results.length;
             
             if (successCount === totalCount) {
-                Core.showToast(`成功导出 ${successCount} 个情景`, 'success');
+                Core.showToast(Core.t('manage.export.success').replace('{{count}}', successCount), 'success');
             } else {
-                Core.showToast(`导出完成: ${successCount}/${totalCount} 个成功`, 'warning');
+                Core.showToast(`${Core.t('manage.export.partial')}: ${successCount}/${totalCount}`, 'warning');
             }
             
             this.closeDialogWithAnimation(this.exportDialog);
             // 更新设置中的导出路径
             this.settingsManager.setSetting('exportPath', exportPath);
         } catch (error) {
-            Core.showToast(`导出失败: ${error.message}`, 'error');
+            Core.showToast(`${Core.t('manage.export.failed')}: ${error.message}`, 'error');
         }
     }
     
@@ -413,6 +491,11 @@ export class ManagePage {
     }
     
     saveOperation() {
+        if (Core.isDebugMode()) {
+            Core.showToast(Core.t('toast.debug.startSaveOperation'), 'info');
+            Core.logDebug('MANAGE', '开始保存操作');
+        }
+        
         const form = document.getElementById('operation-form');
         const formData = new FormData(form);
         
@@ -420,7 +503,10 @@ export class ManagePage {
         const requiredFields = form.querySelectorAll('[required]');
         for (const field of requiredFields) {
             if (!field.value.trim()) {
-                Core.showToast('请填写所有必填字段', 'warning');
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `验证失败: ${field.name} 为空`);
+                }
+                Core.showToast(Core.t('manage.operation.fieldsRequired'), 'warning');
                 field.focus();
                 return;
             }
@@ -430,35 +516,63 @@ export class ManagePage {
             type: formData.get('type')
         };
         
+        if (Core.isDebugMode()) {
+            Core.logDebug('MANAGE', `操作类型: ${operation.type}`);
+        }
+        
         // 根据类型添加特定字段
         switch (operation.type) {
             case 'install_module':
                 operation.path = formData.get('path');
                 if (!operation.path) {
-                    Core.showToast('请选择模块文件', 'warning');
-                    return;
+                    if (Core.isDebugMode()) {
+                        Core.logDebug('MANAGE', '安装模块操作: 路径为空');
+                    }
+                    Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
+            return;
+                }
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `安装模块操作: ${operation.path}`);
                 }
                 break;
             case 'delete_module':
                 operation.path = formData.get('path');
                 if (!operation.path) {
-                    Core.showToast('请选择模块文件', 'warning');
-                    return;
+                    if (Core.isDebugMode()) {
+                        Core.logDebug('MANAGE', '删除模块操作: 路径为空');
+                    }
+                    Core.showToast(Core.t('toast.validation.selectModuleFile'), 'warning');
+            return;
+                }
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `删除模块操作: ${operation.path}`);
                 }
                 break;
             case 'flash_boot':
                 operation.path = formData.get('path');
                 operation.anykernel = formData.has('anykernel');
                 if (!operation.path) {
-                    Core.showToast('请选择镜像文件', 'warning');
-                    return;
+                    if (Core.isDebugMode()) {
+                        Core.logDebug('MANAGE', '刷写Boot操作: 路径为空');
+                    }
+                    Core.showToast(Core.t('toast.validation.selectImageFile'), 'warning');
+            return;
+                }
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `刷写Boot操作: ${operation.path}, AnyKernel: ${operation.anykernel}`);
                 }
                 break;
             case 'custom_script':
                 operation.script = formData.get('script');
                 if (!operation.script) {
-                    Core.showToast('请输入脚本内容', 'warning');
-                    return;
+                    if (Core.isDebugMode()) {
+                        Core.logDebug('MANAGE', '自定义脚本操作: 脚本内容为空');
+                    }
+                    Core.showToast(Core.t('toast.validation.enterScriptContent'), 'warning');
+            return;
+                }
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `自定义脚本操作: ${operation.script.length} 字符`);
                 }
                 break;
         }
@@ -478,9 +592,15 @@ export class ManagePage {
         if (this.currentOperationIndex >= 0) {
             // 编辑现有操作
             operations[this.currentOperationIndex] = operation;
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', `编辑操作索引: ${this.currentOperationIndex}`);
+            }
         } else {
             // 添加新操作
             operations.push(operation);
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', `添加新操作，总数: ${operations.length}`);
+            }
         }
         
         // 更新操作列表显示
@@ -489,21 +609,38 @@ export class ManagePage {
         // 保存到相应的位置
         if (this.currentScenario) {
             this.currentScenario.operations = operations;
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '保存到现有情景');
+            }
         } else {
             this.tempOperations = operations;
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '保存到临时操作列表');
+            }
         }
         
         this.closeDialogWithAnimation(this.operationEditDialog);
-        Core.showToast('操作已保存', 'success');
+        if (Core.isDebugMode()) {
+            Core.showToast(Core.t('toast.debug.operationSaveSuccess'), 'success');
+        }
+        Core.showToast(Core.t('toast.scenario.operationSaved'), 'success');
     }
     
     async saveScenario() {
+        if (Core.isDebugMode()) {
+            Core.showToast(Core.t('toast.debug.startSaveScenario'), 'info');
+            Core.logDebug('MANAGE', '开始保存情景操作');
+        }
+        
         const form = document.getElementById('scenario-form');
         const formData = new FormData(form);
         
         const name = formData.get('scenario-name');
         if (!name || !name.trim()) {
-            Core.showToast('请输入情景名称', 'warning');
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '保存失败: 情景名称为空');
+            }
+            Core.showToast(Core.t('toast.validation.enterScenarioName'), 'warning');
             return;
         }
         
@@ -517,19 +654,33 @@ export class ManagePage {
             operations: operations
         };
         
+        if (Core.isDebugMode()) {
+            Core.logDebug('MANAGE', `情景数据: ID=${scenario.id}, 名称=${scenario.name}, 兼容模式=${scenario.compatibilityMode}, 自动重启=${scenario.autoReboot}, 操作数量=${scenario.operations.length}`);
+            Core.showToast(`[DEBUG] 情景包含 ${scenario.operations.length} 个操作`, 'info');
+        }
+        
         // 显示保存中的提示
-        const saveButton = form.querySelector('button[type="submit"]');
+        const saveButton = document.querySelector('#edit-dialog fieldset button.filled');
         const originalText = saveButton.textContent;
         saveButton.disabled = true;
         saveButton.textContent = '保存中...';
         
         try {
             if (this.currentScenario) {
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', '更新现有情景: ' + scenario.id);
+                }
                 await this.scenarioManager.updateScenario(scenario);
-                Core.showToast('情景已更新', 'success');
             } else {
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', '添加新情景: ' + scenario.id);
+                }
                 await this.scenarioManager.addScenario(scenario);
-                Core.showToast('情景已创建', 'success');
+            }
+            
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '情景保存成功，关闭对话框并刷新列表');
+                Core.showToast(Core.t('toast.debug.scenarioSaveSuccess'), 'success');
             }
             
             this.closeDialogWithAnimation(this.editDialog);
@@ -537,11 +688,18 @@ export class ManagePage {
             
         } catch (error) {
             console.error('Save scenario error:', error);
-            Core.showToast('保存失败: ' + (error.message || '未知错误'), 'error');
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', `保存情景失败: ${error.message || '未知错误'}`);
+                Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
+            }
+            Core.showToast(Core.t('toast.scenario.saveFailed', { error: error.message || '未知错误' }), 'error');
         } finally {
             // 恢复按钮状态
             saveButton.disabled = false;
             saveButton.textContent = originalText;
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '恢复保存按钮状态');
+            }
         }
     }
     
@@ -549,7 +707,7 @@ export class ManagePage {
         try {
             const exportPath = this.settingsManager.getSetting('exportPath');
             const result = await this.scenarioManager.exportScenario(scenarioId, exportPath);
-            Core.showToast('导出成功', 'success');
+            Core.showToast(Core.t('toast.scenario.exportSuccess'), 'success');
         } catch (error) {
             Core.showToast(`导出失败: ${error.message}`, 'error');
         }
@@ -557,33 +715,48 @@ export class ManagePage {
     
     async deleteScenario(scenarioId) {
         const confirmed = await window.DialogManager.showConfirm(
-            '删除情景',
-            '确定要删除这个情景吗？此操作无法撤销。'
+            Core.t('manage.scenario.deleteTitle'),
+            Core.t('manage.scenario.deleteConfirm')
         );
         
         if (confirmed) {
             try {
                 await this.scenarioManager.deleteScenario(scenarioId);
-                Core.showToast('情景已删除', 'success');
+                Core.showToast(Core.t('toast.scenario.deleted'), 'success');
                 this.refresh();
             } catch (error) {
                 console.error('Delete scenario error:', error);
-                Core.showToast('删除失败: ' + (error.message || '未知错误'), 'error');
+                Core.showToast(Core.t('toast.scenario.deleteFailed', { error: error.message || '未知错误' }), 'error');
             }
         }
     }
     
     async executeScenario(scenarioId) {
+        if (Core.isDebugMode()) {
+            Core.showToast(Core.t('toast.debug.startExecuteScenario'), 'info');
+            Core.logDebug('MANAGE', `开始执行情景: ${scenarioId}`);
+        }
+        
         try {
             const scenario = this.scenarioManager.getScenario(scenarioId);
             if (!scenario) {
-                Core.showToast('情景不存在', 'error');
-                return;
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `情景不存在: ${scenarioId}`);
+                }
+                Core.showToast(Core.t('toast.scenario.notFound'), 'error');
+            return;
+            }
+            
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', `找到情景: ${scenario.name}, 操作数量: ${scenario.operations.length}`);
             }
             
             if (scenario.operations.length === 0) {
-                Core.showToast('该情景没有任何操作', 'warning');
-                return;
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', '情景没有任何操作');
+                }
+                Core.showToast(Core.t('toast.scenario.noOperations'), 'warning');
+            return;
             }
             
             // 显示确认对话框
@@ -593,16 +766,31 @@ export class ManagePage {
             );
             
             if (!confirmed) {
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', '用户取消执行情景');
+                }
                 return;
             }
             
-            Core.showToast('正在执行脚本...', 'info');
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', '用户确认执行情景，开始执行脚本');
+            }
+            
+            Core.showToast(Core.t('toast.scenario.executing'), 'info');
             
             try {
                 const output = await this.scenarioManager.executeScenario(scenarioId);
                 console.log('Script execution output:', output);
                 
-                Core.showToast('脚本执行成功！', 'success');
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `脚本执行完成，输出长度: ${output ? output.length : 0}`);
+                    if (output && output.trim()) {
+                        Core.logDebug('MANAGE', `脚本输出: ${output.substring(0, 500)}${output.length > 500 ? '...' : ''}`);
+                    }
+                    Core.showToast(Core.t('toast.debug.scriptExecuteSuccess'), 'success');
+                }
+                
+                Core.showToast(Core.t('toast.scenario.executeSuccess'), 'success');
                 
                 // 显示执行结果
                 if (output && output.trim()) {
@@ -611,12 +799,20 @@ export class ManagePage {
                 
             } catch (executeError) {
                 console.error('Script execution failed:', executeError);
-                Core.showToast('脚本执行失败: ' + executeError.message, 'error');
+                if (Core.isDebugMode()) {
+                    Core.logDebug('MANAGE', `脚本执行失败: ${executeError.message}`);
+                    Core.showToast(Core.t('toast.debug.scriptExecuteFailed', { error: executeError.message }), 'error');
+                }
+                Core.showToast(Core.t('toast.scenario.executeFailed', { error: executeError.message }), 'error');
             }
             
         } catch (error) {
             console.error('Execute scenario error:', error);
-            Core.showToast('执行脚本时发生错误: ' + error.message, 'error');
+            if (Core.isDebugMode()) {
+                Core.logDebug('MANAGE', `执行情景时发生错误: ${error.message}`);
+                Core.showToast(Core.t('toast.debug.executeError', { error: error.message }), 'error');
+            }
+            Core.showToast(Core.t('toast.scenario.executeError', { error: error.message }), 'error');
         }
     }
     
@@ -632,8 +828,8 @@ export class ManagePage {
     
     async deleteOperation(scenarioId, operationIndex) {
         const confirmed = await window.DialogManager.showConfirm(
-            '删除操作',
-            '确定要删除这个操作吗？此操作无法撤销。'
+            Core.t('manage.operation.deleteTitle'),
+            Core.t('manage.operation.deleteConfirm')
         );
         
         if (confirmed) {
@@ -642,12 +838,12 @@ export class ManagePage {
                 if (scenario) {
                     scenario.operations.splice(operationIndex, 1);
                     await this.scenarioManager.updateScenario(scenario);
-                    Core.showToast('操作已删除', 'success');
+                    Core.showToast(Core.t('toast.operation.deleted'), 'success');
                     this.refresh();
                 }
             } catch (error) {
                 console.error('Delete operation error:', error);
-                Core.showToast('删除失败: ' + (error.message || '未知错误'), 'error');
+                Core.showToast(Core.t('toast.operation.deleteFailed', { error: error.message || '未知错误' }), 'error');
             }
         }
     }

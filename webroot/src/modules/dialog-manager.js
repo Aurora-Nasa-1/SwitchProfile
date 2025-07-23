@@ -10,21 +10,39 @@ class DialogManager {
     }
     
     setupEventListeners() {
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug('DialogManager事件监听器设置完成', 'DIALOG');
+        }
+        
         // 确认对话框事件
         this.confirmCancel.addEventListener('click', () => {
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug('用户点击取消按钮', 'DIALOG');
+            }
             this.closeDialogWithAnimation(this.confirmDialog);
         });
     }
     
     showDialogWithAnimation(dialog) {
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug(`开始显示对话框动画: ${dialog.id}`, 'DIALOG');
+        }
+        
         dialog.showModal();
         // 触发进入动画
         setTimeout(() => {
             dialog.classList.add('showing');
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug(`对话框显示动画完成: ${dialog.id}`, 'DIALOG');
+            }
         }, 10);
     }
     
     closeDialogWithAnimation(dialog) {
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug(`开始关闭对话框动画: ${dialog.id}`, 'DIALOG');
+        }
+        
         dialog.classList.remove('showing');
         dialog.classList.add('closing');
         
@@ -32,6 +50,9 @@ class DialogManager {
         setTimeout(() => {
             dialog.close();
             dialog.classList.remove('closing');
+            if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                window.Core.logDebug(`对话框关闭动画完成: ${dialog.id}`, 'DIALOG');
+            }
         }, 200); // 与CSS动画时间一致
     }
     
@@ -42,6 +63,12 @@ class DialogManager {
      * @returns {Promise<boolean>} - 用户选择结果
      */
     showConfirm(title, content) {
+        // 检查Core是否可用以及是否为debug模式
+        if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+            window.Core.logDebug('DIALOG', `显示确认对话框: ${title}`);
+            window.Core.showToast(window.Core.t('toast.debug.showConfirmDialog'), 'info');
+        }
+        
         return new Promise((resolve) => {
             this.confirmTitle.textContent = title;
             this.confirmContent.textContent = content;
@@ -53,12 +80,18 @@ class DialogManager {
             
             // 添加新的事件监听器
             this.confirmOk.addEventListener('click', () => {
+                if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                    window.Core.logDebug('DIALOG', '用户点击确认');
+                }
                 this.closeDialogWithAnimation(this.confirmDialog);
                 resolve(true);
             });
             
             // 处理对话框关闭事件
             const handleClose = () => {
+                if (typeof window.Core !== 'undefined' && window.Core.isDebugMode && window.Core.isDebugMode()) {
+                    window.Core.logDebug('DIALOG', '对话框关闭，用户取消');
+                }
                 this.confirmDialog.removeEventListener('close', handleClose);
                 resolve(false);
             };

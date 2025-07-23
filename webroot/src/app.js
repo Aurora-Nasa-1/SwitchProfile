@@ -4,26 +4,108 @@ import { ManagePage } from './modules/manage.js';
 import { ScenarioManager } from './modules/scenario-manager.js';
 import { SettingsManager } from './modules/settings-manager.js';
 import './modules/dialog-manager.js';
+import './modules/i18n-manager.js';
 
 class App {
     constructor() {
         this.currentPage = 'home';
         this.scenarioManager = new ScenarioManager();
         this.settingsManager = new SettingsManager();
+        
+        // 设置全局变量以便Core模块访问
+        window.settingsManager = this.settingsManager;
+        
+        // 设置Core全局变量以便其他模块访问
+        window.Core = Core;
+        
         this.homePage = new HomePage(this.scenarioManager, this.settingsManager);
         this.managePage = new ManagePage(this.scenarioManager, this.settingsManager);
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug('APP', 'Application constructor completed');
+            Core.showToast(Core.t('toast.debug.applicationStarting'), 'info');
+        }
         
         this.init();
     }
     
-    init() {
-        this.setupNavigation();
-        this.setupFAB();
-        this.settingsManager.initializeUI();
-        this.loadScenarios();
-        this.showApp();
+    async init() {
+        if (Core.isDebugMode()) {
+            Core.logDebug('APP', 'Starting application initialization');
+        }
+        
+        try {
+            // 更新加载状态
+            updateLoadingIndicator('app.loading.initializing');
+            
+            // 并行初始化关键组件
+            const initPromises = [
+                // 优先初始化i18n管理器
+                window.I18n ? window.I18n.init() : Promise.resolve(),
+                // 并行初始化设置管理器UI（不依赖i18n）
+                Promise.resolve().then(() => this.settingsManager.initializeUI())
+            ];
+            
+            await Promise.all(initPromises);
+            
+            // 设置基础UI组件（不依赖数据加载）
+            this.setupNavigation();
+            this.setupFAB();
+            
+            // 监听语言变化事件
+            window.addEventListener('languageChanged', () => {
+                this.updateUI();
+            });
+            
+            // 显示应用界面（在数据加载前）
+            this.showApp();
+            
+            // 异步加载情景数据（不阻塞UI显示）
+            this.loadScenarios().then(() => {
+                if (Core.isDebugMode()) {
+                    Core.logDebug('APP', 'Scenarios loaded and UI updated');
+                }
+            }).catch(error => {
+                console.error('Failed to load scenarios:', error);
+                if (Core.isDebugMode()) {
+                    Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+                }
+            });
+            
+            if (Core.isDebugMode()) {
+                Core.logDebug('APP', 'Application initialization completed');
+            }
+            
+        } catch (error) {
+            console.error('Application initialization failed:', error);
+            if (Core.isDebugMode()) {
+                Core.logDebug('APP', `Initialization failed: ${error.message}`);
+                Core.showToast(Core.t('toast.debug.applicationStarting'), 'error');
+            }
+            // 即使初始化失败也要隐藏加载指示器并显示应用
+            hideLoadingIndicator();
+            this.showApp();
+        }
     }
     
+    updateUI() {
+        // 更新导航文本
+        if (window.I18n) {
+            window.I18n.updateDOM();
+        }
+        
+        // 重新渲染当前页面
+        this.showPage(this.currentPage);
+        
+        if (Core.isDebugMode()) {
+            Core.logDebug('APP', 'UI updated for language change');
+        }
+    }
+    
+    showPage(page) {
+        this.navigateTo(page);
+    }
+
     setupNavigation() {
         const navItems = document.querySelectorAll('.nav-item');
         
@@ -46,6 +128,11 @@ class App {
     }
     
     navigateTo(page) {
+        if (Core.isDebugMode()) {
+            Core.logDebug('APP', `Navigating to page: ${page}`);
+            Core.showToast(`[DEBUG] Switching to ${page} page`, 'info');
+        }
+        
         // 更新导航状态
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.page === page);
@@ -58,33 +145,86 @@ class App {
         
         // 更新标题和FAB
         const titles = {
-            home: '情景模式',
-            manage: '情景管理'
+            home: Core.t('nav.home'),
+            manage: Core.t('nav.manage')
         };
         
-        document.getElementById('page-title').textContent = titles[page] || '情景模式';
+        document.getElementById('page-title').textContent = titles[page] || Core.t('nav.home');
         
         const fab = document.getElementById('fab');
         fab.style.display = page === 'manage' ? 'flex' : 'none';
         
         this.currentPage = page;
         
-        // 刷新页面内容
+        // 重新加载情景并刷新页面内容
         if (page === 'home') {
-            this.homePage.refresh();
+            this.loadScenarios().then(() => {
+                this.homePage.refresh();
+                if (Core.isDebugMode()) {
+                    Core.logDebug('APP', 'Home page refresh completed');
+                }
+            });
         } else if (page === 'manage') {
-            this.managePage.refresh();
+            this.loadScenarios().then(() => {
+                this.managePage.refresh();
+                if (Core.isDebugMode()) {
+                    Core.logDebug('APP', 'Manage page refresh completed');
+                }
+            });
         }
     }
     
     async loadScenarios() {
+        if (Core.isDebugMode()) {
+            Core.logDebug('APP', 'Starting to load scenario data');
+        }
+        
         try {
             await this.scenarioManager.loadScenarios();
+            
+            if (Core.isDebugMode()) {
+                const scenarioCount = this.scenarioManager.getScenarios().length;
+                Core.logDebug('APP', `Scenarios loaded successfully, total: ${scenarioCount}`);
+                Core.showToast(`[DEBUG] Loaded ${scenarioCount} scenarios`, 'success');
+            }
+            
             this.homePage.refresh();
             this.managePage.refresh();
         } catch (error) {
             console.error('Failed to load scenarios:', error);
-            Core.showToast('加载情景失败', 'error');
+            if (Core.isDebugMode()) {
+                Core.logDebug('APP', `Failed to load scenarios: ${error.message}`);
+                Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+            }
+            Core.showError(error.message, Core.t('app.loading'));
+        }
+    }
+    
+    async loadScenariosAsync() {
+        try {
+            // 更新加载状态
+            updateLoadingIndicator('app.loading.scenarios');
+            
+            // 加载情景数据
+            await this.scenarioManager.loadScenarios();
+            
+            // 更新UI
+            this.updateUI();
+            
+            // 延迟隐藏加载指示器，确保UI已渲染
+            setTimeout(() => {
+                hideLoadingIndicator();
+            }, 500);
+            
+            Core.logDebug('Scenarios loaded successfully');
+            
+        } catch (error) {
+            Core.logDebug(`Failed to load scenarios: ${error.message}`);
+            hideLoadingIndicator();
+            
+            if (Core.isDebugMode()) {
+                Core.showToast(Core.t('toast.debug.scenarioLoadingFailed', { error: error.message }), 'error');
+            }
         }
     }
     
@@ -95,9 +235,49 @@ class App {
     }
 }
 
+// 更新加载指示器文本
+function updateLoadingIndicator(message = 'app.loading.initializing') {
+    const loadingText = document.querySelector('#initial-loading .loading-text');
+    if (loadingText && window.I18n) {
+        loadingText.textContent = window.I18n.t(message);
+    }
+}
+
+// 隐藏加载指示器
+function hideLoadingIndicator() {
+    const overlay = document.getElementById('initial-loading');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.3s ease';
+        setTimeout(() => {
+            if (overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
+            document.body.classList.add('app-loaded');
+        }, 300);
+    }
+}
+
 // 应用启动
-document.addEventListener('DOMContentLoaded', () => {
-    new App();
+document.addEventListener('DOMContentLoaded', async () => {
+    updateLoadingIndicator('app.loading.initializing');
+    
+    try {
+        // 创建App实例并等待初始化完成
+        const app = new App();
+        
+        // 延迟隐藏加载指示器，确保UI已渲染
+        setTimeout(() => {
+            hideLoadingIndicator();
+        }, 500);
+        
+    } catch (error) {
+        console.error('Application initialization failed:', error);
+        hideLoadingIndicator();
+        if (Core.isDebugMode()) {
+            Core.showToast(Core.t('toast.debug.applicationStartingFailed', { error: error.message }), 'error');
+        }
+    }
 });
 
 // 导出给全局使用

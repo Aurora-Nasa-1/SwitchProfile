@@ -7,25 +7,29 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no"
     />
     <meta name="theme-color" content="#6750A4" />
-    <meta name="description" content="一个用于管理和切换系统配置文件的 Magisk 模块" />
+    <meta
+      name="description"
+      content="一个用于管理和切换系统配置文件的 Magisk 模块"
+    />
     <meta name="application-name" content="Switch Profile" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Switch Profile" />
-    
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-title" content="Switch Profile" />
+
     <!-- 图标和快捷方式支持 -->
     <link rel="icon" type="image" href="src/assets/icon.png" />
     <link rel="apple-touch-icon" href="src/assets/icon.png" />
     <link rel="shortcut icon" href="src/assets/icon.png" />
-    <link rel="manifest" href="manifest.json" />
-    
+
     <title>SwitchProfile</title>
 
-    <!-- Material Design 3 CSS -->
-    <link rel="stylesheet" href="src/assets/css/md3.css" />
-    <link rel="stylesheet" href="src/assets/css/base.css" />
-
-    <!-- Preload fonts -->
+    <!-- Preload critical resources -->
+    <link rel="preload" href="src/assets/css/md3.css" as="style" />
+    <link rel="preload" href="src/assets/css/base.css" as="style" />
+    <link rel="preload" href="src/core.js" as="script" />
+    <link rel="preload" href="src/app.js" as="script" />
+    
+    <!-- Preload fonts with font-display: swap -->
     <link
       rel="preload"
       href="src/assets/fonts/google.woff2"
@@ -33,8 +37,88 @@
       type="font/woff2"
       crossorigin
     />
+    
+    <!-- Material Design 3 CSS -->
+    <link rel="stylesheet" href="src/assets/css/md3.css" />
+    <link rel="stylesheet" href="src/assets/css/base.css" />
+        
+    <!-- Optimize font loading and initial loading state -->
+     <style>
+       @font-face {
+         font-family: 'Google Sans';
+         src: url('src/assets/fonts/google.woff2') format('woff2');
+         font-display: swap;
+         font-weight: 100 900;
+       }
+       
+       /* Initial loading state */
+       #app {
+         opacity: 0;
+         transition: opacity 0.3s ease;
+       }
+       
+       body.app-loaded #app {
+         opacity: 1;
+       }
+       
+       /* Prevent FOUC (Flash of Unstyled Content) */
+       body {
+         visibility: hidden;
+       }
+       
+       body.app-loaded {
+         visibility: visible;
+       }
+       
+       /* Loading indicator styles */
+       .loading-overlay {
+         position: fixed;
+         top: 0;
+         left: 0;
+         width: 100%;
+         height: 100%;
+         background: rgba(0, 0, 0, 0.8);
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         z-index: 9999;
+         color: white;
+       }
+       
+       .loading-content {
+         text-align: center;
+       }
+       
+       .loading-spinner {
+         width: 40px;
+         height: 40px;
+         border: 3px solid rgba(255, 255, 255, 0.3);
+         border-top: 3px solid white;
+         border-radius: 50%;
+         animation: spin 1s linear infinite;
+         margin: 0 auto 16px;
+       }
+       
+       @keyframes spin {
+         0% { transform: rotate(0deg); }
+         100% { transform: rotate(360deg); }
+       }
+       
+       .loading-text {
+         font-size: 16px;
+         opacity: 0.9;
+       }
+     </style>
   </head>
   <body>
+    <!-- Initial Loading Indicator -->
+    <div id="initial-loading" class="loading-overlay">
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载...</div>
+      </div>
+    </div>
+    
     <!-- Toast容器 -->
     <div id="toast-container"></div>
 
@@ -42,44 +126,85 @@
     <div id="app">
       <!-- 顶栏 -->
       <header>
-        <h1 id="page-title">情景模式</h1>
-        <button id="settings-btn" class="settings-btn">
+        <h1 id="page-title" data-i18n="nav.scenarios">情景模式</h1>
+        <button id="settings-btn" class="settings-btn" data-i18n-title="app.settings">
           <span class="material-symbols-rounded">settings</span>
         </button>
       </header>
 
-    <!-- 设置对话框 -->
-    <dialog id="settings-dialog">
-      <h2>设置</h2>
-      <div class="settings-content">
-        <div class="setting-item">
+      <!-- 设置对话框 -->
+      <dialog id="settings-dialog">
+        <h2 data-i18n="app.settings">设置</h2>
+        <div class="settings-content">
+          <div class="setting-item">
             <fieldset class="switches">
-          <label>
-            <span>应用情景无需确认</span>
-            <input type="checkbox" id="no-confirm-setting" name="no-confirm-setting">
-          </label>
-          </fieldset>
+              <label>
+                <span data-i18n="settings.noConfirm">应用情景无需确认</span>
+                <input
+                  type="checkbox"
+                  id="no-confirm-setting"
+                  name="no-confirm-setting"
+                />
+              </label>
+              <label>
+                <span data-i18n="settings.nativeToast">使用原生Toast通知</span>
+                <input
+                  type="checkbox"
+                  id="native-toast-setting"
+                  name="native-toast-setting"
+                />
+              </label>
+              <label>
+                <span data-i18n="settings.debugMode">Debug模式</span>
+                <input
+                  type="checkbox"
+                  id="debug-mode-setting"
+                  name="debug-mode-setting"
+                />
+              </label>
+            </fieldset>
+          </div>
+          <div class="setting-item">
+            <label class="setting-label">
+              <span data-i18n="settings.themeHue">主题色调</span>
+              <div class="hue-slider-container">
+                <input
+                  type="range"
+                  id="hue-slider"
+                  class="hue-slider"
+                  min="0"
+                  max="360"
+                  value="300"
+                />
+                <span id="hue-value">300</span>
+              </div>
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>
+              <span data-i18n="settings.language">语言</span>
+              <select id="language-setting" name="language-setting">
+                <option value="zh-CN">中文</option>
+                <option value="en-US">English</option>
+              </select>
+            </label>
+          </div>
+          <div class="setting-item">
+            <label>
+              <span data-i18n="settings.exportPath">导出路径</span>
+              <input
+                type="text"
+                id="export-path-setting"
+                placeholder="/sdcard/Download/"
+                data-i18n-placeholder="settings.exportPathPlaceholder"
+              />
+            </label>
+          </div>
         </div>
-        <div class="setting-item">
-          <label class="setting-label">
-            <span>主题色调</span>
-            <div class="hue-slider-container">
-              <input type="range" id="hue-slider" class="hue-slider" min="0" max="360" value="300">
-              <span id="hue-value">300</span>
-            </div>
-          </label>
-        </div>
-        <div class="setting-item">
-          <label>
-            <span>导出路径</span>
-            <input type="text" id="export-path-setting" placeholder="/sdcard/Download/" />
-          </label>
-        </div>
-      </div>
-      <fieldset>
-        <button type="button" id="close-settings">关闭</button>
-      </fieldset>
-    </dialog>
+        <fieldset>
+          <button type="button" id="close-settings" data-i18n="app.close">关闭</button>
+        </fieldset>
+      </dialog>
 
       <!-- 首页 - 情景列表 -->
       <main id="home-page" class="page active">
@@ -94,15 +219,15 @@
           <div class="manage-actions">
             <button id="import-scenario-btn" class="tonal">
               <span class="material-symbols-rounded">upload</span>
-              导入情景
+              <span data-i18n="manage.importScenario">导入情景</span>
             </button>
             <button id="export-all-btn" class="tonal">
               <span class="material-symbols-rounded">download</span>
-              导出全部
+              <span data-i18n="manage.exportAll">导出全部</span>
             </button>
           </div>
         </div>
-        <div id="manage-list">
+        <div id="manage-list" class="cards">
           <!-- 管理列表将在这里动态生成 -->
         </div>
       </main>
@@ -117,11 +242,11 @@
         <div class="nav-content">
           <a href="#home" class="nav-item active" data-page="home">
             <span class="material-symbols-rounded">home</span>
-            <span>首页</span>
+            <span data-i18n="nav.home">首页</span>
           </a>
           <a href="#manage" class="nav-item" data-page="manage">
             <span class="material-symbols-rounded">settings</span>
-            <span>管理</span>
+            <span data-i18n="nav.manage">管理</span>
           </a>
         </div>
       </nav>
@@ -129,18 +254,18 @@
 
     <!-- 编辑对话框 -->
     <dialog id="edit-dialog">
-      <h2 id="dialog-title">新建情景</h2>
+      <h2 id="dialog-title" data-i18n="manage.newScenario">新建情景</h2>
       <form id="scenario-form">
         <label>
-          <span>情景名称</span>
-          <input type="text" id="scenario-name" name="scenario-name" required />
+          <span data-i18n="manage.scenarioName">情景名称</span>
+          <input type="text" id="scenario-name" name="scenario-name" required data-i18n-placeholder="manage.scenarioNamePlaceholder" />
         </label>
 
         <div class="settings-section">
-          <h4>设置</h4>
+          <h4 data-i18n="manage.settings">设置</h4>
           <fieldset class="switches">
             <label>
-              <span>兼容模式</span>
+              <span data-i18n="manage.compatibilityMode">兼容模式</span>
               <input
                 type="checkbox"
                 id="compatibility-mode"
@@ -148,111 +273,142 @@
               />
             </label>
             <label>
-              <span>自动重启</span>
+              <span data-i18n="manage.autoReboot">自动重启</span>
               <input type="checkbox" id="auto-reboot" name="auto-reboot" />
             </label>
           </fieldset>
         </div>
 
         <div class="settings-section">
-          <h4>操作列表</h4>
+          <h4 data-i18n="manage.operationList">操作列表</h4>
           <div id="operations-list">
             <!-- 操作项将在这里动态生成 -->
           </div>
           <fieldset>
             <button type="button" id="add-operation" class="tonal">
               <span class="material-symbols-rounded">add</span>
-              添加操作
+              <span data-i18n="manage.addOperation">添加操作</span>
             </button>
           </fieldset>
         </div>
-
-        <fieldset>
-          <button type="button" id="cancel-edit">取消</button>
-          <button type="submit" class="filled">保存</button>
-        </fieldset>
       </form>
+      <fieldset>
+        <button type="button" id="cancel-edit" data-i18n="app.cancel">取消</button>
+        <button type="submit" class="filled" data-i18n="app.save">保存</button>
+      </fieldset>
     </dialog>
 
     <!-- 操作类型选择对话框 -->
     <dialog id="operation-dialog">
-      <h2>选择操作</h2>
+      <h2 data-i18n="manage.selectOperation">选择操作</h2>
       <div class="operation-types">
         <div class="operation-type-card" data-type="install_module">
-          <h3>安装模块</h3>
+          <h3 data-i18n="manage.installModule">安装模块</h3>
         </div>
         <div class="operation-type-card" data-type="delete_module">
-          <h3>删除模块</h3>
+          <h3 data-i18n="manage.deleteModule">删除模块</h3>
         </div>
         <div class="operation-type-card" data-type="flash_boot">
-          <h3>刷入Boot</h3>
+          <h3 data-i18n="manage.flashBoot">刷入Boot</h3>
         </div>
         <div class="operation-type-card" data-type="custom_script">
-          <h3>自定义脚本</h3>
+          <h3 data-i18n="manage.customScript">自定义脚本</h3>
         </div>
       </div>
       <fieldset>
-        <button type="button" id="cancel-operation">取消</button>
+        <button type="button" id="cancel-operation" data-i18n="app.cancel">取消</button>
       </fieldset>
     </dialog>
 
     <!-- 操作编辑对话框 -->
     <dialog id="operation-edit-dialog">
-      <h2 id="operation-edit-title">编辑操作</h2>
+      <h2 id="operation-edit-title" data-i18n="manage.editOperation">编辑操作</h2>
       <form id="operation-form">
         <div id="operation-fields">
           <!-- 操作字段将根据类型动态生成 -->
         </div>
-        <fieldset>
-          <button type="button" id="cancel-operation-edit">取消</button>
-          <button type="submit" class="filled">确定</button>
-        </fieldset>
       </form>
+      <fieldset>
+        <button type="button" id="cancel-operation-edit" data-i18n="app.cancel">取消</button>
+        <button type="submit" class="filled" data-i18n="app.confirm">确定</button>
+      </fieldset>
     </dialog>
 
     <!-- 确认对话框 -->
     <dialog id="confirm-dialog">
-      <h2 id="confirm-title">确认操作</h2>
+      <h2 id="confirm-title" data-i18n="app.confirmOperation">确认操作</h2>
       <div id="confirm-content">
         <!-- 确认内容将在这里动态生成 -->
       </div>
       <fieldset>
-        <button type="button" id="confirm-cancel">取消</button>
-        <button type="button" id="confirm-ok" class="filled">确定</button>
+        <button type="button" id="confirm-cancel" data-i18n="app.cancel">取消</button>
+        <button type="button" id="confirm-ok" class="filled" data-i18n="app.confirm">确定</button>
       </fieldset>
     </dialog>
 
     <!-- 导入情景对话框 -->
     <dialog id="import-dialog">
-      <h2>导入情景</h2>
+      <h2 data-i18n="manage.importScenario">导入情景</h2>
       <form id="import-form">
         <label>
-          <span>情景文件路径</span>
-          <input type="text" id="import-path" name="import-path" placeholder="/path/to/scenario.sh" required />
+          <span data-i18n="manage.scenarioFilePath">情景文件路径</span>
+          <input
+            type="text"
+            id="import-path"
+            name="import-path"
+            placeholder="/path/to/scenario.sh"
+            data-i18n-placeholder="manage.scenarioFilePathPlaceholder"
+            required
+          />
         </label>
-        <fieldset>
-          <button type="button" id="cancel-import">取消</button>
-          <button type="submit" class="filled">导入</button>
-        </fieldset>
       </form>
+      <fieldset>
+        <button type="button" id="cancel-import" data-i18n="app.cancel">取消</button>
+        <button type="submit" class="filled" data-i18n="manage.import">导入</button>
+      </fieldset>
     </dialog>
 
     <!-- 导出路径对话框 -->
     <dialog id="export-dialog">
-      <h2>导出情景</h2>
+      <h2 data-i18n="manage.exportScenario">导出情景</h2>
       <form id="export-form">
         <label>
-          <span>导出路径</span>
-          <input type="text" id="export-path" name="export-path" placeholder="/data/adb/switchprofile/export/" required />
+          <span data-i18n="manage.exportPath">导出路径</span>
+          <input
+            type="text"
+            id="export-path"
+            name="export-path"
+            placeholder="/data/adb/switchprofile/export/"
+            data-i18n-placeholder="manage.exportPathPlaceholder"
+            required
+          />
         </label>
-        <fieldset>
-          <button type="button" id="cancel-export">取消</button>
-          <button type="submit" class="filled">导出</button>
-        </fieldset>
       </form>
+      <fieldset>
+        <button type="button" id="cancel-export" data-i18n="app.cancel">取消</button>
+        <button type="submit" class="filled" data-i18n="manage.export">导出</button>
+      </fieldset>
     </dialog>
 
     <!-- 应用脚本 -->
-    <script type="module" src="src/app.js"></script>
+    <script type="module" src="src/core.js" defer></script>
+    <script type="module" src="src/app.js" defer></script>
+    
+    <!-- Initialize app after DOM is ready -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Hide initial loading indicator after a short delay to ensure smooth transition
+        setTimeout(() => {
+          const initialLoading = document.getElementById('initial-loading');
+          if (initialLoading) {
+            initialLoading.style.opacity = '0';
+            setTimeout(() => {
+              initialLoading.remove();
+              document.body.classList.add('app-loaded');
+            }, 300);
+          }
+        }, 100);
+      });
+    </script>
   </body>
 </html>
