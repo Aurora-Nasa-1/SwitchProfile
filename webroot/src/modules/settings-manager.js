@@ -156,12 +156,7 @@ export class SettingsManager {
         const hueValue = document.getElementById('hue-value');
         const exportPathInput = document.getElementById('export-path-setting');
 
-        // 设置按钮点击事件
-        if (settingsBtn && settingsDialog) {
-            settingsBtn.addEventListener('click', () => {
-                this.openSettings();
-            });
-        }
+        // 注意：设置按钮的事件监听器已在app.js中绑定，这里不再重复绑定
 
         // 关闭按钮点击事件
         if (closeBtn && settingsDialog) {

@@ -840,7 +840,7 @@ export class ScenarioManager {
             return `log_error "Boot image path not specified"\nexit 1\n`;
         }
         
-        return `flash_boot "${operation.path}" "${operation.anykernel ? 'true' : 'false'}" || exit 1\n`;
+        return `flash_boot "${operation.path}" || exit 1\n`;
     }
     
     generateCustomScript(operation) {

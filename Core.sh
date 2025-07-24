@@ -42,7 +42,7 @@ rm -rf "/data/adb/modules/$1"
 }
 flash_boot() {
     local img_path="$1"
-    if [[ "$2" == "true" ]]; then
+    if [[ "$img_path" == *".zip" ]]; then
         if [[ ! -f "$img_path" ]]; then
             log_error "Not found AnyKernel3 zip $img_path"
             return 1

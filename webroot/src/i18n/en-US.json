@@ -83,7 +83,7 @@
         "imagePath": "Image Path",
         "imagePathPlaceholder": "Enter image file path (e.g: /sdcard/boot.img)",
         "anykernel": "AnyKernel3 Format",
-        "anykernelDesc": "Flash using AnyKernel3 format",
+        "anykernelDesc": "Supports AnyKernel3 format",
         "scriptContent": "Script Content"
       }
     },

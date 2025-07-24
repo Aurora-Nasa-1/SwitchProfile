@@ -93,18 +93,6 @@ export class ManagePage {
             this.showDialogWithAnimation(this.operationDialog);
         });
         
-        // 导入情景按钮
-        document.getElementById('import-scenario-btn').addEventListener('click', () => {
-            this.showDialogWithAnimation(this.importDialog);
-        });
-        
-        // 导出全部按钮
-        document.getElementById('export-all-btn').addEventListener('click', () => {
-            const exportPath = this.settingsManager.getSetting('exportPath');
-            document.getElementById('export-path').value = exportPath;
-            this.showDialogWithAnimation(this.exportDialog);
-        });
-        
         // 导入对话框事件
         document.getElementById('cancel-import').addEventListener('click', () => {
             this.closeDialogWithAnimation(this.importDialog);
@@ -342,31 +330,40 @@ export class ManagePage {
             </div>
         `).join('');
         
-        // 绑定对话框内的操作事件
-        container.querySelectorAll('.edit-dialog-operation').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-                this.currentOperationIndex = index;
-                const operation = operations[index];
-                this.showOperationEditDialog(operation.type, operation);
-            });
-        });
+        // 使用事件委托来避免重复绑定
+        // 移除旧的事件监听器
+        container.removeEventListener('click', this.boundOperationClick);
         
-        container.querySelectorAll('.delete-dialog-operation').forEach(button => {
-            button.addEventListener('click', (e) => {
-                const index = parseInt(e.target.dataset.index);
-                operations.splice(index, 1);
+        // 绑定新的事件监听器
+        if (!this.boundOperationClick) {
+            this.boundOperationClick = (e) => {
+                const editBtn = e.target.closest('.edit-dialog-operation');
+                const deleteBtn = e.target.closest('.delete-dialog-operation');
                 
-                // 更新相应的操作列表
-                if (this.currentScenario) {
-                    this.currentScenario.operations = operations;
-                } else {
-                    this.tempOperations = operations;
+                if (editBtn) {
+                    const index = parseInt(editBtn.dataset.index);
+                    this.currentOperationIndex = index;
+                    const currentOperations = this.currentScenario ? this.currentScenario.operations : this.tempOperations;
+                    const operation = currentOperations[index];
+                    this.showOperationEditDialog(operation.type, operation);
+                } else if (deleteBtn) {
+                    const index = parseInt(deleteBtn.dataset.index);
+                    const currentOperations = this.currentScenario ? this.currentScenario.operations : this.tempOperations;
+                    currentOperations.splice(index, 1);
+                    
+                    // 更新相应的操作列表
+                    if (this.currentScenario) {
+                        this.currentScenario.operations = currentOperations;
+                    } else {
+                        this.tempOperations = currentOperations;
+                    }
+                    
+                    this.renderOperationsList(currentOperations);
                 }
-                
-                this.renderOperationsList(operations);
-            });
-        });
+            };
+        }
+        
+        container.addEventListener('click', this.boundOperationClick);
     }
     
     showOperationEditDialog(type, operation = null) {
@@ -421,13 +418,7 @@ export class ManagePage {
                         <span>${Core.t('manage.operation.fields.imagePath')}</span>
                         <input type="text" name="path" value="${operation?.path || ''}" required placeholder="${Core.t('manage.operation.fields.imagePathPlaceholder')}">
                     </label>
-                    <fieldset class="switches">
-                        <label>
-                            <span>${Core.t('manage.operation.fields.anykernel')}</span>
-                            <p>${Core.t('manage.operation.fields.anykernelDesc')}</p>
-                            <input type="checkbox" name="anykernel" ${operation?.anykernel ? 'checked' : ''}>
-                        </label>
-                    </fieldset>
+                    <p>${Core.t('manage.operation.fields.anykernelDesc')}</p>
                 `;
             case 'custom_script':
                 return `
@@ -551,7 +542,7 @@ export class ManagePage {
                 break;
             case 'flash_boot':
                 operation.path = formData.get('path');
-                operation.anykernel = formData.has('anykernel');
+                operation.anykernel = true; // 自动设置为true，因为现在脚本会自动判断
                 if (!operation.path) {
                     if (Core.isDebugMode()) {
                         Core.logDebug('MANAGE', 'Flash boot operation: path is empty');

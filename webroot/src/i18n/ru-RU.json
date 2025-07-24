@@ -83,7 +83,7 @@
         "imagePath": "Путь к образу",
         "imagePathPlaceholder": "Введите путь к файлу образа (например: /sdcard/boot.img)",
         "anykernel": "Формат AnyKernel3",
-        "anykernelDesc": "Прошить в формате AnyKernel3",
+        "anykernelDesc": "Поддерживает формат AnyKernel3",
         "scriptContent": "Содержимое скрипта"
       }
     },

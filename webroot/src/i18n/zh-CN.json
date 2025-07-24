@@ -83,7 +83,7 @@
         "imagePath": "镜像路径",
         "imagePathPlaceholder": "请输入镜像文件路径 (如: /sdcard/boot.img)",
         "anykernel": "AnyKernel3格式",
-        "anykernelDesc": "使用AnyKernel3格式刷入",
+        "anykernelDesc": "支持AnyKernel3格式刷入",
         "scriptContent": "脚本内容"
       }
     },
