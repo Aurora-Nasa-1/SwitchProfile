@@ -74,9 +74,9 @@ export class HomePage {
     
     getOperationTypeName(type) {
         const names = {
-            install_module: `${Core.t('manage.operation.types.install_module')},`,
-            delete_module: `${Core.t('manage.operation.types.delete_module')},`,
-            flash_boot: `${Core.t('manage.operation.types.flash_boot')},`,
+            install_module: `${Core.t('manage.operation.types.install_module')}`,
+            delete_module: `${Core.t('manage.operation.types.delete_module')}`,
+            flash_boot: `${Core.t('manage.operation.types.flash_boot')}`,
             custom_script: `${Core.t('manage.operation.types.custom_script')}`
         };
         return names[type] || type;
