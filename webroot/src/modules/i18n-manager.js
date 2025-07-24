@@ -36,7 +36,16 @@ class I18nManager {
                 // Ignore settings parsing errors
             }
             
-            // Priority: savedLanguage > settingsLanguage > default
+            // Detect browser language if no saved preference
+            let browserLanguage = null;
+            if (!savedLanguage && !settingsLanguage) {
+                browserLanguage = this.detectBrowserLanguage();
+                if (window.Core && Core.isDebugMode()) {
+                    Core.logDebug('I18N', `Detected browser language: ${browserLanguage}`);
+                }
+            }
+            
+            // Priority: savedLanguage > settingsLanguage > browserLanguage > default
             let targetLanguage = this.currentLanguage;
             if (savedLanguage && this.supportedLanguages[savedLanguage]) {
                 targetLanguage = savedLanguage;
@@ -44,6 +53,13 @@ class I18nManager {
                 targetLanguage = settingsLanguage;
                 // Sync to localStorage
                 localStorage.setItem('app_language', settingsLanguage);
+            } else if (browserLanguage && this.supportedLanguages[browserLanguage]) {
+                targetLanguage = browserLanguage;
+                // Save detected language to localStorage
+                localStorage.setItem('app_language', browserLanguage);
+                if (window.Core && Core.isDebugMode()) {
+                    Core.logDebug('I18N', `Auto-set language to: ${browserLanguage}`);
+                }
             }
             
             this.currentLanguage = targetLanguage;
@@ -339,6 +355,32 @@ class I18nManager {
      */
     getLanguageDisplayName(language) {
         return this.supportedLanguages[language] || language;
+    }
+
+    /**
+     * Detect browser language
+     * @returns {string|null} Detected language code or null if not supported
+     */
+    detectBrowserLanguage() {
+        // Get browser languages in order of preference
+        const browserLanguages = navigator.languages || [navigator.language || navigator.userLanguage];
+        
+        for (const lang of browserLanguages) {
+            // Check exact match first
+            if (this.supportedLanguages[lang]) {
+                return lang;
+            }
+            
+            // Check language code without region (e.g., 'en' from 'en-GB')
+            const langCode = lang.split('-')[0];
+            for (const supportedLang of Object.keys(this.supportedLanguages)) {
+                if (supportedLang.startsWith(langCode + '-')) {
+                    return supportedLang;
+                }
+            }
+        }
+        
+        return null;
     }
 
     /**

@@ -114,7 +114,16 @@ export class SettingsManager {
         const exportPathInput = document.getElementById('export-path-setting');
         
         if (languageSelect) {
-            languageSelect.value = this.settings.language;
+            // 同步i18n管理器的当前语言
+            if (window.I18n) {
+                const currentLanguage = window.I18n.getCurrentLanguage();
+                if (currentLanguage !== this.settings.language) {
+                    this.setSetting('language', currentLanguage);
+                }
+                languageSelect.value = currentLanguage;
+            } else {
+                languageSelect.value = this.settings.language;
+            }
         }
         
         if (noConfirmCheckbox) {

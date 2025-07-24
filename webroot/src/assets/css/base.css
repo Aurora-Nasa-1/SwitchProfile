@@ -775,6 +775,18 @@ body.mmrl-webui-x {
 .setting-label > span {
   font-weight: 500;
 }
+
+/* 带图标的设置标签样式 */
+.setting-label-with-icon {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  font-weight: 500;
+}
+
+.setting-label-with-icon .material-symbols-rounded {
+  font-size: 1.25rem;
+}
 /* 色调滑动条样式 */
 .hue-slider-container {
   display: flex;
