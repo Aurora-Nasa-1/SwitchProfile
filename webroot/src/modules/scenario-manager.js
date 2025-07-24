@@ -117,7 +117,7 @@ export class ScenarioManager {
         Core.execCommand(`cat "${scriptPath}" 2>/dev/null`, (output, isSuccess, details) => {
             try {
                 // 使用新的错误检测机制，优先使用ksu返回的成功状态
-                if (isSuccess && output && !output.includes('ERROR') && output.trim()) {
+                if (isSuccess && output && output.trim()) {
                     const lines = output.split('\n').filter(line => line !== undefined);
                     const scriptId = this.extractScriptId(scriptPath);
                     
@@ -878,7 +878,8 @@ export class ScenarioManager {
         return new Promise((resolve, reject) => {
             Core.execCommand(`sh "${scriptPath}"`, (output, isSuccess, details) => {
                 // 使用新的错误检测机制，优先使用ksu返回的errno
-                const hasError = !isSuccess || (output && output.includes('ERROR'));
+                // 只有当ksu返回非零退出码时才认为是真正的错误，忽略日志中的ERROR信息
+                const hasError = !isSuccess;
                 
                 if (hasError) {
                     console.error('Failed to execute scenario script:', output);
