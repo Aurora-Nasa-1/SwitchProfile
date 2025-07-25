@@ -47,7 +47,7 @@ export class HomePage {
     
     createScenarioCard(scenario) {
         const operationsCount = scenario.operations.length;
-        const operationsText = operationsCount > 0 ? Core.t('messages.common.operationsCount', { count: operationsCount }) : Core.t('manage.operation.none');
+        const operationsText = operationsCount > 0 ? Core.t('app.scenario.operationsCount', { count: operationsCount }) : Core.t('manage.messages.common.noOperations');
         
         return `
             <div class="scenario-card" data-id="${scenario.id}">

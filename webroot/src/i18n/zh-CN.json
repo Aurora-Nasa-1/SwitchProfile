@@ -40,7 +40,6 @@
       "description": "点击右下角按钮创建第一个情景"
     },
     "scenario": {
-      "operations": "个操作",
       "operationsCount": "{{count}} 个操作",
       "unknownName": "未知情景"
     }
@@ -68,7 +67,7 @@
       "confirmContent": "此操作将执行以下内容：\n{{operations}}\n\n 执行完成后设备将自动重启"
     },
     "operation": {
-            "list": "操作列表",
+      "list": "操作列表",
       "select": "选择操作",
       "none": "暂无操作，点击下方按钮添加",
       "types": {

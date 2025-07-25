@@ -40,7 +40,6 @@
       "description": "Click the button in the bottom right corner to create your first scenario"
     },
     "scenario": {
-      "operations": "operations",
       "operationsCount": "{{count}} operations",
       "unknownName": "Unknown scenario"
     }
