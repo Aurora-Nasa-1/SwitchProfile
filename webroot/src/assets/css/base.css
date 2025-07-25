@@ -29,7 +29,6 @@ body {
   overflow-x: hidden;
   font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
-  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -248,7 +247,7 @@ header h1 {
 /* 对话框样式 */
 dialog {
   max-width: calc(100vw - 3rem);
-  width: 400px;
+  width: 80%;
   margin: 1rem auto;
   padding: var(--spacing-l);
   border: none;
